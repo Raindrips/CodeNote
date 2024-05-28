@@ -11,6 +11,7 @@ export class JsonConvert {
             if (err) {
                 console.log('write error ' + err)
             }
+            console.log(path);
         })
     }
     jsonToObject(text: string) {
@@ -37,12 +38,11 @@ export class JsonConvert {
 
     public filterJSON(text: string) {
         let filter = '';
-
         let obj = JSON.parse(text)
         let keyArray = Object.keys(obj)
         for (const key of keyArray) {
             const value = this.filterString(obj[key])
-            filter += `"${key}":"${value}"\n`
+            filter += `"${key}":"${value}",\n`
         }
         return filter;
     }
@@ -55,7 +55,6 @@ export class JsonConvert {
         }
         this.getArgs()
         let buffer = this.readFile(path)
-
         let text = this.filterJSON(buffer.toString());
         this.saveFile(text);
     }
