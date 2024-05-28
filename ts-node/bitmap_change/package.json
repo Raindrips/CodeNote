@@ -1,0 +1,35 @@
+{
+    "name": "bitmap_font",
+    "target": "es6",
+    "module": "commonjs",
+    "version": "1.0.0",
+    "outDir": "dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "description": "",
+    "main": "index.ts",
+    "scripts": {
+        "test": "ts-node src/index.ts",
+        "dev": "nodemon --exec ts-node src/index.ts",
+        "build": "tsc"
+    },
+    "author": "",
+    "license": "ISC",
+    "compilerOptions": {
+        "include": [
+            "src/**/*"
+        ],
+        "exclude": [
+            "node_modules",
+            "dist"
+        ]
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.0",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.4.5"
+    },
+    "dependencies": {
+        "bmfont2json": "^0.1.9"
+    }
+}
