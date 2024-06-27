@@ -17,10 +17,26 @@ function Call(fn: Function) {
     fn('call data');
 }
 
-
-function main() {
-    let data = new Data();
-    data.send();
+function getThis(this: unknown): unknown {
+    return this;
 }
 
-main();
+
+function main() {
+   let obj={a:1,b:'hello'};
+   let fn=getThis.bind(obj);
+   let data=fn();
+   console.log(data)
+
+}
+
+function myFunction(this:unknown){
+    console.log(this);
+}
+
+let fn:Function|null=null;
+let obj={a:1,b:'hello'};
+
+
+fn=myFunction.bind(obj);
+fn();
