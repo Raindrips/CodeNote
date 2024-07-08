@@ -1,5 +1,5 @@
-import { exec } from 'child_process';
-import { promises as fs, readFileSync, readFile } from 'fs';
+import { exec } from "child_process";
+import { promises as fs, readFileSync, readFile } from "fs";
 
 function execCmd(command: string) {
     console.log(command);
@@ -17,17 +17,25 @@ function execCmd(command: string) {
     });
 }
 
-const CommandPath = "E:/ffmpeg/bin/ffmpeg";
-const InputDir = "C:/Users/admin/Downloads/109";
+const CommandPath = "E:/bin/ffmpeg/bin/ffmpeg";
+const InputDir = "E:/1";
 const OutputDir = "./out";
+const filePath = "./110.txt";
 
-function cutAudios(inputFile: string, outFile: string, startTime: string, endTime: string) {
-    execCmd(`${CommandPath} -i ${InputDir}/${inputFile} -ss ${startTime} -to ${endTime} -c copy ${OutputDir}/${outFile} -loglevel quiet`);
+function cutAudios(
+    inputFile: string,
+    outFile: string,
+    startTime: string,
+    endTime: string
+) {
+    execCmd(
+        `${CommandPath} -i ${InputDir}/${inputFile} -ss ${startTime} -to ${endTime} -c copy ${OutputDir}/${outFile} -loglevel quiet`
+    );
 }
 
 async function readFileAsync(path: string): Promise<string> {
     try {
-        const data = await fs.readFile(path, 'utf8');
+        const data = await fs.readFile(path, "utf8");
         return data;
     } catch (error) {
         return "";
@@ -44,16 +52,13 @@ function createDirs(filePath: string): void {
     fs.mkdir(filePath, { recursive: true });
 }
 
-const filePath = './109_audio.txt';
-
-
 function dataParse(data: string) {
     let dataArray: string[][] = [];
-    const lines = data.split(/\n/).filter(item => item.length > 0);
+    const lines = data.split(/\n/).filter((item) => item.length > 0);
 
     for (const line of lines) {
-        const items = line.split(/\s+/).filter(item => item.length > 0);
-        dataArray.push(items)
+        const items = line.split(/\s+/).filter((item) => item.length > 0);
+        dataArray.push(items);
     }
     return dataArray;
 }
@@ -64,18 +69,16 @@ function point(val: number, n: number) {
 }
 
 function changeFrame(a: string) {
-    let left = a.substring(0, a.lastIndexOf('.'));
-    let right = a.substring(a.lastIndexOf('.') + 1);
+    let left = a.substring(0, a.lastIndexOf("."));
+    let right = a.substring(a.lastIndexOf(".") + 1);
 
     let num = parseInt(right);
-    let frame = Math.floor(num * (1 / 24.0) * 1000);
-    console.log(frame);
-    let newStr = `${left}.${frame}`;
+    // let frame = Math.floor(num * (1 / 24.0) * 1000);
+    let newStr = `${left}.${num}`;
     return newStr;
 }
 
 async function main() {
-
     // 读取文件
     const data = await readFileAsync(filePath);
     console.log(data);
@@ -91,10 +94,10 @@ async function main() {
     for (const timestamp of dataArray) {
         const t1 = changeFrame(timestamp[0]);
         const t2 = changeFrame(timestamp[1]);
-        cutAudios('atlas.mp3', `${i}.mp3`, t1, t2);
+        console.log(t1, t2);
+        cutAudios("atlas.mp3", `${i}.mp3`, t1, t2);
         i++;
     }
-
 }
 
 main();
