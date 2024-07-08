@@ -20,47 +20,47 @@ export function parseFntData(data: string): FntData {
             case 'info':
                 fntData.info = {
                     face: params.face,
-                    size: Number(params.size),
-                    bold: Number(params.bold),
-                    italic: Number(params.italic),
+                    size: parseInt(params.size),
+                    bold: parseInt(params.bold),
+                    italic: parseInt(params.italic),
                     charset: params.charset,
-                    unicode: Number(params.unicode),
-                    stretchH: Number(params.stretchH),
-                    smooth: Number(params.smooth),
-                    aa: Number(params.aa),
+                    unicode: parseInt(params.unicode),
+                    stretchH: parseInt(params.stretchH),
+                    smooth: parseInt(params.smooth),
+                    aa: parseInt(params.aa),
                     padding: params.padding,
                     spacing: params.spacing,
-                    outline: Number(params.outline)
+                    outline: parseInt(params.outline)
                 };
                 break;
             case 'common':
                 fntData.common = {
-                    lineHeight: Number(params.lineHeight),
-                    base: Number(params.base),
-                    scaleW: Number(params.scaleW),
-                    scaleH: Number(params.scaleH),
-                    pages: Number(params.pages),
-                    packed: Number(params.packed)
+                    lineHeight: parseInt(params.lineHeight),
+                    base: parseInt(params.base),
+                    scaleW: parseInt(params.scaleW),
+                    scaleH: parseInt(params.scaleH),
+                    pages: parseInt(params.pages),
+                    packed: parseInt(params.packed)
                 };
                 break;
             case 'page':
                 fntData.pages.push({
-                    id: Number(params.id),
+                    id: parseInt(params.id),
                     file: params.file
                 });
                 break;
             case 'char':
                 fntData.chars.push({
-                    id: Number(params.id),
-                    x: Number(params.x),
-                    y: Number(params.y),
-                    width: Number(params.width),
-                    height: Number(params.height),
-                    xoffset: Number(params.xoffset),
-                    yoffset: Number(params.yoffset),
-                    xadvance: Number(params.xadvance),
-                    page: Number(params.page),
-                    chnl: Number(params.chnl)
+                    id: parseInt(params.id),
+                    x: parseInt(params.x),
+                    y: parseInt(params.y),
+                    width: parseInt(params.width),
+                    height: parseInt(params.height),
+                    xoffset: parseInt(params.xoffset),
+                    yoffset: parseInt(params.yoffset),
+                    xadvance: parseInt(params.xadvance),
+                    page: parseInt(params.page),
+                    chnl: parseInt(params.chnl)
                 });
                 break;
         }
