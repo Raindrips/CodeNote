@@ -1,12 +1,16 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { RecordUtils } from './RecordUtils';
+import { ZipArray } from './zip';
 
 const ffmpeg = require('fluent-ffmpeg');
 const wav = require('wav');
 
 // 输入和输出文件路径
-const inputFilePath = 'input.mp3';
-const outputFilePath = 'output.wav';
+const inputFilePath = 'E:/1/atlas.mp3';
+const outputFilePath = 'E:/1/output.wav';
+
+const record = new RecordUtils();
 
 // 将 MP3 文件转换为 WAV 文件
 ffmpeg(inputFilePath)
@@ -15,24 +19,74 @@ ffmpeg(inputFilePath)
         console.log('Conversion finished.');
         readWavFile(outputFilePath);
     })
-    .on('error', (err:Error) => {
-        console.error('Error during conversion:', err);
+    .on('error', (err: Error) => {
+        console.error('rror during conveErsion:', err);
     })
     .save(outputFilePath);
 
 // 读取 WAV 文件并获取音频数据
-function readWavFile(filePath:string,isSave=false) {
+async function readWavFile(filePath: string) {
+    let arr: number[] = []
+    const offset = 16000/2;
+    let i = 0;
+
     const reader = new wav.Reader();
-
-    reader.on('format', (format: any) => {
+    let dataArray: number[] = []
+    let count = 0;
+    const rs = fs.createReadStream(filePath)
+    rs.pipe(reader);
+    rs.addListener('close', () => {
+        console.log('close')
+        record.stop(reader.chunkSize);
+        console.log(arr.length);
+        const rank=record.format(record.getRecords());
+        console.log(rank)
+        console.log(rank.length)
+    })
+    reader.on('format', (format: Buffer) => {
         console.log('Format:', format);
+        logReader(reader);
+
     });
 
-    reader.on('data', (data:any) => {
-        console.log('Audio data:', data);
-        // 在这里可以处理音频数据，例如计算波长
+    reader.on('data', (data: Buffer) => {
+        // console.log('Audio data:', data.length);
+
+        // if (count > 0) { return; }
+        const len = Math.floor(data.length / 2)
+        while (i < len) {
+            const d = data.readInt16LE(i)
+            arr.push(d)
+            i += offset;
+            record.addData(d, count)
+            count++;
+        }
+        i -= len;
+
     });
-    if(isSave){
-        fs.createReadStream(filePath).pipe(reader);
-    }
+
+}
+
+function logReader(reader: any) {
+    reader.once('readable', function () {
+        console.log('WaveHeader Size:\t%d', 12);
+        console.log('ChunkHeader Size:\t%d', 8);
+        console.log('FormatChunk Size:\t%d', reader.subchunk1Size);
+        console.log('RIFF ID:\t%s', reader.riffId);
+        console.log('Total Size:\t%d', reader.chunkSize);
+        console.log('Wave ID:\t%s', reader.waveId);
+        console.log('Chunk ID:\t%s', reader.chunkId);
+        console.log('Chunk Size:\t%d', reader.subchunk1Size);
+        console.log('Compression format is of type: %d', reader.audioFormat);
+        console.log('Channels:\t%d', reader.channels);
+        console.log('Sample Rate:\t%d', reader.sampleRate);
+        console.log('Bytes / Sec:\t%d', reader.byteRate);
+        console.log('wBlockAlign:\t%d', reader.blockAlign);
+        console.log('Bits Per Sample Point:\t%d', reader.bitDepth);
+        // TODO: this should end up being "44" or whatever the total length of the WAV
+        //       header is. maybe emit "format" at this point rather than earlier???
+        console.log('wavDataPtr: %d', 0);
+        console.log('wavDataSize: %d', reader.subchunk2Size);
+        console.log();
+    });
 }
