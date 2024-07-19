@@ -13,25 +13,31 @@ async function draw() {
     // const img = await loadImage('path/to/your/image.jpg');
     // ctx.drawImage(img, 10, 10, 150, 150);
 
-
-    let arr = [100, 200, 300, 150, 110, 200, 15, 60, 80, 120];
-    arr.length = 10000;
-    for (let i = 0; i < arr.length; i++) {
-        arr[i] = Math.floor(Math.random() * 200);
-    }
-    drawArray(ctx, arr);
     // 保存图像  
     fs.writeFileSync('build/test.png', canvas.toBuffer('image/png'));
 }
 
-function drawArray(ctx: CanvasRenderingContext2D, arr: number[]) {
-    let wid = 1
+export function drawArray(arr: number[], wid: number, hei: number) {
+    const canvas = createCanvas(wid, hei);
+    const ctx = canvas.getContext('2d');
+    let w = wid / arr.length;
+   
     for (let i = 0; i < arr.length; i++) {
         ctx.fillStyle = '#FF0000';
         ctx.strokeStyle = '#FF0000';
-        let x = i * wid;
-        ctx.fillRect(x, 0, wid, arr[i]);
+        let x = i * w;
+        ctx.fillRect(x, 0, w, arr[i]);
     }
+    fs.writeFileSync('build/test.png', canvas.toBuffer('image/png'));
 }
 
-draw();
+// draw();
+function test(){
+    let arr = [];
+    arr.length = 10000;
+    for (let i = 0; i < arr.length; i++) {
+        arr[i] = Math.floor(Math.random() * 400);
+    }
+    drawArray(arr,arr.length,400);
+}
+test();

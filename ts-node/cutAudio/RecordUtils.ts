@@ -34,11 +34,14 @@ export class RecordUtils {
     }
 
     format(arr: Array<[number, number]>) {
-        let n = copy2DArray(arr);
-        n.forEach((arr, i) => {
-            arr.forEach((v, j) => {
-                v = point(v / 12)
-                n[i][j] = v;
+        // let n = copy2DArray(arr);
+        let n: string[][] = []
+        arr.forEach((ar, i) => {
+            n[i] = []
+            ar.forEach((v, j) => {
+                let str = formatTime(Math.floor(v / 12 * 1000));
+                // let str=v+''
+                n[i][j] = str;
             })
         })
         return n
@@ -70,4 +73,38 @@ function copy2DArray<T>(arr: T[][]): T[][] {
 function point(val: number, n: number = 2) {
     const p = n * Math.pow(10, n);
     return Math.round(val * p) / p;
+}
+
+function formatTime(milliseconds: number): string {
+    // 计算总秒数  
+    const totalSeconds = Math.floor(milliseconds / 1000);
+
+    // 计算小时数  
+    const hours = Math.floor(totalSeconds / 3600);
+
+    // 计算剩余分钟数  
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+    // 计算剩余秒数  
+    const seconds = Math.floor(totalSeconds % 60);
+
+    // 计算剩余的毫秒数  
+    const remainingMilliseconds = milliseconds % 1000;
+    const pad = (n: number) => { return padStart(n, 2, '0') }
+    // 格式化并返回结果  
+    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}:${pad(remainingMilliseconds)}`;
+}
+
+export function padStart(str: string | number, length: number, padString: string) {
+    let s = str.toString();
+    // 如果字符串长度已达到或超过目标长度，则直接返回原始字符串
+    if (s.length >= length) {
+        return s;
+    }
+    // 计算需要填充的长度
+    const paddingLength = length - s.length;
+    // 生成填充字符串
+    const paddingString = padString.repeat(Math.ceil(paddingLength / padString.length)).slice(0, paddingLength);
+
+    return paddingString + s;
 }

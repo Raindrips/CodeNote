@@ -33,3 +33,12 @@ d2.other = d;
 // let s = JSON.stringify(d);
 // console.log(s);
 // console.log(d);
+
+enum E {
+    number,
+    string,
+}
+let str=new String("world");
+let str2=str;
+str2="hello"
+console.log(E.number)
