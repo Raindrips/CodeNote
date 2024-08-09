@@ -18,9 +18,9 @@ function execCmd(command: string) {
 }
 
 const CommandPath = "E:/bin/ffmpeg/bin/ffmpeg";
-const InputDir = "E:/1";
-const OutputDir = "./out";
-const filePath = "./110.txt";
+const InputDir = "E:/mp3/111";
+const OutputDir = "E:/2/out";
+const filePath = "./111.txt";
 
 function cutAudios(
     inputFile: string,
@@ -63,14 +63,10 @@ function dataParse(data: string) {
     return dataArray;
 }
 
-function point(val: number, n: number) {
-    const p = n * Math.pow(10, n);
-    return Math.trunc(val * p) / p;
-}
-
 function changeFrame(a: string) {
-    let left = a.substring(0, a.lastIndexOf("."));
-    let right = a.substring(a.lastIndexOf(".") + 1);
+    let dot=a.lastIndexOf(".");
+    let left = a.substring(0, dot);
+    let right = a.substring(dot + 1);
 
     let num = parseInt(right);
     // let frame = Math.floor(num * (1 / 24.0) * 1000);
@@ -92,10 +88,10 @@ async function main() {
     //执行命令
     let i = 0;
     for (const timestamp of dataArray) {
-        const t1 = changeFrame(timestamp[0]);
-        const t2 = changeFrame(timestamp[1]);
-        console.log(t1, t2);
-        cutAudios("atlas.mp3", `${i}.mp3`, t1, t2);
+        // const t1 = changeFrame(timestamp[0]);
+        // const t2 = changeFrame(timestamp[1]);
+        // console.log(t1, t2);
+        cutAudios("atlas.mp3", `${i}.mp3`, timestamp[0], timestamp[1]);
         i++;
     }
 }
