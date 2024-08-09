@@ -3,7 +3,7 @@ import { generateFntContent } from "./bmfontSave";
 import { FntData } from "./FntData";
 import { readFile } from "./readFile";
 
-const filePath = `E:\\win.fnt`;
+const filePath = `E:\\num-win-type.fnt`;
 
 async function main(){
     let data=await readFile(filePath);
