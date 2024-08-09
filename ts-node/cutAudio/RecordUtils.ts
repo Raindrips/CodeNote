@@ -33,13 +33,13 @@ export class RecordUtils {
         return this.records;
     }
 
-    format(arr: Array<[number, number]>) {
+    format(recordArray: Array<[number, number]>, offset: number) {
         // let n = copy2DArray(arr);
         let n: string[][] = []
-        arr.forEach((ar, i) => {
+        recordArray.forEach((arr, i) => {
             n[i] = []
-            ar.forEach((v, j) => {
-                let str = formatTime(Math.floor(v / 12 * 1000));
+            arr.forEach((val, j) => {
+                let str = formatTime(Math.floor(val * 1000 / offset));
                 // let str=v+''
                 n[i][j] = str;
             })
@@ -92,7 +92,7 @@ function formatTime(milliseconds: number): string {
     const remainingMilliseconds = milliseconds % 1000;
     const pad = (n: number) => { return padStart(n, 2, '0') }
     // 格式化并返回结果  
-    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}:${pad(remainingMilliseconds)}`;
+    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}.${pad(remainingMilliseconds)}`;
 }
 
 export function padStart(str: string | number, length: number, padString: string) {

@@ -2,13 +2,14 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { RecordUtils } from './RecordUtils';
 import { ZipArray } from './zip';
+import { cutAudios } from './musicCut';
 
 const ffmpeg = require('fluent-ffmpeg');
 const wav = require('wav');
 
 // 输入和输出文件路径
-const inputFilePath = 'E:/1/atlas.mp3';
-const outputFilePath = 'E:/1/output.wav';
+const inputFilePath = 'E:/mp3/111/atlas.mp3';
+const outputFilePath = 'E:/mp3/111/output.wav';
 
 const record = new RecordUtils();
 
@@ -26,45 +27,65 @@ ffmpeg(inputFilePath)
 
 // 读取 WAV 文件并获取音频数据
 async function readWavFile(filePath: string) {
-    let arr: number[] = []
-    const offset = 16000/2;
+    const row = 400;
+    const offset = 192000 / row;
     let i = 0;
 
     const reader = new wav.Reader();
-    let dataArray: number[] = []
+
     let count = 0;
     const rs = fs.createReadStream(filePath)
     rs.pipe(reader);
     rs.addListener('close', () => {
-        console.log('close')
+        console.log('buff count', count);
         record.stop(reader.chunkSize);
-        console.log(arr.length);
-        const rank=record.format(record.getRecords());
+        const rank = record.format(record.getRecords(), row);
         console.log(rank)
-        console.log(rank.length)
+        console.log('rank', rank.length)
+        // cutMusic(rank);
+        outRank(rank);
     })
     reader.on('format', (format: Buffer) => {
         console.log('Format:', format);
         logReader(reader);
-
     });
 
     reader.on('data', (data: Buffer) => {
-        // console.log('Audio data:', data.length);
-
-        // if (count > 0) { return; }
-        const len = Math.floor(data.length / 2)
+        const len = Math.floor(data.length)
+        let i = 0;
         while (i < len) {
-            const d = data.readInt16LE(i)
-            arr.push(d)
+            let flag = 0;
+            let start = i;
+            let end = i + offset;
+            if (end > len) { end = len; }
+            for (let j = start; j < end; j += 2) {
+                const d = data.readInt16LE(j)
+                if (d != 0) {
+                    flag = 1;
+                    break;
+                }
+            }
+            record.addData(flag, count)
             i += offset;
-            record.addData(d, count)
             count++;
         }
-        i -= len;
-
     });
+}
 
+function cutMusic(rank: string[][]) {
+    rank.forEach((group, i) => {
+        const start = group[0];
+        const end = group[1];
+        cutAudios("atlas.mp3", `${i}.mp3`, start, end);
+    });
+}
+
+function outRank(rank: string[][]) {
+    rank.forEach((group, i) => {
+        const start = group[0];
+        const end = group[1];
+        console.log(start, end);
+    });
 }
 
 function logReader(reader: any) {

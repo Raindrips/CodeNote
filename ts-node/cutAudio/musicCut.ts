@@ -1,9 +1,14 @@
 import { exec } from "child_process";
 import { promises as fs, readFileSync, readFile } from "fs";
 
-function execCmd(command: string) {
+/**
+ * 
+ * @param command 执行命令
+ */
+export function execCmd(command: string, output = false) {
     console.log(command);
     exec(command, (error, stdout, stderr) => {
+
         if (error) {
             console.error(`error: ${error.message}`);
             return;
@@ -13,23 +18,25 @@ function execCmd(command: string) {
             console.error(`error_out: ${stderr}`);
             return;
         }
-        console.log(stdout);
+        if (output) {
+            console.log(stdout);
+        }
+
     });
 }
 
 const CommandPath = "E:/bin/ffmpeg/bin/ffmpeg";
-const InputDir = "E:/mp3/111";
+const Dir = "E:/mp3/111";
 const OutputDir = "E:/2/out";
-const filePath = "./111.txt";
 
-function cutAudios(
+export function cutAudios(
     inputFile: string,
     outFile: string,
     startTime: string,
     endTime: string
 ) {
     execCmd(
-        `${CommandPath} -i ${InputDir}/${inputFile} -ss ${startTime} -to ${endTime} -c copy ${OutputDir}/${outFile} -loglevel quiet`
+        `${CommandPath} -i ${Dir}/${inputFile} -ss ${startTime} -to ${endTime} -c copy ${OutputDir}/${outFile} -loglevel quiet`
     );
 }
 
@@ -63,10 +70,10 @@ function dataParse(data: string) {
     return dataArray;
 }
 
+
 function changeFrame(a: string) {
-    let dot=a.lastIndexOf(".");
-    let left = a.substring(0, dot);
-    let right = a.substring(dot + 1);
+    let left = a.substring(0, a.lastIndexOf("."));
+    let right = a.substring(a.lastIndexOf(".") + 1);
 
     let num = parseInt(right);
     // let frame = Math.floor(num * (1 / 24.0) * 1000);
@@ -74,6 +81,7 @@ function changeFrame(a: string) {
     return newStr;
 }
 
+const filePath = "./110.txt";
 async function main() {
     // 读取文件
     const data = await readFileAsync(filePath);
@@ -88,10 +96,10 @@ async function main() {
     //执行命令
     let i = 0;
     for (const timestamp of dataArray) {
-        // const t1 = changeFrame(timestamp[0]);
-        // const t2 = changeFrame(timestamp[1]);
-        // console.log(t1, t2);
-        cutAudios("atlas.mp3", `${i}.mp3`, timestamp[0], timestamp[1]);
+        const t1 = changeFrame(timestamp[0]);
+        const t2 = changeFrame(timestamp[1]);
+        console.log(t1, t2);
+        cutAudios("atlas.mp3", `${i}.mp3`, t1, t2);
         i++;
     }
 }

@@ -25,6 +25,6 @@ export function ZipArray<T>(arr: T[]): (T | [number, T])[] {
     return result;
 }
 
-const arr = [1, 2, 2, 2, 1, 3, 3, 4, 5];
-const zip = ZipArray(arr)
-console.log(zip);
+// const arr = [1, 2, 2, 2, 1, 3, 3, 4, 5];
+// const zip = ZipArray(arr)
+// console.log(zip);
