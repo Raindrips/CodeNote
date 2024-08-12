@@ -1,0 +1,10 @@
+D:\source\CSharp\RpgGame\RpgGame\bin\Debug\RpgGame.exe.config
+D:\source\CSharp\RpgGame\RpgGame\bin\Debug\RpgGame.exe
+D:\source\CSharp\RpgGame\RpgGame\bin\Debug\RpgGame.pdb
+D:\source\CSharp\RpgGame\RpgGame\obj\Debug\RpgGame.csproj.AssemblyReference.cache
+D:\source\CSharp\RpgGame\RpgGame\obj\Debug\RpgGame.Properties.Resources.resources
+D:\source\CSharp\RpgGame\RpgGame\obj\Debug\RpgGame.csproj.GenerateResource.cache
+D:\source\CSharp\RpgGame\RpgGame\obj\Debug\RpgGame.csproj.CoreCompileInputs.cache
+D:\source\CSharp\RpgGame\RpgGame\obj\Debug\RpgGame.exe
+D:\source\CSharp\RpgGame\RpgGame\obj\Debug\RpgGame.pdb
+D:\source\CSharp\RpgGame\RpgGame\obj\Debug\RpgGame.Form1.resources
