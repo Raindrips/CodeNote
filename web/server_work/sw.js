@@ -1,15 +1,23 @@
+//版本
+const Version = 7;
+//缓存名称
+const CacheName = "cache_100_v" + Version;
+
+//预加载列表
 const cacheList = [
   "/",
   "/index.html",
-  "res/1.png",
-  "res/3.png",
+  "/res/1.png",
+  "/res/2.png",
+  "/res/3.png",
+  "/res/4.png",
+  "/res/5.png",
+  "/res/test.png",
+  "/app.js",
+  "/create.js",
 ]
 
-const PreLoadCacheName = "preload_100";
-const CacheName = "load_100";
-
 const cacheMap = {}
-
 async function getCacheList(cacheName)
 {
   const cache = await caches.open(cacheName);
@@ -17,32 +25,50 @@ async function getCacheList(cacheName)
   for (let request of keys) {
     cacheMap[request.url] = request;
   }
-  console.log(cacheMap);
 }
 
 //添加缓存列表
 async function addResourcesToCache(cacheName, resources)
 {
+
   const cache = await caches.open(cacheName);
+  // getCacheList(CacheName);
+  // await deleteOldCache();
   //将url内容直接添加进缓存
   await cache.addAll(resources);
 }
 
 // 删除缓存列表
-async function deleteKey()
+async function deleteOldCache()
 {
   const keyList = await caches.keys();
   let promise = [];
-  console.log('delete', keyList);
+
   for (let key of keyList) {
-    if (key !== CacheName) {
-      promise.push(caches.delete(key));
+    if (key === CacheName) {
+      return;
     }
+    console.log('delete', key);
+    promise.push(caches.delete(key));
+
   }
   return Promise.all(promise);
 }
 
-
+async function deleteOldCache2()
+{
+  let catchListObj = {}
+  for (let c of cacheList) {
+    catchListObj[c] = true;
+  }
+  console.log(catchListObj, cacheMap);
+  for (const url in cacheMap) {
+    if (!catchListObj[url]) {
+      console.log('delete', url, cacheMap[url])
+      deleteRequest(CacheName, catchListObj[url]);
+    }
+  }
+}
 
 // 删除缓存中的一个请求
 async function deleteRequest(cacheName, request)
@@ -58,7 +84,6 @@ async function putInCache(request, response)
   if (request.method == "GET") {
     await cache.put(request, response);
   }
-
 };
 
 function syncPosts()
@@ -106,6 +131,7 @@ async function fetchAndCache(event)
 
     // 如果缓存中没有响应，则从网络请求
     const responseFromNetwork = await fetch(event.request);
+    console.log('fetch', event.request.url)
     putInCache(event.request, responseFromNetwork.clone());
 
     return responseFromNetwork;
@@ -130,28 +156,29 @@ async function enableNavigationPreload()
 
 self.addEventListener('install', (event) =>
 {
-  console.log('install');
-
-  event.waitUntil(addResourcesToCache(PreLoadCacheName, cacheList));
-});
-
-self.addEventListener('fetch', (event) =>
-{
-  console.log('fetch', event.request.url)
-  event.respondWith(
-    fetchAndCache(event)
-  );
+  console.log('install', Version);
+  // 跳过等待,立即激活新的sw
+  self.skipWaiting();
+  event.waitUntil(addResourcesToCache(CacheName, cacheList));
 });
 
 self.addEventListener('activate', (event) =>
 {
   console.log('activate:')
-  getCacheList(CacheName);
-  // event.waitUntil(deleteKey());
+  //新的 Service Worker 激活后立即接管页面
+  self.clients.claim()
   event.waitUntil(enableNavigationPreload());
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(deleteOldCache());
+
 });
 
+self.addEventListener('fetch', (event) =>
+{
+  event.respondWith(
+    fetchAndCache(event)
+  );
+});
+ 
 self.addEventListener("sync", (event) =>
 {
   console.log('sync:');
@@ -160,3 +187,8 @@ self.addEventListener("sync", (event) =>
     event.waitUntil(syncPosts());
   }
 });
+
+self.addEventListener('error', (ev) =>
+{
+  console.error(ev);
+})
