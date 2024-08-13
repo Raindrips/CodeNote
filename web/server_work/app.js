@@ -19,22 +19,19 @@ const registerServiceWorker = async () =>
   }
 };
 
-const unregister = function ()
-{
-  console.log('卸载service Worker')
-  navigator.serviceWorker.getRegistrations().then(registrations =>
+// unregister();
+registerServiceWorker();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('controllerchange', () =>
   {
-    registrations.forEach(registration =>
-    {
-      registration.unregister().then(() =>
-      {
-        console.log('Service Worker unregistered:', registration.scope);
-      });
-    });
+    console.log('reload');
+    window.location.reload(); // Service Worker 切换时刷新页面
   });
 }
 
-
-// unregister();
-console.log('注册serviceWorker开始');
-registerServiceWorker();
+// navigator.serviceWorker.getRegistrations().then(registrations => {
+//   registrations.forEach(registration => {
+//       registration.unregister(); // 注销所有旧的 Service Worker
+//   });
+// });
