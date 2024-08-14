@@ -1,42 +1,63 @@
-//版本
-const Version = 7;
-//缓存名称
-const CacheName = "cache_100_v" + Version;
+// //版本
+// const Version = 0;
+// //缓存名称
+// const CacheName = "cache_100_v";
 
 //预加载列表
-const cacheList = [
-  "/",
-  "/index.html",
-  "/res/1.png",
-  "/res/2.png",
-  "/res/3.png",
-  "/res/4.png",
-  "/res/5.png",
-  "/res/test.png",
-  "/app.js",
-  "/create.js",
-]
+// const cacheList = [
+//   "/",
+//   "/index.html",
+//   "/res/1.png",
+//   "/res/2.png",
+//   "/res/3.png",
+//   "/res/4.png",
+//   "/res/5.png",
+//   "/res/test.png",
+//   "/app.js",
+//   "/create.js",
+//   "/style.css",
+// ]
+importScripts('config.js', 'cacheList.js');
+const SW_VERSION = "08141459";
 
-const cacheMap = {}
-async function getCacheList(cacheName)
+/**
+ * 
+ * @param {string} cacheName 
+ * @returns {}
+ */
+async function getCacheMap(cacheName)
 {
+  let cacheMap = {}
   const cache = await caches.open(cacheName);
   const keys = await cache.keys();
   for (let request of keys) {
-    cacheMap[request.url] = request;
+    cacheMap[getFileName(request.url)] = request;
   }
+  return cacheMap;
 }
 
-//添加缓存列表
+//将url列表内容直接添加进缓存
 async function addResourcesToCache(cacheName, resources)
 {
-
   const cache = await caches.open(cacheName);
-  // getCacheList(CacheName);
-  // await deleteOldCache();
-  //将url内容直接添加进缓存
   await cache.addAll(resources);
 }
+
+/**
+ * 向客户端发送事件
+ * @param {string} msg 
+ */
+function postMessage(msg)
+{
+  self.clients.matchAll().then((clients) =>
+  {
+    clients.forEach((client) =>
+    {
+      client.postMessage(msg);
+    })
+  })
+}
+
 
 // 删除缓存列表
 async function deleteOldCache()
@@ -55,18 +76,22 @@ async function deleteOldCache()
   return Promise.all(promise);
 }
 
-async function deleteOldCache2()
+//对比旧缓存,删除缓存列表中无效的内容
+async function deleteOldCacheByRequest()
 {
   let catchListObj = {}
   for (let c of cacheList) {
-    catchListObj[c] = true;
+    catchListObj[getFileName(c)] = c;
   }
+  let cacheMap = await getCacheMap(CacheName);
   console.log(catchListObj, cacheMap);
   for (const url in cacheMap) {
-    if (!catchListObj[url]) {
-      console.log('delete', url, cacheMap[url])
-      deleteRequest(CacheName, catchListObj[url]);
+    if (catchListObj[url]) {
+      console.log('not match ', url);
+      return
     }
+    console.log('delete:', cacheMap[url].url, catchListObj[url]);
+    deleteRequest(CacheName, catchListObj[url]);
   }
 }
 
@@ -81,9 +106,10 @@ async function deleteRequest(cacheName, request)
 async function putInCache(request, response) 
 {
   const cache = await caches.open(CacheName);
-  if (request.method == "GET") {
-    await cache.put(request, response);
+  if (request.method.toLocaleUpperCase() != "GET") {
+    return
   }
+  await cache.put(request, response);
 };
 
 function syncPosts()
@@ -150,13 +176,12 @@ async function enableNavigationPreload()
   if (self.registration.navigationPreload) {
     await self.registration.navigationPreload.enable();
   }
-
-  return
 };
 
 self.addEventListener('install', (event) =>
 {
-  console.log('install', Version);
+  console.log('install', CacheName, Version, SW_VERSION);
+  console.log(cacheList)
   // 跳过等待,立即激活新的sw
   self.skipWaiting();
   event.waitUntil(addResourcesToCache(CacheName, cacheList));
@@ -168,7 +193,7 @@ self.addEventListener('activate', (event) =>
   //新的 Service Worker 激活后立即接管页面
   self.clients.claim()
   event.waitUntil(enableNavigationPreload());
-  event.waitUntil(deleteOldCache());
+  event.waitUntil(deleteOldCacheByRequest());
 
 });
 
@@ -178,7 +203,7 @@ self.addEventListener('fetch', (event) =>
     fetchAndCache(event)
   );
 });
- 
+
 self.addEventListener("sync", (event) =>
 {
   console.log('sync:');
@@ -190,5 +215,40 @@ self.addEventListener("sync", (event) =>
 
 self.addEventListener('error', (ev) =>
 {
-  console.error(ev);
+  console.error(ev.message);
 })
+
+//navigator.serviceWorker.controller.postMessage()
+
+self.addEventListener('message', (event) =>
+{
+  console.log("sw.message:", event.data);
+})
+
+/**
+ * 判断是否有相等的子串
+ * @param {string}  subStr1
+ * @param {string}  subStr2
+ * @returns {boolean} 
+ */
+function matchString(subStr1, subStr2)
+{
+  if (subStr1.length > subStr2.length) {
+    return subStr1.endsWith(subStr2);
+  }
+  else {
+    return subStr2.endsWith(subStr1);
+  }
+}
+
+/**
+ * 获取文件名称
+ * @param {string} str 
+ * @returns 
+ */
+function getFileName(str)
+{
+  return str.substring(str.lastIndexOf('/'));
+}
+
+const mh = /(.*\.png$)|(.*\.jpg$)|(.*\.json$)/g
