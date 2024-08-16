@@ -40,17 +40,17 @@ function getFilesByExtension(dir, extensions, baseDir, fileList = [])
  * @param {string} text 
  * @param {string} text 
  */
-function fileWrite(text, path)
+function fileWrite(path, text)
 {
+    console.log(path);
     fs.writeFileSync(path, text);
 }
 console.log(process.argv);
 // 示例用法
 let dirPath = process.argv[2];  // 通过命令传入路径
-const extensions = ['.json', '.jpg', '.png'];  // 你要筛选的文件后缀
+const extensions = ['.json', '.jpg', '.png','.mp3'];  // 你要筛选的文件后缀
 
 const result = getFilesByExtension(dirPath, extensions, dirPath);
-console.log('筛选后的相对路径文件列表:', result);
-// console.log(fs);
 const data = JSON.stringify(result, undefined, " ");
-fileWrite(`const CacheList=${data}`, 'file_list.js');
+const file = path.join(dirPath, 'cacheList.js');
+fileWrite(file, `const CacheList=${data}`);
