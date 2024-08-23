@@ -140,20 +140,21 @@ function syncPosts()
 async function fetchAndCache(event)
 {
   try {
-    //从预加载中获取响应
-    const preloadResponse = await event.preloadResponse;
-    if (preloadResponse) {
-      console.info('using preload response', preloadResponse);
-      putInCache(event.request, preloadResponse.clone());
-      return preloadResponse;
-    }
-
+    console.log('event:', event);
     // 从缓存中获取响应
     const responseFromCache = await caches.match(event.request);
     if (responseFromCache) {
       console.info('using cache response', responseFromCache);
       return responseFromCache;
     }
+
+    // 从预加载中获取响应
+    // const preloadResponse = await event.preloadResponse;
+    // if (preloadResponse) {
+    //   console.info('using preload response', preloadResponse);
+    //   putInCache(event.request, preloadResponse.clone());
+    //   return preloadResponse;
+    // }
 
     // 如果缓存中没有响应，则从网络请求
     const responseFromNetwork = await fetch(event.request);
@@ -193,7 +194,7 @@ self.addEventListener('activate', (event) =>
   //新的 Service Worker 激活后立即接管页面
   self.clients.claim()
   event.waitUntil(enableNavigationPreload());
-  event.waitUntil(deleteOldCacheByRequest());
+  // event.waitUntil(deleteOldCacheByRequest());
 
 });
 
@@ -224,6 +225,25 @@ self.addEventListener('message', (event) =>
 {
   console.log("sw.message:", event.data);
 })
+
+/**
+ * 
+ * @param {string} subStr1 
+ * @param {string} subStr2 
+ * @returns {string}
+
+ */
+function getSubString(subStr1, subStr2)
+{
+  if (!matchString(subStr1, subStr2)) return "";
+
+  if (subStr1.length > subStr2.length) {
+    return subStr1.substring(subStr1.length - subStr2.length);
+  }
+  else {
+    return subStr2.substring(subStr2.length - subStr1.length);
+  }
+}
 
 /**
  * 判断是否有相等的子串
