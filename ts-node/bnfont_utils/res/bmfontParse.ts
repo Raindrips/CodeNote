@@ -1,66 +1,72 @@
-import { FontInfo,CommonInfo,FntData } from "./FntData";
+import { FontInfo, CommonInfo, FntData } from './FntData';
 
 export function parseFntData(data: string): FntData {
     const fntData: FntData = {
         info: {} as FontInfo,
         common: {} as CommonInfo,
         pages: [],
-        chars: []
+        chars: [],
     };
-    const lines = data.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-    lines.forEach(line => {
+    const lines = data
+        .split('\n')
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0);
+    lines.forEach((line) => {
         const [type, ...rest] = line.split(' ');
-        const params = rest.join(' ').split(/\s+(?=[a-z]+=)/).reduce((acc, param) => {
-            const [key, value] = param.split('=');
-            acc[key] = value.replace(/(^")|("$)/g, '');
-            return acc;
-        }, {} as { [key: string]: string });
+        const params = rest
+            .join(' ')
+            .split(/\s+(?=[a-z]+=)/)
+            .reduce((acc, param) => {
+                const [key, value] = param.split('=');
+                acc[key] = value.replace(/(^")|("$)/g, '');
+                return acc;
+            }, {} as { [key: string]: string });
 
         switch (type) {
             case 'info':
                 fntData.info = {
                     face: params.face,
-                    size: parseInt(params.size),
-                    bold: parseInt(params.bold),
-                    italic: parseInt(params.italic),
+                    size: toInt(params.size),
+                    bold: toInt(params.bold),
+                    italic: toInt(params.italic),
                     charset: params.charset,
-                    unicode: parseInt(params.unicode),
-                    stretchH: parseInt(params.stretchH),
-                    smooth: parseInt(params.smooth),
-                    aa: parseInt(params.aa),
+                    unicode: toInt(params.unicode),
+                    stretchH: toInt(params.stretchH),
+                    smooth: toInt(params.smooth),
+                    aa: toInt(params.aa),
                     padding: params.padding,
                     spacing: params.spacing,
-                    outline: parseInt(params.outline)
+                    outline: toInt(params.outline),
                 };
                 break;
             case 'common':
                 fntData.common = {
-                    lineHeight: parseInt(params.lineHeight),
-                    base: parseInt(params.base),
-                    scaleW: parseInt(params.scaleW),
-                    scaleH: parseInt(params.scaleH),
-                    pages: parseInt(params.pages),
-                    packed: parseInt(params.packed)
+                    lineHeight: toInt(params.lineHeight),
+                    base: toInt(params.base),
+                    scaleW: toInt(params.scaleW),
+                    scaleH: toInt(params.scaleH),
+                    pages: toInt(params.pages),
+                    packed: toInt(params.packed),
                 };
                 break;
             case 'page':
                 fntData.pages.push({
-                    id: parseInt(params.id),
-                    file: params.file
+                    id: toInt(params.id),
+                    file: params.file,
                 });
                 break;
             case 'char':
                 fntData.chars.push({
-                    id: parseInt(params.id),
-                    x: parseInt(params.x),
-                    y: parseInt(params.y),
-                    width: parseInt(params.width),
-                    height: parseInt(params.height),
-                    xoffset: parseInt(params.xoffset),
-                    yoffset: parseInt(params.yoffset),
-                    xadvance: parseInt(params.xadvance),
-                    page: parseInt(params.page),
-                    chnl: parseInt(params.chnl)
+                    id: toInt(params.id),
+                    x: toInt(params.x),
+                    y: toInt(params.y),
+                    width: toInt(params.width),
+                    height: toInt(params.height),
+                    xoffset: toInt(params.xoffset),
+                    yoffset: toInt(params.yoffset),
+                    xadvance: toInt(params.xadvance),
+                    page: toInt(params.page),
+                    chnl: toInt(params.chnl),
                 });
                 break;
         }
@@ -69,3 +75,6 @@ export function parseFntData(data: string): FntData {
     return fntData;
 }
 
+function toInt(s: string) {
+    return parseInt(s) || 0;
+}

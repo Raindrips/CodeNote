@@ -167,9 +167,7 @@ async function main()
         const up = [0, 1, 0];
         const target = [0, 0, 0];
         const cameraMatrix = mat4.lookAt([], cameraPosition, target, up);
-
         const viewMatrix = mat4.invert([], cameraMatrix);
-
         const viewProjectionMatrix = mat4.multiply([], projectionMatrix, viewMatrix);
 
         rotation += 0.01;
@@ -177,9 +175,7 @@ async function main()
         mat4.rotateY(modelMatrix, modelMatrix, rotation);
 
         const matrix = mat4.multiply([], viewProjectionMatrix, modelMatrix);
-
         gl.uniformMatrix4fv(matrixUniformLocation, false, matrix);
-
         gl.drawElements(gl.TRIANGLES, sphereData.indices.length, gl.UNSIGNED_SHORT, 0);
 
         requestAnimationFrame(drawScene);
