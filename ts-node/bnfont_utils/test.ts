@@ -9,11 +9,6 @@
 //     console.log('number');
 // }
 
-
-console.log()
-
-console.log()
-
 let mat=/\s+(?=[a-z]+=)/
 let mat2=/ /
 let str=`a=10 b=20 c='12' count id=1,2,3,4  =1`;
