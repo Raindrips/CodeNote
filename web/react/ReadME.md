@@ -29,8 +29,21 @@ npx create-remix
 提供Native React https://reactnative.dev/ 
 
 ```
-npx create-expo-app
+npx create-expo-app <项目名>
 ```
 
 
+
+创建普通react应用
+
+```
+npx create-react-app <项目名>
+```
+
+创建带sw的项目
+
+```
+npx create-react-app <项目名> --template cra-template-pwa
+
+```
 

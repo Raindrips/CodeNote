@@ -1,0 +1,51 @@
+body, html {
+    margin: 0 ;
+    padding: 0;
+    overflow: hidden; /* 禁用浏览器默认的滚动条 */
+    height: 100%;
+    width: 100%;
+
+}
+
+#content {
+    margin: 0 auto;
+    width: 600px;
+    height: 1600px; /* 模拟超出屏幕的内容 */
+    background: linear-gradient(rgb(58, 58, 58), rgb(0, 0, 0));
+    position: relative;
+}
+
+.box-1{
+    position:absolute;
+    left:160px;
+    width: 300px;
+    height: 300px;
+    background: rgb(173, 233, 255);
+}
+
+.box-2{
+    position:absolute;
+    left:60px;
+    top:400px;
+    width: 300px;
+    height: 300px;
+    background: rgb(215, 255, 199);
+}
+
+.box-3{
+    position:absolute;
+    left:60px;
+    top:800px;
+    width: 300px;
+    height: 300px;
+    background: rgb(255, 184, 173);
+}
+
+.box-4{
+    position:absolute;
+    left:120px;
+    top:1200px;
+    width: 300px;
+    height: 300px;
+    background: rgb(255, 173, 254);
+}
