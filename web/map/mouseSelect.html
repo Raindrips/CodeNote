@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鼠标框选功能</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        canvas {
+            border: 1px solid #000;
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // 用来记录框选的状态
+        let isSelecting = false;
+        let selectionStart = null;
+        let selectionEnd = null;
+
+        // 模拟游戏对象
+        const gameObjects = [
+            { id: "1", position: { x: 100, y: 100 }, size: { width: 50, height: 50 }, selected: false },
+            { id: "2", position: { x: 200, y: 200 }, size: { width: 50, height: 50 }, selected: false },
+            { id: "3", position: { x: 400, y: 150 }, size: { width: 60, height: 60 }, selected: false },
+            { id: "4", position: { x: 600, y: 300 }, size: { width: 70, height: 70 }, selected: false },
+        ];
+
+        // 监听鼠标事件
+        canvas.addEventListener("mousedown", (e) => {
+            isSelecting = true;
+            selectionStart = { x: e.offsetX, y: e.offsetY };
+            selectionEnd = { x: e.offsetX, y: e.offsetY };
+        });
+
+        canvas.addEventListener("mousemove", (e) => {
+            if (isSelecting && selectionStart) {
+                selectionEnd = { x: e.offsetX, y: e.offsetY };
+                drawSelectionBox();
+            }
+        });
+
+        canvas.addEventListener("mouseup", () => {
+            isSelecting = false;
+            if (selectionStart && selectionEnd) {
+                selectObjectsInArea(selectionStart, selectionEnd);
+            }
+            selectionStart = null;
+            selectionEnd = null;
+        });
+
+        // 绘制框选矩形
+        function drawSelectionBox() {
+            if (selectionStart && selectionEnd) {
+                const x = Math.min(selectionStart.x, selectionEnd.x);
+                const y = Math.min(selectionStart.y, selectionEnd.y);
+                const width = Math.abs(selectionEnd.x - selectionStart.x);
+                const height = Math.abs(selectionEnd.y - selectionStart.y);
+
+                // 清除之前的绘制并重新绘制
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawObjects(); // 重新绘制对象
+                ctx.strokeStyle = "rgba(0, 0, 255, 0.5)";
+                ctx.strokeRect(x, y, width, height);
+            }
+        }
+
+        // 选择框选区域内的对象
+        function selectObjectsInArea(start, end) {
+            const x1 = Math.min(start.x, end.x);
+            const y1 = Math.min(start.y, end.y);
+            const x2 = Math.max(start.x, end.x);
+            const y2 = Math.max(start.y, end.y);
+
+            gameObjects.forEach(obj => {
+                const { position, size } = obj;
+                const isInSelection =
+                    position.x + size.width > x1 &&
+                    position.x < x2 &&
+                    position.y + size.height > y1 &&
+                    position.y < y2;
+
+                // 如果对象在框选区域内，则高亮显示
+                obj.selected = isInSelection;
+            });
+
+            drawObjects();
+        }
+
+        // 绘制游戏对象
+        function drawObjects() {
+            gameObjects.forEach(obj => {
+                ctx.fillStyle = obj.selected ? "rgba(0, 255, 0, 0.5)" : "rgba(0, 0, 0, 0.3)";
+                ctx.fillRect(obj.position.x, obj.position.y, obj.size.width, obj.size.height);
+                ctx.strokeStyle = "black";
+                ctx.strokeRect(obj.position.x, obj.position.y, obj.size.width, obj.size.height);
+            });
+        }
+
+        // 初始化画布
+        function init() {
+            drawObjects();
+        }
+
+        init();
+    </script>
+</body>
+</html>
