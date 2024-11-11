@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>银河恶魔城风格地图显示</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        canvas {
+            border: 1px solid #000;
+            background-color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // 房间类型：normal 为普通房间，save 为保存点，boss 为 Boss 房间
+        const RoomType = { NORMAL: 'normal', SAVE: 'save', BOSS: 'boss' };
+
+        // 地图房间数据
+        const rooms = [
+            { id: '1', x: 1, y: 1, type: RoomType.NORMAL, discovered: true, connections: ['2', '3'] },
+            { id: '2', x: 2, y: 1, type: RoomType.SAVE, discovered: true, connections: ['1', '4'] },
+            { id: '3', x: 1, y: 2, type: RoomType.NORMAL, discovered: true, connections: ['1'] },
+            { id: '4', x: 2, y: 2, type: RoomType.BOSS, discovered: false, connections: ['2'] },
+        ];
+
+        // 玩家位置
+        let playerRoomId = '1';
+
+        // 地图缩放因子
+        const scale = 100;
+
+        // 房间绘制函数
+        function drawRooms() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            rooms.forEach(room => {
+                const x = room.x * scale;
+                const y = room.y * scale;
+
+                // 绘制房间
+                ctx.fillStyle = room.discovered ? (room.type === RoomType.BOSS ? 'red' : 'lightblue') : 'lightgray';
+                ctx.fillRect(x, y, scale - 10, scale - 10);
+                ctx.strokeStyle = 'black';
+                ctx.strokeRect(x, y, scale - 10, scale - 10);
+
+                // 绘制房间 ID
+                ctx.fillStyle = 'black';
+                ctx.fillText(room.id, x + 5, y + 15);
+
+                // 标记玩家所在房间
+                if (room.id === playerRoomId)
+                {
+                    ctx.beginPath();
+                    ctx.arc(x + scale / 2, y + scale / 2, 10, 0, Math.PI * 2);
+                    ctx.fillStyle = 'green';
+                    ctx.fill();
+                    ctx.stroke();
+                }
+            });
+        }
+
+        // 绘制房间连接线
+        function drawConnections() {
+            rooms.forEach(room => {
+                room.connections.forEach(connectionId => {
+                    const roomA = rooms.find(r => r.id === room.id);
+                    const roomB = rooms.find(r => r.id === connectionId);
+
+                    if (roomA && roomB)
+                    {
+                        const x1 = roomA.x * scale + scale / 2;
+                        const y1 = roomA.y * scale + scale / 2;
+                        const x2 = roomB.x * scale + scale / 2;
+                        const y2 = roomB.y * scale + scale / 2;
+
+                        // 绘制连接线
+                        ctx.beginPath();
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x2, y2);
+                        ctx.strokeStyle = 'black';
+                        ctx.stroke();
+                    }
+                });
+            });
+        }
+
+        // 玩家移动到新的房间
+        function movePlayer(newRoomId) {
+            const room = rooms.find(r => r.id === newRoomId);
+            if (room && room.discovered)
+            {
+                playerRoomId = newRoomId;
+                drawMap();
+            }
+        }
+
+        // 绘制整个地图
+        function drawMap() {
+            drawConnections();
+            drawRooms();
+        }
+
+        // 初始化地图显示
+        drawMap();
+
+        // 模拟玩家移动
+        setTimeout(() => movePlayer('2'), 3000);
+        setTimeout(() => movePlayer('3'), 6000);
+        setTimeout(() => movePlayer('4'), 9000);
+
+    </script>
+</body>
+
+</html>
