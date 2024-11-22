@@ -40,7 +40,6 @@ export class RecordUtils {
             n[i] = []
             arr.forEach((val, j) => {
                 let str = formatTime(Math.floor(val * 1000 / offset));
-                // let str=v+''
                 n[i][j] = str;
             })
         })
