@@ -1,0 +1,14 @@
+{
+  "name": "cupturehtml",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "test": "node main.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "html2canvas": "^1.4.1"
+  }
+}
