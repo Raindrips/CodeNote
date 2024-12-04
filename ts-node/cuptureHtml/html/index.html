@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        element.style {
+            background-color: rgb(195, 32, 182);
+            text-shadow: rgb(195, 32, 182) 0px 1px 2px;
+        }
+
+        .start-button-container-port {
+            height: 32px;
+            top: 481px;
+            width: 151.7px;
+        }
+
+        .start-button-container-land,
+        .start-button-container-land-pc,
+        .start-button-container-port {
+            align-items: center;
+            display: flex;
+            justify-content: center;
+            left: 0;
+            margin: auto;
+            position: absolute;
+            right: 0;
+        }
+
+        .start-button-inner {
+            background-image: linear-gradient(180deg, hsla(0, 0%, 100%, .5), hsla(0, 0%, 100%, 0));
+            background-origin: border-box;
+            border: .87px solid hsla(0, 0%, 100%, .4);
+            border-radius: 6px;
+            bottom: 0;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: '32px';
+            top: '481px';
+            width: '151.7px';
+        }
+    </style>
+</head>
+
+<body>
+    <div id="__startedButton" class="start-button-container-port start-button start-button-show-port"
+        style="background-color: rgb(195, 32, 182); text-shadow: rgb(195, 32, 182) 0px 1px 2px;">
+        <div class="start-button-inner"></div>
+        <!-- <p id="get-started-text" class="text-port">开始</p> -->
+    </div>
+
+    <script>
+        html2canvas(document.querySelector("#__startedButton")).then(canvas => {
+            document.body.appendChild(canvas)
+        });
+    </script>
+</body>
+
+</html>
