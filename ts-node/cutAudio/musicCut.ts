@@ -24,8 +24,7 @@ export function execCmd(command: string, output = false) {
 }
 
 const CommandPath = 'E:/bin/ffmpeg/bin/ffmpeg';
-const Dir = 'E:/mp3/100';
-const OutputDir = 'E:/mp3/100/out';
+
 
 export function cutAudios(
     inputFile: string,
@@ -34,7 +33,7 @@ export function cutAudios(
     endTime: string,
 ) {
     execCmd(
-        `${CommandPath} -i ${Dir}/${inputFile} -ss ${startTime} -to ${endTime} -c copy ${OutputDir}/${outFile} -loglevel quiet`,
+        `${CommandPath} -i ${inputFile} -ss ${startTime} -to ${endTime} -c copy ${OutputDir}/${outFile} -loglevel quiet`,
     );
 }
 
@@ -78,8 +77,12 @@ function changeFrame(a: string) {
     return newStr;
 }
 
-const filePath = './100.txt';
+const filePath = './104.txt';
+const OutputDir = 'E:/mp3/104/out';
+
 async function main() {
+    const inputFile = process.argv[2];
+
     // 读取文件
     const data = await readFileAsync(filePath);
     console.log(data);
@@ -96,7 +99,7 @@ async function main() {
         // const t1 = changeFrame(timestamp[0]);
         // const t2 = changeFrame(timestamp[1]);
         // console.log(t1, t2);
-        cutAudios('atlas.mp3', `${i}.mp3`, timestamp[0], timestamp[1]);
+        cutAudios(inputFile, `${i}.mp3`, timestamp[0], timestamp[1]);
         i++;
     }
 }

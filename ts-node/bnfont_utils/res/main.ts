@@ -1,19 +1,18 @@
 import { parseFntData } from './bmfontParse';
 import { generateFntContent } from './bmfontSave';
 import { FntData } from './FntData';
-import { readFile } from './readFile';
-
-const filePath = `E:\\num-win-type.fnt`;
+import { readFile, writeFile } from './FileUtils';
 
 async function main() {
     const path = process.argv[2];
     let data = await readFile(path);
     console.log(path, '\n', data);
     let fntData = parseFntData(data);
-    // console.log(fntData);
     formatData(fntData);
     let bmFont = generateFntContent(fntData);
     console.log(bmFont);
+    await writeFile(path, bmFont);
+    console.log('done');
 }
 
 function formatData(fntData: FntData) {

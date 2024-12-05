@@ -1,6 +1,6 @@
 import { promises as fs } from 'fs';
 
-const path="";
+const path = '';
 
 export async function readFile(filePath: string): Promise<string> {
     try {
@@ -9,5 +9,13 @@ export async function readFile(filePath: string): Promise<string> {
     } catch (err) {
         console.error('Error reading file:', err);
     }
-    return ""
+    return '';
+}
+
+export async function writeFile(filePath: string, data: string): Promise<void> {
+    try {
+        await fs.writeFile(filePath, data);
+    } catch (err) {
+        console.error('Error writing file:', err);
+    }
 }
