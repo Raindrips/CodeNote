@@ -75,6 +75,9 @@ export function parseFntData(data: string): FntData {
     return fntData;
 }
 
-function toInt(s: string) {
+function toInt(s: string | number | undefined) {
+    if (typeof s === 'number') return s;
+    if (typeof s === 'undefined') return 0;
+    if (s === '') return 0;
     return parseInt(s) || 0;
 }
