@@ -1,9 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
 // 预加载脚本
-
-const { contextBridge } = require('electron')
-
 //通过versions全局对象暴露nodejs和chrome的版本信息
 contextBridge.exposeInMainWorld('versions', {
     node: () => process.versions.node,
