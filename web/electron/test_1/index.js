@@ -21,6 +21,7 @@ const createWindow = () =>
 // 监听事件并打开窗口
 app.whenReady().then(() =>
 {
+    console.log('whenReady')
     // 注册一个名为 'ping' 的 IPC 通道，用于在渲染进程和主进程之间进行通信
     ipcMain.handle('ping', () => 'pong')
     createWindow()
@@ -28,12 +29,14 @@ app.whenReady().then(() =>
     //关闭所有窗口时退出应用 与事件
     app.on('window-all-closed', () =>
     {
+        console.log('window-all-closed')
         if (process.platform !== 'darwin') app.quit()
     })
 
     // 如果没有窗口打开则打开一个窗口
     app.on('activate', () =>
     {
+        console.log('activate')
         if (BrowserWindow.getAllWindows().length === 0) createWindow()
     });
 });
