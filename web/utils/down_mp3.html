@@ -1,0 +1,87 @@
+<html style="height: 100%;">
+
+<head>
+    <template id="card-template">
+        <video controls="" autoplay="" name="media">
+            <source class="source" src="example.url" type="audio/mpeg">
+        </video>
+    </template>
+    <meta name="viewport" content="width=device-width, minimum-scale=0.1">
+    <title>下载MP3</title>
+</head>
+
+<body>
+    <script>
+        // 批量下载函数
+        function batchDownload(urls) {
+            urls.forEach(url => {
+                const div = document.createElement('div');
+
+                const template = document.getElementById('card-template');
+                const clone = document.importNode(template.content, true);
+                const source = clone.querySelector('source');
+                source.src = url;
+                div.appendChild(clone);
+                /*
+               
+                const a = document.createElement('a');
+                a.href = url;
+                a.target = '_blank';
+                a.download = '';
+                a.innerText = url;
+                div.appendChild(a);
+                */
+
+                document.body.appendChild(div);
+            });
+        }
+
+        // 示例使用方法，提供一个 URL 数组
+        const urls = [
+            'https://wbgame-demo.jiligames.com/astarte2/3.6/web-mobile/assets/other/native/e2/e249afed-4536-4d9c-b1e2-d004ab257fe0.01fa4.mp3',
+            'https://wbgame-demo.jiligames.com/astarte2/3.6/web-mobile/assets/other/native/22/2202566c-a217-4e40-ac2e-390ee269f472.7225d.mp3',
+            'https://wbgame-demo.jiligames.com/astarte2/3.6/web-mobile/assets/other/native/70/70efe7a9-2da9-4751-a746-6dd9f21143f2.225ea.mp3',
+            'https://wbgame-demo.jiligames.com/astarte2/3.6/web-mobile/assets/other/native/9e/9ed96bb3-de66-4502-a4c9-8303eaf6a14c.95f83.mp3',
+            'https://wbgame-demo.jiligames.com/astarte2/3.6/web-mobile/assets/other/native/01/01536f1c-cca7-4b2b-8ce7-42636457c3e4.c0eb8.mp3',
+            'https://wbgame-demo.jiligames.com/astarte2/3.6/web-mobile/assets/other/native/7f/7fecdd1a-aa6a-45ee-bd60-fc3692edec6b.1235c.mp3',
+            'https://wbgame-demo.jiligames.com/astarte2/3.6/web-mobile/assets/other/native/a8/a80663d5-db58-4a3c-9d59-4f6d71bc2d67.65f74.mp3',
+            'https://wbgame-demo.jiligames.com/astarte2/3.6/web-mobile/assets/other/native/1a/1a564e63-cc79-4a41-b27f-9e0e05b14aac.88eab.mp3',
+            'https://wbgame-demo.jiligames.com/astarte2/3.6/web-mobile/assets/other/native/4b/4b2de5ff-9df6-41d4-9416-6cf34837bc7e.879a5.mp3',
+            'https://wbgame-demo.jiligames.com/astarte2/3.6/web-mobile/assets/other/native/b9/b959c6ca-f123-463e-b020-cc5049b25a70.272a8.mp3',
+            'https://wbgame-demo.jiligames.com/astarte2/3.6/web-mobile/assets/other/native/65/657312d6-12ca-44dc-b2f2-3f3ff0bb131c.96262.mp3',
+            'https://wbgame-demo.jiligames.com/astarte2/3.6/web-mobile/assets/other/native/49/49efc10e-8826-481f-ac28-ab9023a4453e.49f74.mp3',
+            'https://wbgame-demo.jiligames.com/astarte2/3.6/web-mobile/assets/other/native/31/31b43261-918b-47fc-8792-2499c8509cc2.5140b.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/3f/3f604bc7-ff3d-400e-a1cd-eea218215ca0.75e09.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/c5/c5c22e86-94c0-4684-8ce0-5edd690686d3.9f61c.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/b4/b40fb764-d4d9-4955-85ab-180cbf0faef5.02f6e.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/8e/8e52a8a7-9283-4d22-8c9d-289915bbfcc7.400c4.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/ff/ff4ec561-2f92-41f7-937f-0787967a841f.2c80e.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/14/142c7aa5-2134-401a-952c-fbb3c16b839c.5092d.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/fc/fcc0da81-a739-411a-af2d-f1d825dce017.28de3.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/b3/b3b8b9ad-acc6-4b21-85db-10c347827f73.61867.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/4a/4a45c49e-cb67-465e-918e-c3c3e913b749.616ce.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/47/4793a862-0ce7-40a6-a898-64a5d88fe47b.33629.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/c5/c53c3592-5170-4ab3-9695-a3614a5598fd.d73f0.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/d9/d9df5ab7-3c20-4cfa-bd31-7b9661df8971.a9a80.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/fe/fe3418e9-a972-4d5f-8a25-53f1b0e8f04c.8d3ae.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/7e/7ecfb57a-ba6d-450c-8192-6fb949654a64.49352.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/44/447a3cf1-2e13-4d55-bc77-0fbd9a1512a5.e1ab0.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/b7/b79123db-63e5-43fa-91ed-2b6112e145c7.ed5d2.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/14/14429f5f-5bdc-4c80-bf4f-628230d23036.fc9e4.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/01/01108732-c752-49fe-bea0-6cc84f14e550.eb6f7.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/e7/e71cb0b7-7df2-4556-8c7e-4124fb28187b.1d52d.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/05/0535d500-369c-4e13-ac11-077e78874ff9.8cdc2.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/ba/ba2c2409-0515-4e1c-99c5-36ef5a16542d.d2129.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/91/91d93c6d-deb9-40eb-b9de-5c934c3b6dfb.9a77e.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/e0/e0697b78-fb18-4bbf-8ffa-145e68511273.e8308.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/97/972ea81a-84ed-4952-b612-55f14de97c9a.c9862.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/47/47893ed0-a592-4f90-b54f-58a8c58e00ff.ae3dc.mp3',
+            'https://wbgame-demo.jiligames.com/pp/assets/game/native/dd/dd40948a-9eb0-403e-8b73-7ccf0b750f04.b5fbb.mp3'
+        ]
+
+        // 调用批量下载
+        batchDownload(urls);
+    </script>
+</body>
+
+</html>
