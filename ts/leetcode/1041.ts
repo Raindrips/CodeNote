@@ -18,7 +18,6 @@ namespace _1041 {
                     if (pos[0] == 0 && pos[1] == 0) {
                         count++;
                         i=0;
-                        // console.log(i,pos);
                         if (count > 4) {
                             return true;
                         }
