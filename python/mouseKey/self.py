@@ -35,12 +35,12 @@ class ClickAuto:
             if self.is_press:
                 # pyautogui.click()
                 # pydirectinput.click(_pause=False)
-                r = random.uniform(0.05, 0.2)
+                r = random.uniform(0.05, 0.1)
                 pydirectinput.mouseDown(_pause=False) 
                 time.sleep(r)
                 pydirectinput.mouseUp(_pause=False)
 
-            random_number = random.uniform(0.05, 0.2)
+            random_number = random.uniform(0.05, 0.1)
             time.sleep(random_number)
 
 
