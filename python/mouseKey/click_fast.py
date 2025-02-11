@@ -15,4 +15,4 @@ if __name__ == "__main__":
     try:
         auto_click()  # 调用自动点击函数
     except KeyboardInterrupt:
-        print("连发工具已停止")
+        print("连发工具已停止") 
