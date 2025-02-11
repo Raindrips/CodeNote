@@ -37,3 +37,11 @@ $RECYCLE.BIN/
 *.vsix
 
 build/
+
+# other
+*.mp3
+*.mp4
+*.ogg
+*.out
+*.mkv
+*.m4a
