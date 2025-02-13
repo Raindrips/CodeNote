@@ -1,5 +1,6 @@
 import { exec } from 'child_process';
 import { promises as fs, readFileSync, readFile } from 'fs';
+import { argv } from 'process';
 
 /**
  *
@@ -25,15 +26,15 @@ export function execCmd(command: string, output = false) {
 
 const CommandPath = 'E:/bin/ffmpeg/bin/ffmpeg';
 
-
 export function cutAudios(
     inputFile: string,
     outFile: string,
+    outputDir: string,
     startTime: string,
     endTime: string,
 ) {
     execCmd(
-        `${CommandPath} -i ${inputFile} -ss ${startTime} -to ${endTime} -c copy ${OutputDir}/${outFile} -loglevel quiet`,
+        `${CommandPath} -i ${inputFile} -ss ${startTime} -to ${endTime} -c copy ${outputDir}/${outFile} -loglevel quiet`,
     );
 }
 
@@ -77,12 +78,14 @@ function changeFrame(a: string) {
     return newStr;
 }
 
-const filePath = './104.txt';
-const OutputDir = 'E:/mp3/104/out';
-
 async function main() {
-    const inputFile = process.argv[2];
-
+    if (process.argv.length < 5) {
+        console.log('error argv more 5', argv.length);
+        return;
+    }
+    const filePath = process.argv[2];
+    const inputFile = process.argv[3];
+    const outputDir = process.argv[4];
     // 读取文件
     const data = await readFileAsync(filePath);
     console.log(data);
@@ -91,7 +94,7 @@ async function main() {
     const dataArray = dataParse(data);
     console.log(dataArray);
 
-    createDirs(OutputDir);
+    createDirs(outputDir);
 
     //执行命令
     let i = 0;
@@ -99,7 +102,13 @@ async function main() {
         // const t1 = changeFrame(timestamp[0]);
         // const t2 = changeFrame(timestamp[1]);
         // console.log(t1, t2);
-        cutAudios(inputFile, `${i}.mp3`, timestamp[0], timestamp[1]);
+        cutAudios(
+            inputFile,
+            `${i}.mp3`,
+            outputDir,
+            timestamp[0],
+            timestamp[1],
+        );
         i++;
     }
 }
