@@ -7,11 +7,11 @@ export enum TransitionState {
 type STATE = number | string;
 
 export interface ITransitionFn {
-    (): TransitionState | void;
+    (trans: ITransition): void | Promise<void>;
 }
 
-export interface ITransitionEvent {
-    onUpdate(): void;
+export interface IStateEvent {
+    onUpdate(dt: number): void;
     onEnter(): TransitionState;
     onExit(): void;
 }
@@ -20,49 +20,106 @@ export interface ITransition {
     from: STATE;
     event: string;
     to: STATE;
-    transitionEvent?: ITransitionFn | ITransitionEvent;
+    transitionEvent?: ITransitionFn;
+}
+export function Transition(
+    from: STATE,
+    event: string,
+    to: STATE,
+    transitionEvent?: ITransitionFn,
+) {
+    return {
+        from,
+        event,
+        to,
+        transitionEvent,
+    };
 }
 
 export class StateMachine {
-    protected transitionMap: { [key: STATE]: ITransition } = {};
+    protected transitionMap: {
+        [key: string]: ITransition;
+    } = {};
 
-    constructor(protected _current: STATE) {}
+    constructor(
+        protected _current: STATE,
+        transitions: ITransition[] = [],
+    ) {
+        this.addTransitions(transitions);
+    }
 
     addTransition(transition: ITransition) {
-        this.transitionMap[transition.from] = transition;
+        this.transitionMap[this.getKey(transition)] = transition;
+    }
+
+    addTransitions(transitions: ITransition[]) {
+        for (const trans of transitions) {
+            this.addTransition(trans);
+        }
     }
 
     /**发送事件 */
-    emit(event: string) {
+    async emit(event: string) {
         if (!this.can(event)) {
             return false;
         }
-        const transition = this.transitionMap[this._current];
-        //TODO
-        // transition.transitionEvent
-
+        const transition = this.transitionMap[this.getKeySelf(event)];
         this._current = transition.to;
-    }
-
-    update(dt: number) {
-        const transition = this.transitionMap[this._current];
-        // if (
-        //     transition.transitionEvent &&
-        //     // transition.transitionEvent['']
-        // ) {
-        // }
+        try {
+            await transition.transitionEvent?.(transition);
+        } catch (err) {
+            console.warn('StateMachine.emit()', event, err);
+            return false;
+        }
+        return true;
     }
 
     can(event: string) {
-        return this.transitionMap[this._current].event === event;
+        if (this.transitionMap[this.getKeySelf(event)] !== undefined) {
+            return true;
+        }
+        return false;
+    }
+
+    current(): STATE {
+        return this._current;
+    }
+
+    private getKey(transition: ITransition) {
+        return String(transition.from) + '_' + transition.event;
+    }
+    private getKeySelf(event: string) {
+        return String(this._current) + '_' + event;
     }
 }
 
-function test() {
-    const sfm = new StateMachine(0);
+function wait(time: number) {
+    return new Promise<void>((r) => setTimeout(r, time));
 }
 
-let a: ITransitionFn | ITransitionEvent;
-a = function () {
-    return;
-};
+function test() {
+    const t = Transition;
+    const sfm = new StateMachine('green', [
+        t('green', 'error', 'red', () => {
+            console.log('OnError green to red ');
+        }),
+        t('red', 'reset', 'green', async () => {
+            await wait(2000);
+            console.log('onReset red to green');
+        }),
+    ]);
+    console.log('current', sfm.current());
+    console.log('reset', sfm.emit('reset'));
+
+    console.log('current', sfm.current());
+
+    console.log('error');
+    sfm.emit('error');
+
+    console.log('current', sfm.current());
+    console.log('emit reset');
+    sfm.emit('reset');
+    console.log('current', sfm.current());
+}
+
+test();
