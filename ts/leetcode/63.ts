@@ -9,6 +9,8 @@ namespace _63 {
         let d = 0;
         let x = 0;
         let y = 0;
+
+        return 0;
     }
 
     function bfs(
