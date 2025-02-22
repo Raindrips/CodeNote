@@ -1,0 +1,89 @@
+/* 页面基本样式 */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f7fc;
+    margin: 0;
+    padding: 20px;
+}
+
+/* 清除 ul 和 ol 默认样式 */
+ul,
+ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* 列表项按钮样式 */
+li {
+    display: block; /* 将 li 元素变成块级元素 */
+    margin: 10px 6px;
+    background-color: #4caf50;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    border: 2px solid #4caf50;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* 悬停效果 */
+li:hover {
+    background-color: #45a049;
+    border-color: #45a049;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 聚焦时的效果 (例如通过键盘导航时) */
+li:focus {
+    outline: none;
+    background-color: #3e8e41;
+    border-color: #3e8e41;
+}
+
+/* 设置点击后的样式 */
+li:active {
+    background-color: #388e3c;
+    border-color: #388e3c;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 垂直排列的列表样式 */
+ul {
+    width: 300px;
+    margin: 0 auto;
+}
+
+/* 美化 <a> 标签，使其看起来像按钮 */
+a {
+    padding: 15px 0px;
+
+    display: block;
+    width: 100%;
+    height: 100%;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    border-radius: 5px;
+    text-decoration: none; /* 去掉下划线 */
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* 悬停效果 */
+a:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 聚焦时的效果 (例如通过键盘导航时) */
+a:focus {
+    outline: none;
+}
+
+/* 点击后的效果 */
+a:active {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
