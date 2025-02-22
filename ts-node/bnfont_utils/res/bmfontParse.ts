@@ -1,3 +1,4 @@
+
 import { FontInfo, CommonInfo, FntData } from './FntData';
 
 export function parseFntData(data: string): FntData {
@@ -81,3 +82,4 @@ function toInt(s: string | number | undefined) {
     if (s === '') return 0;
     return parseInt(s) || 0;
 }
+
