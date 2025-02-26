@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Base64编码解码器</title>
+    </head>
+    <body>
+        <h1>Base64编码解码器</h1>
+
+        <p><label for="inputText">输入Base64编码：</label></p>
+        <textarea id="inputText" rows="5" cols="80"></textarea>
+        <br />
+        <button onclick="decodeBase64()">解密</button>
+        <br />
+
+        <p><label for="outputText">解密后的文本：</label></p>
+        <textarea id="outputText" rows="40" cols="80"></textarea>
+
+        <script>
+            function decodeBase64() {
+                var inputText = document.getElementById("inputText").value;
+                try {
+                    let b = atob(inputText);
+                    var formatText = JSON.stringify(JSON.parse(b), null, 2); // 解码Base64
+                    document.getElementById("outputText").value = formatText;
+                } catch (error) {
+                    // alert("解码失败：" + error.message);
+                }
+            }
+        </script>
+    </body>
+</html>

@@ -83,11 +83,11 @@ async function main() {
         console.log('error argv more 5', argv.length);
         return;
     }
-    const filePath = process.argv[2];
-    const inputFile = process.argv[3];
+    const ruleFilePath = process.argv[2];
+    const mp3File = process.argv[3];
     const outputDir = process.argv[4];
     // 读取文件
-    const data = await readFileAsync(filePath);
+    const data = await readFileAsync(ruleFilePath);
     console.log(data);
 
     //解析数据
@@ -103,7 +103,7 @@ async function main() {
         // const t2 = changeFrame(timestamp[1]);
         // console.log(t1, t2);
         cutAudios(
-            inputFile,
+            mp3File,
             `${i}.mp3`,
             outputDir,
             timestamp[0],
