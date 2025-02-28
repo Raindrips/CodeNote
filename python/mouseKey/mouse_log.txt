@@ -1,0 +1,564 @@
+Mouse move to (2877, 809)
+Mouse move to (2877, 811)
+Mouse move to (2876, 813)
+Mouse move to (2875, 814)
+Mouse move to (2874, 814)
+Mouse move to (2874, 814)
+Mouse move to (2871, 817)
+Mouse move to (2869, 819)
+Mouse move to (2869, 820)
+Mouse move to (2867, 823)
+Mouse move to (2864, 826)
+Mouse move to (2863, 827)
+Mouse move to (2862, 827)
+Mouse move to (2862, 828)
+Mouse move to (2861, 830)
+Mouse move to (2860, 830)
+Mouse move to (2860, 831)
+Mouse move to (2857, 832)
+Mouse move to (2856, 834)
+Mouse move to (2856, 834)
+Mouse move to (2855, 834)
+Mouse move to (2853, 835)
+Mouse move to (2853, 836)
+Mouse move to (2852, 837)
+Mouse move to (2851, 837)
+Mouse move to (2850, 837)
+Mouse move to (2850, 837)
+Mouse move to (2847, 837)
+Mouse move to (2847, 838)
+Mouse move to (2846, 838)
+Mouse move to (2845, 839)
+Mouse move to (2844, 839)
+Mouse move to (2844, 839)
+Mouse move to (2842, 840)
+Mouse move to (2841, 840)
+Mouse move to (2841, 841)
+Mouse move to (2840, 841)
+Mouse move to (2839, 841)
+Mouse move to (2839, 841)
+Mouse move to (2837, 841)
+Mouse move to (2836, 841)
+Mouse move to (2836, 841)
+Mouse pressed at (2836, 841) with Button.left
+Mouse released at (2836, 841) with Button.left
+Mouse pressed at (2836, 841) with Button.right
+Mouse released at (2836, 841) with Button.right
+Mouse pressed at (2836, 841) with Button.left
+Mouse released at (2836, 841) with Button.left
+Mouse move to (2832, 841)
+Mouse move to (2825, 841)
+Mouse move to (2814, 844)
+Mouse move to (2808, 847)
+Mouse move to (2799, 852)
+Mouse move to (2797, 853)
+Mouse move to (2797, 853)
+Mouse move to (2797, 852)
+Mouse move to (2797, 850)
+Mouse move to (2797, 850)
+Mouse move to (2797, 848)
+Mouse move to (2797, 846)
+Mouse move to (2798, 845)
+Mouse move to (2798, 844)
+Mouse move to (2800, 842)
+Mouse move to (2800, 841)
+Mouse move to (2801, 837)
+Mouse move to (2802, 835)
+Mouse move to (2803, 832)
+Mouse move to (2805, 831)
+Mouse move to (2807, 828)
+Mouse move to (2809, 825)
+Mouse move to (2810, 822)
+Mouse move to (2812, 818)
+Mouse move to (2812, 817)
+Mouse move to (2813, 816)
+Mouse move to (2814, 814)
+Mouse move to (2815, 814)
+Mouse move to (2815, 813)
+Mouse move to (2815, 811)
+Mouse move to (2816, 811)
+Mouse move to (2817, 810)
+Mouse move to (2817, 809)
+Mouse move to (2818, 809)
+Mouse move to (2819, 809)
+Mouse move to (2820, 807)
+Mouse move to (2820, 807)
+Mouse move to (2822, 806)
+Mouse move to (2824, 806)
+Mouse move to (2825, 805)
+Mouse move to (2826, 805)
+Mouse move to (2830, 804)
+Mouse move to (2833, 801)
+Mouse move to (2837, 800)
+Mouse move to (2840, 798)
+Mouse move to (2843, 796)
+Mouse move to (2847, 795)
+Mouse move to (2851, 793)
+Mouse move to (2853, 792)
+Mouse move to (2857, 790)
+Mouse move to (2858, 790)
+Mouse move to (2860, 789)
+Mouse move to (2863, 787)
+Mouse move to (2864, 786)
+Mouse move to (2867, 784)
+Mouse move to (2868, 783)
+Mouse move to (2870, 782)
+Mouse move to (2871, 782)
+Mouse move to (2874, 780)
+Mouse move to (2876, 778)
+Mouse move to (2880, 776)
+Mouse move to (2883, 773)
+Mouse move to (2888, 770)
+Mouse move to (2890, 768)
+Mouse move to (2897, 765)
+Mouse move to (2900, 763)
+Mouse move to (2907, 760)
+Mouse move to (2911, 756)
+Mouse move to (2917, 753)
+Mouse move to (2926, 749)
+Mouse move to (2930, 746)
+Mouse move to (2937, 742)
+Mouse move to (2943, 739)
+Mouse move to (2946, 737)
+Mouse move to (2951, 733)
+Mouse move to (2957, 730)
+Mouse move to (2961, 728)
+Mouse move to (2967, 723)
+Mouse move to (2973, 720)
+Mouse move to (2979, 716)
+Mouse move to (2986, 712)
+Mouse move to (2988, 711)
+Mouse move to (2993, 709)
+Mouse move to (2996, 706)
+Mouse move to (2999, 704)
+Mouse move to (3001, 702)
+Mouse move to (3004, 700)
+Mouse move to (3006, 698)
+Mouse move to (3007, 697)
+Mouse move to (3013, 692)
+Mouse move to (3016, 691)
+Mouse move to (3018, 688)
+Mouse move to (3021, 685)
+Mouse move to (3024, 683)
+Mouse move to (3026, 681)
+Mouse move to (3029, 678)
+Mouse move to (3032, 676)
+Mouse move to (3032, 675)
+Mouse move to (3035, 673)
+Mouse move to (3037, 671)
+Mouse move to (3038, 669)
+Mouse move to (3041, 666)
+Mouse move to (3043, 665)
+Mouse move to (3044, 664)
+Mouse move to (3045, 662)
+Mouse move to (3047, 661)
+Mouse move to (3049, 660)
+Mouse move to (3052, 657)
+Mouse move to (3052, 656)
+Mouse move to (3054, 655)
+Mouse move to (3056, 652)
+Mouse move to (3057, 651)
+Mouse move to (3060, 647)
+Mouse move to (3062, 646)
+Mouse move to (3063, 645)
+Mouse move to (3065, 642)
+Mouse move to (3067, 641)
+Mouse move to (3068, 638)
+Mouse move to (3071, 636)
+Mouse move to (3072, 634)
+Mouse move to (3075, 631)
+Mouse move to (3076, 630)
+Mouse move to (3078, 628)
+Mouse move to (3080, 626)
+Mouse move to (3081, 625)
+Mouse move to (3083, 623)
+Mouse move to (3084, 622)
+Mouse move to (3085, 621)
+Mouse move to (3086, 621)
+Mouse move to (3088, 619)
+Mouse move to (3089, 618)
+Mouse move to (3090, 617)
+Mouse move to (3091, 617)
+Mouse pressed at (3091, 617) with Button.left
+Mouse released at (3091, 617) with Button.left
+Mouse move to (3091, 616)
+Mouse move to (3089, 616)
+Mouse move to (3087, 619)
+Mouse move to (3082, 621)
+Mouse move to (3080, 624)
+Mouse move to (3074, 626)
+Mouse move to (3065, 630)
+Mouse move to (3058, 632)
+Mouse move to (3050, 636)
+Mouse move to (3038, 640)
+Mouse move to (3028, 644)
+Mouse move to (3016, 646)
+Mouse move to (3001, 649)
+Mouse move to (2984, 650)
+Mouse move to (2967, 652)
+Mouse move to (2945, 652)
+Mouse move to (2921, 652)
+Mouse move to (2887, 660)
+Mouse move to (2866, 668)
+Mouse move to (2852, 672)
+Mouse move to (2852, 673)
+Mouse move to (2851, 672)
+Mouse move to (2849, 668)
+Mouse move to (2845, 667)
+Mouse move to (2843, 664)
+Mouse move to (2834, 662)
+Mouse move to (2825, 657)
+Mouse move to (2816, 654)
+Mouse move to (2805, 649)
+Mouse move to (2798, 645)
+Mouse move to (2789, 643)
+Mouse move to (2783, 639)
+Mouse move to (2781, 639)
+Mouse move to (2777, 637)
+Mouse move to (2775, 636)
+Mouse move to (2773, 635)
+Mouse move to (2771, 634)
+Mouse move to (2771, 633)
+Mouse move to (2770, 632)
+Mouse move to (2768, 631)
+Mouse move to (2768, 630)
+Mouse move to (2767, 629)
+Mouse move to (2765, 626)
+Mouse move to (2764, 619)
+Mouse move to (2764, 614)
+Mouse move to (2764, 610)
+Mouse move to (2764, 605)
+Mouse move to (2764, 600)
+Mouse move to (2764, 597)
+Mouse pressed at (2764, 597) with Button.right
+Mouse released at (2764, 597) with Button.right
+Mouse move to (2764, 596)
+Mouse move to (2764, 596)
+Mouse move to (2762, 594)
+Mouse move to (2761, 591)
+Mouse move to (2757, 589)
+Mouse move to (2754, 586)
+Mouse move to (2750, 584)
+Mouse move to (2745, 581)
+Mouse move to (2743, 579)
+Mouse move to (2740, 577)
+Mouse move to (2737, 575)
+Mouse move to (2735, 575)
+Mouse move to (2732, 572)
+Mouse move to (2729, 571)
+Mouse move to (2727, 570)
+Mouse move to (2725, 568)
+Mouse move to (2721, 567)
+Mouse move to (2718, 566)
+Mouse move to (2718, 565)
+Mouse move to (2715, 564)
+Mouse move to (2714, 563)
+Mouse move to (2713, 562)
+Mouse move to (2712, 562)
+Mouse move to (2710, 559)
+Mouse move to (2708, 558)
+Mouse move to (2705, 557)
+Mouse move to (2703, 556)
+Mouse move to (2702, 555)
+Mouse pressed at (2702, 555) with Button.left
+Mouse released at (2702, 555) with Button.left
+Mouse pressed at (2702, 555) with Button.left
+Mouse released at (2702, 555) with Button.left
+Mouse pressed at (2702, 555) with Button.left
+Mouse released at (2702, 555) with Button.left
+Mouse pressed at (2702, 555) with Button.left
+Mouse released at (2702, 555) with Button.left
+Mouse move to (2701, 555)
+Mouse move to (2701, 561)
+Mouse move to (2702, 571)
+Mouse move to (2703, 581)
+Mouse move to (2706, 593)
+Mouse move to (2707, 603)
+Mouse move to (2707, 613)
+Mouse move to (2707, 625)
+Mouse move to (2707, 636)
+Mouse move to (2707, 650)
+Mouse move to (2707, 663)
+Mouse move to (2707, 676)
+Mouse move to (2707, 691)
+Mouse move to (2707, 706)
+Mouse move to (2707, 718)
+Mouse move to (2707, 731)
+Mouse move to (2707, 741)
+Mouse move to (2707, 749)
+Mouse move to (2707, 756)
+Mouse move to (2707, 761)
+Mouse move to (2707, 767)
+Mouse move to (2707, 770)
+Mouse move to (2707, 775)
+Mouse move to (2707, 779)
+Mouse move to (2707, 783)
+Mouse move to (2708, 787)
+Mouse move to (2708, 789)
+Mouse move to (2709, 794)
+Mouse move to (2709, 797)
+Mouse move to (2711, 801)
+Mouse move to (2711, 803)
+Mouse move to (2711, 804)
+Mouse move to (2712, 807)
+Mouse pressed at (2712, 807) with Button.left
+Mouse released at (2712, 807) with Button.left
+Mouse move to (2712, 808)
+Mouse move to (2712, 808)
+Mouse move to (2711, 808)
+Mouse move to (2710, 808)
+Mouse move to (2710, 808)
+Mouse move to (2709, 810)
+Mouse move to (2708, 815)
+Mouse move to (2707, 818)
+Mouse move to (2704, 823)
+Mouse move to (2704, 826)
+Mouse move to (2702, 830)
+Mouse move to (2702, 832)
+Mouse move to (2702, 834)
+Mouse move to (2702, 836)
+Mouse move to (2701, 840)
+Mouse move to (2701, 841)
+Mouse move to (2701, 841)
+Mouse move to (2701, 843)
+Mouse move to (2701, 843)
+Mouse move to (2701, 844)
+Mouse pressed at (2701, 844) with Button.left
+Mouse released at (2701, 844) with Button.left
+Mouse move to (2700, 845)
+Mouse move to (2698, 846)
+Mouse move to (2695, 848)
+Mouse move to (2694, 848)
+Mouse move to (2690, 850)
+Mouse move to (2689, 852)
+Mouse move to (2688, 853)
+Mouse move to (2688, 854)
+Mouse move to (2686, 855)
+Mouse move to (2685, 856)
+Mouse move to (2685, 857)
+Mouse move to (2685, 857)
+Mouse move to (2685, 858)
+Mouse move to (2686, 860)
+Mouse move to (2687, 860)
+Mouse move to (2687, 861)
+Mouse scrolled at (2687, 861) with dx=0, dy=-1
+Mouse scrolled at (2687, 861) with dx=0, dy=-1
+Mouse scrolled at (2687, 861) with dx=0, dy=-1
+Mouse scrolled at (2687, 861) with dx=0, dy=-1
+Mouse move to (2688, 862)
+Mouse move to (2689, 862)
+Mouse scrolled at (2689, 862) with dx=0, dy=1
+Mouse move to (2689, 862)
+Mouse move to (2690, 862)
+Mouse scrolled at (2690, 862) with dx=0, dy=1
+Mouse move to (2692, 862)
+Mouse move to (2692, 862)
+Mouse scrolled at (2692, 862) with dx=0, dy=1
+Mouse move to (2693, 862)
+Mouse move to (2694, 861)
+Mouse move to (2694, 861)
+Mouse move to (2694, 860)
+Mouse move to (2698, 859)
+Mouse move to (2710, 858)
+Mouse move to (2725, 855)
+Mouse move to (2738, 854)
+Mouse move to (2756, 854)
+Mouse move to (2771, 854)
+Mouse move to (2785, 854)
+Mouse move to (2799, 854)
+Mouse move to (2813, 852)
+Mouse move to (2823, 848)
+Mouse move to (2830, 847)
+Mouse move to (2832, 846)
+Mouse move to (2834, 846)
+Mouse move to (2836, 845)
+Mouse move to (2840, 843)
+Mouse move to (2842, 843)
+Mouse move to (2844, 843)
+Mouse move to (2844, 843)
+Mouse move to (2848, 843)
+Mouse move to (2848, 843)
+Mouse move to (2852, 843)
+Mouse move to (2855, 842)
+Mouse move to (2859, 842)
+Mouse move to (2864, 842)
+Mouse move to (2871, 842)
+Mouse move to (2883, 842)
+Mouse move to (2898, 842)
+Mouse move to (2914, 842)
+Mouse move to (2937, 842)
+Mouse move to (2967, 842)
+Mouse move to (2998, 842)
+Mouse move to (3032, 842)
+Mouse move to (3063, 842)
+Mouse move to (3094, 840)
+Mouse move to (3123, 836)
+Mouse move to (3151, 836)
+Mouse move to (3178, 836)
+Mouse move to (3205, 836)
+Mouse move to (3236, 836)
+Mouse move to (3263, 836)
+Mouse move to (3287, 836)
+Mouse move to (3304, 836)
+Mouse move to (3320, 836)
+Mouse move to (3330, 836)
+Mouse move to (3341, 835)
+Mouse move to (3346, 834)
+Mouse move to (3353, 833)
+Mouse move to (3360, 831)
+Mouse move to (3366, 829)
+Mouse move to (3371, 828)
+Mouse move to (3382, 826)
+Mouse move to (3386, 823)
+Mouse move to (3389, 822)
+Mouse move to (3392, 820)
+Mouse move to (3398, 817)
+Mouse move to (3401, 816)
+Mouse move to (3404, 815)
+Mouse move to (3408, 813)
+Mouse move to (3412, 812)
+Mouse move to (3419, 808)
+Mouse move to (3428, 803)
+Mouse move to (3437, 800)
+Mouse move to (3447, 796)
+Mouse move to (3461, 794)
+Mouse move to (3478, 789)
+Mouse move to (3493, 785)
+Mouse move to (3512, 781)
+Mouse move to (3530, 775)
+Mouse move to (3555, 771)
+Mouse move to (3577, 770)
+Mouse move to (3600, 765)
+Mouse move to (3618, 764)
+Mouse move to (3634, 762)
+Mouse move to (3647, 758)
+Mouse move to (3657, 758)
+Mouse move to (3669, 757)
+Mouse move to (3678, 756)
+Mouse move to (3688, 753)
+Mouse move to (3697, 752)
+Mouse move to (3705, 750)
+Mouse move to (3712, 749)
+Mouse move to (3714, 749)
+Mouse move to (3718, 749)
+Mouse move to (3719, 748)
+Mouse move to (3720, 748)
+Mouse move to (3721, 747)
+Mouse move to (3721, 746)
+Mouse move to (3721, 745)
+Mouse move to (3721, 744)
+Mouse move to (3721, 743)
+Mouse move to (3721, 743)
+Mouse move to (3721, 740)
+Mouse move to (3720, 740)
+Mouse pressed at (3720, 740) with Button.left
+Mouse released at (3720, 740) with Button.left
+Mouse move to (3719, 739)
+Mouse move to (3719, 739)
+Mouse move to (3718, 739)
+Mouse move to (3716, 739)
+Mouse move to (3716, 740)
+Mouse move to (3715, 740)
+Mouse move to (3713, 741)
+Mouse move to (3713, 742)
+Mouse move to (3709, 743)
+Mouse move to (3709, 744)
+Mouse move to (3705, 745)
+Mouse move to (3700, 746)
+Mouse move to (3692, 750)
+Mouse move to (3687, 751)
+Mouse move to (3682, 752)
+Mouse move to (3674, 754)
+Mouse move to (3670, 755)
+Mouse move to (3662, 756)
+Mouse move to (3656, 758)
+Mouse move to (3648, 758)
+Mouse move to (3636, 758)
+Mouse move to (3625, 758)
+Mouse move to (3611, 758)
+Mouse move to (3597, 758)
+Mouse move to (3578, 758)
+Mouse move to (3556, 758)
+Mouse move to (3518, 758)
+Mouse pressed at (2789, 916) with Button.left
+Mouse released at (2789, 916) with Button.left
+Mouse pressed at (2789, 916) with Button.left
+Mouse released at (2789, 916) with Button.left
+Mouse pressed at (2789, 916) with Button.left
+Mouse released at (2789, 916) with Button.left
+Mouse pressed at (2761, 974) with Button.left
+Mouse released at (2761, 974) with Button.left
+Mouse pressed at (3712, 730) with Button.left
+Mouse released at (3712, 730) with Button.left
+Mouse pressed at (2742, 960) with Button.left
+Mouse released at (2742, 960) with Button.left
+Mouse pressed at (2733, 953) with Button.left
+Mouse released at (2733, 953) with Button.left
+Mouse pressed at (2733, 953) with Button.left
+Mouse released at (2733, 953) with Button.left
+Mouse pressed at (2724, 948) with Button.left
+Mouse released at (2724, 948) with Button.left
+Mouse pressed at (2724, 948) with Button.left
+Mouse released at (2724, 948) with Button.left
+Mouse pressed at (2724, 948) with Button.left
+Mouse released at (2724, 948) with Button.left
+Mouse pressed at (2724, 948) with Button.left
+Mouse released at (2724, 948) with Button.left
+Mouse pressed at (2724, 948) with Button.left
+Mouse released at (2724, 948) with Button.left
+Mouse pressed at (2724, 948) with Button.left
+Mouse released at (2724, 948) with Button.left
+Mouse pressed at (2724, 948) with Button.left
+Mouse released at (2724, 948) with Button.left
+Mouse pressed at (2724, 948) with Button.left
+Mouse released at (2724, 948) with Button.left
+Mouse pressed at (2724, 948) with Button.left
+Mouse released at (2724, 948) with Button.left
+Mouse pressed at (2710, 915) with Button.left
+Mouse released at (2710, 915) with Button.left
+Mouse pressed at (2747, 947) with Button.left
+Mouse released at (2738, 941) with Button.left
+Mouse pressed at (2680, 869) with Button.left
+Mouse released at (2680, 869) with Button.left
+Mouse pressed at (2689, 911) with Button.left
+Mouse released at (2689, 911) with Button.left
+Mouse pressed at (2725, 894) with Button.left
+Mouse released at (2725, 894) with Button.left
+Mouse pressed at (2725, 894) with Button.right
+Mouse released at (2725, 894) with Button.right
+Mouse pressed at (3102, 611) with Button.left
+Mouse released at (3102, 611) with Button.left
+Mouse pressed at (2893, 590) with Button.left
+Mouse released at (2893, 590) with Button.left
+Mouse pressed at (2893, 590) with Button.left
+Mouse released at (2893, 590) with Button.left
+Mouse pressed at (2863, 846) with Button.left
+Mouse released at (2863, 846) with Button.left
+Mouse pressed at (2872, 859) with Button.right
+Mouse released at (2872, 859) with Button.right
+Mouse pressed at (2981, 867) with Button.left
+Mouse released at (2981, 867) with Button.left
+Mouse pressed at (2981, 867) with Button.left
+Mouse released at (2981, 867) with Button.left
+Mouse pressed at (2981, 867) with Button.left
+Mouse released at (2981, 867) with Button.left
+Mouse pressed at (2953, 865) with Button.left
+Mouse released at (2953, 865) with Button.left
+Mouse pressed at (3677, 775) with Button.left
+Mouse released at (3677, 775) with Button.left
+Mouse pressed at (3716, 740) with Button.left
+Mouse released at (3716, 740) with Button.left
+Mouse pressed at (2778, 843) with Button.left
+Mouse released at (2778, 843) with Button.left
+Mouse pressed at (2786, 892) with Button.left
+Mouse released at (2786, 892) with Button.left
+Mouse pressed at (2786, 892) with Button.right
+Mouse pressed at (2786, 892) with Button.left
+Mouse released at (2786, 892) with Button.right
+Mouse released at (2783, 893) with Button.left
+Mouse pressed at (2763, 893) with Button.right
+Mouse pressed at (2757, 890) with Button.left
+Mouse released at (2757, 890) with Button.right
+Mouse released at (2757, 890) with Button.left
+Mouse pressed at (3711, 735) with Button.left
+Mouse released at (3711, 735) with Button.left
