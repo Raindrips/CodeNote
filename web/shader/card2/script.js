@@ -55,7 +55,8 @@ const fragmentShaderSource = `
 `;
 
 // 创建和编译着色器
-function createShader(gl, type, source) {
+function createShader(gl, type, source)
+{
     const shader = gl.createShader(type);
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
@@ -67,7 +68,8 @@ function createShader(gl, type, source) {
     return shader;
 }
 
-function createProgram(gl, vertexShader, fragmentShader) {
+function createProgram(gl, vertexShader, fragmentShader)
+{
     const program = gl.createProgram();
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, fragmentShader);
@@ -87,9 +89,10 @@ const program = createProgram(gl, vertexShader, fragmentShader);
 gl.useProgram(program);
 
 // 查找位置
+
 const positionLocation = gl.getAttribLocation(program, "aPosition");
-const flipProgressLocation = gl.getUniformLocation(program, "uFlipProgress");
-const resolutionLocation = gl.getUniformLocation(program, "uResolution");
+// const flipProgressLocation = gl.getUniformLocation(program, "uFlipProgress");
+// const resolutionLocation = gl.getUniformLocation(program, "uResolution");
 const textureLocation = gl.getUniformLocation(program, "uTexture");
 
 // 创建缓冲区
@@ -111,7 +114,8 @@ gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 const texture = gl.createTexture();
 const image = new Image();
 image.src = 'texture0.png'; // 替换为你自己的图片
-image.onload = function() {
+image.onload = function ()
+{
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
     gl.generateMipmap(gl.TEXTURE_2D);
@@ -124,12 +128,14 @@ let flipProgress = 0.0;
 const maxProgress = 1.0;
 const flipSpeed = 0.01;
 
-function animate() {
-    flipProgress += flipSpeed;
-    if (flipProgress > maxProgress) flipProgress = 0.0;
+function animate()
+{
+    // flipProgress += flipSpeed;
+    // if (flipProgress > maxProgress) flipProgress = 0.0;
 
-    gl.uniform1f(flipProgressLocation, flipProgress);
-    gl.uniform2f(resolutionLocation, gl.canvas.width, gl.canvas.height);
+    //设置变量
+    // gl.uniform1f(flipProgressLocation, flipProgress);
+    // gl.uniform2f(resolutionLocation, gl.canvas.width, gl.canvas.height);
 
     // 绘制
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
