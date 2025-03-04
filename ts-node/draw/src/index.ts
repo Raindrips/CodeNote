@@ -1,1 +1,3 @@
-console.log('index');
+(function () {
+    console.log('index');
+});
