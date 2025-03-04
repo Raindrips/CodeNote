@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>键盘事件记录与重播</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        #log {
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        button {
+            margin: 5px;
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>键盘事件记录器</h2>
+    <button id="startRecord">开始记录</button>
+    <button id="stopRecord">停止记录</button>
+    <button id="replay">重播</button>
+    <button id="clear">清除</button>
+    <div id="log"></div>
+
+    <script src="../../dist/canvas/record.js"></script>
+</body>
+
+</html>
