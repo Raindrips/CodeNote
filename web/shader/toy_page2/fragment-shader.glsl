@@ -64,40 +64,50 @@ float drawCircle(vec2 uv, vec2 center, float radius) {
     return smoothstep(0.001, -0.001, d);
 }
 
-// 画弧线
-float drawArc(
-    vec2 uv,
-    vec2 center,
-    float radius,
-    float startAngle,
-    float endAngle,
-    float width
-) {
-    vec2 offset = uv - center;
-    float angle = atan(offset.y, offset.x);
-    angle = mod(angle + 2.0 * 3.1415926535, 2.0 * 3.1415926535); // [0, 2π]
+float drawArc(vec2 uv, vec2 pos, float startAngle, float endAngle, float width, float radius) {
+    const float PI = 3.1415926535;
+    startAngle *= PI;
+    endAngle *= PI;
+    uv = uv - pos;
+    float dist = length(uv);
+    float angle = atan(uv.y, uv.x);
+    float inAngle = step(startAngle, angle) * (1.0 - step(endAngle, angle));
 
-    // 角度容差（抗锯齿）
-    float angleTolerance = 0.1;
-    float dist = length(offset);
-
-    // 距离场计算
-    float d = abs(dist - radius) - width * 0.5;
-    float distanceField = 1.0 - smoothstep(0.5, -0.5, d);
-
-    // 角度范围判断
-    float angleFactor = 0.0;
-    if(endAngle > startAngle) {
-        angleFactor = smoothstep(startAngle - angleTolerance, startAngle, angle) *
-            (1.0 - smoothstep(endAngle, endAngle + angleTolerance, angle));
-    } else {
-        angleFactor = smoothstep(startAngle - angleTolerance, startAngle, angle) +
-            (1.0 - smoothstep(endAngle, endAngle + angleTolerance, angle)) -
-            smoothstep(endAngle, startAngle, angle);
-    }
-
-    return distanceField * clamp(angleFactor, 0.0, 1.0);
+    float inRadius = step(radius - width * .5, dist) *
+        (1.0 - step(radius + width * .5, dist));
+    float alpha = inAngle * inRadius;
+    return alpha;
 }
+
+// float drawArc(vec2 uv, vec2 pos, float startAngle, float endAngle, float width, float radius) {
+//     const float PI = 3.1415926535;
+//     startAngle *= PI;  // 输入度数，转换为弧度
+//     endAngle *= PI;
+//     uv = uv - pos;
+//     float dist = length(uv);
+//     float angle = atan(uv.y, uv.x);  // 返回 -π 到 π
+
+//     // 将角度归一化到 0 到 2π
+//     angle = mod(angle + 2.0 * PI, 2.0 * PI);
+//     startAngle = mod(startAngle + 2.0 * PI, 2.0 * PI);
+//     endAngle = mod(endAngle + 2.0 * PI, 2.0 * PI);
+
+//     // 判断角度是否在范围内
+//     float inAngle;
+//     if (startAngle <= endAngle) {
+//         inAngle = step(startAngle, angle) * step(angle, endAngle);
+//     } else {
+//         // 跨越 0/2π 的情况
+//         inAngle = step(startAngle, angle) + step(0.0, angle) * step(angle, endAngle);
+//         inAngle = min(inAngle, 1.0);  // 确保值不超过 1
+//     }
+
+//     // 判断半径
+//     float inRadius = step(radius - width * 0.5, dist) * (1.0 - step(radius + width * 0.5, dist));
+
+//     float alpha = inAngle * inRadius;
+//     return alpha;
+// }
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 
@@ -106,15 +116,15 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     vec3 color = vec3(0.);
 
     color += vec3(drawLine(uv, vec2(.1, .5), vec2(.5, .8), 0.01), 0., 0.);
-
     color += vec3(0., drawRect(uv, vec2(0.5, 0.5), vec2(0.2, 0.2)), 0.);
-
     color += vec3(.0, .0, drawCircle(uv, vec2(0.4, 0.3), 0.1));
 
-    float arc = drawArc(uv, vec2(0.0), 0.25, radians(30.0), radians(300.0), 0.02);
-
+    // float arc = drawArc(uv, vec2(0.0), 0.25, radians(30.0), radians(300.0), 0.02);
     // color += vec3(arc, arc, 0.);
-    
+
+    float alpha = drawArc(uv, vec2(.5, .5), -.5, .5, .01, .2);
+    color += vec3(alpha, alpha, 0.);
+
     fragColor = vec4(color, 1.0);
 }
 

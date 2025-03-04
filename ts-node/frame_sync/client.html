@@ -1,0 +1,67 @@
+<!-- client.html -->
+<!DOCTYPE html>
+<html>
+<body>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let players = {}; // 所有玩家状态 { playerId: { x, y } }
+    let myPlayerId;
+    let currentFrame = 0;
+
+    // 连接WebSocket
+    const ws = new WebSocket('ws://localhost:8080');
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      switch (data.type) {
+        case 'init':
+          myPlayerId = data.playerId;
+          currentFrame = data.currentFrame;
+          break;
+        case 'frame':
+          // 应用当前帧输入
+          updateGameState(data.inputs);
+          currentFrame = data.frame + 1; // 下一帧
+          break;
+      }
+    };
+
+    // 发送玩家输入（例如键盘事件）
+    document.addEventListener('keydown', (e) => {
+      const input = { type: 'move', direction: null };
+      if (e.key === 'ArrowLeft') input.direction = 'left';
+      if (e.key === 'ArrowRight') input.direction = 'right';
+      
+      if (input.direction) {
+        ws.send(JSON.stringify({
+          type: 'input',
+          frame: currentFrame,
+          input: input
+        }));
+      }
+    });
+
+    // 更新游戏状态（确定性逻辑）
+    function updateGameState(inputs) {
+      Object.entries(inputs).forEach(([playerId, input]) => {
+        if (!players[playerId]) players[playerId] = { x: 400, y: 300 };
+        const player = players[playerId];
+        if (input.direction === 'left') player.x -= 5;
+        if (input.direction === 'right') player.x += 5;
+      });
+    }
+
+    // 渲染循环（独立于逻辑帧）
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      Object.entries(players).forEach(([id, player]) => {
+        ctx.fillStyle = id === myPlayerId ? 'red' : 'blue';
+        ctx.fillRect(player.x, player.y, 30, 30);
+      });
+      requestAnimationFrame(render);
+    }
+    render();
+  </script>
+</body>
+</html>
