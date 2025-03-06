@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Metroid Style Map</title>
+    <style>
+        canvas {
+            border: 1px solid #fff;
+            background: #000;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #111;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="mapCanvas" width="400" height="400"></canvas>
+
+    <script>
+        const canvas = document.getElementById('mapCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // 地图配置
+        const tileSize = 40;  // 每个房间的尺寸
+        const mapWidth = 10;  // 地图宽度（房间数）
+        const mapHeight = 10; // 地图高度（房间数）
+
+        // 简单的地图数据，1表示房间，0表示空，2表示当前玩家位置
+        const map = [
+            [1, 1, 1, 0, 0, 0, 0, 0, 0, 1],
+            [0, 0, 1, 0, 0, 1, 1, 0, 0, 1],
+            [0, 0, 1, 1, 1, 1, 0, 0, 0, 1],
+            [0, 0, 0, 0, 0, 1, 0, 1, 1, 1],
+            [0, 1, 1, 0, 0, 1, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 2, 0, 0, 0, 0],
+            [0, 1, 1, 1, 0, 0, 0, 1, 1, 0],
+            [0, 0, 0, 1, 0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 1, 1, 1, 1, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ];
+
+        // 绘制地图
+        function drawMap() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let y = 0; y < mapHeight; y++)
+            {
+                for (let x = 0; x < mapWidth; x++)
+                {
+                    const value = map[y][x];
+
+                    // 绘制房间
+                    if (value === 1)
+                    {
+                        ctx.fillStyle = '#3333ff'; // 蓝色房间
+                        ctx.fillRect(
+                            x * tileSize,
+                            y * tileSize,
+                            tileSize - 2,
+                            tileSize - 2
+                        );
+
+                        // 添加房间边框
+                        ctx.strokeStyle = '#6666ff';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(
+                            x * tileSize,
+                            y * tileSize,
+                            tileSize - 2,
+                            tileSize - 2
+                        );
+                    }
+                    // 绘制玩家位置
+                    else if (value === 2)
+                    {
+                        ctx.fillStyle = '#ff3333'; // 红色表示玩家
+                        ctx.fillRect(
+                            x * tileSize + 4,
+                            y * tileSize + 4,
+                            tileSize - 10,
+                            tileSize - 10
+                        );
+                    }
+                }
+            }
+
+            // 绘制连接线
+            drawConnections();
+        }
+
+        // 绘制房间之间的连接
+        function drawConnections() {
+            ctx.strokeStyle = '#6666ff';
+            ctx.lineWidth = 4;
+
+            for (let y = 0; y < mapHeight; y++)
+            {
+                for (let x = 0; x < mapWidth; x++)
+                {
+                    if (map[y][x] === 1 || map[y][x] === 2)
+                    {
+                        // 检查右侧连接
+                        if (x + 1 < mapWidth && (map[y][x + 1] === 1 || map[y][x + 1] === 2))
+                        {
+                            ctx.beginPath();
+                            ctx.moveTo((x + 1) * tileSize - 2, y * tileSize + tileSize / 2);
+                            ctx.lineTo((x + 1) * tileSize + 2, y * tileSize + tileSize / 2);
+                            ctx.stroke();
+                        }
+                        // 检查下侧连接
+                        if (y + 1 < mapHeight && (map[y + 1][x] === 1 || map[y + 1][x] === 2))
+                        {
+                            ctx.beginPath();
+                            ctx.moveTo(x * tileSize + tileSize / 2, (y + 1) * tileSize - 2);
+                            ctx.lineTo(x * tileSize + tileSize / 2, (y + 1) * tileSize + 2);
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+        }
+
+        // 初始绘制
+        drawMap();
+
+        // 添加简单的玩家移动（使用箭头键）
+        document.addEventListener('keydown', (e) => {
+            let playerX, playerY;
+            // 找到玩家当前位置
+            for (let y = 0; y < mapHeight; y++)
+            {
+                for (let x = 0; x < mapWidth; x++)
+                {
+                    if (map[y][x] === 2)
+                    {
+                        playerX = x;
+                        playerY = y;
+                    }
+                }
+            }
+
+            // 处理移动
+            let newX = playerX;
+            let newY = playerY;
+            switch (e.key)
+            {
+                case 'ArrowUp': newY--; break;
+                case 'ArrowDown': newY++; break;
+                case 'ArrowLeft': newX--; break;
+                case 'ArrowRight': newX++; break;
+            }
+
+            // 检查新位置是否有效
+            if (newX >= 0 && newX < mapWidth &&
+                newY >= 0 && newY < mapHeight &&
+                map[newY][newX] === 1)
+            {
+                map[playerY][playerX] = 1; // 旧位置变回普通房间
+                map[newY][newX] = 2;       // 新位置变成玩家位置
+                drawMap();
+            }
+        });
+
+        /**
+        // 在drawMap函数开头添加淡入效果
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        //添加迷雾效果：
+        function drawFog()
+        {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            for (let y = 0; y < mapHeight; y++) {
+                for (let x = 0; x < mapWidth; x++) {
+                    if (map[y][x] === 0) {
+                        ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                    }
+                }
+            }
+        }
+
+        //添加不同类型的房间：
+        // 修改地图值：3表示特殊房间
+        if (value === 3) {
+            ctx.fillStyle = '#ff33ff'; // 特殊房间颜色
+            ctx.fillRect(x * tileSize, y * tileSize, tileSize - 2, tileSize - 2);
+        }
+
+         * */
+    </script>
+</body>
+
+</html>
