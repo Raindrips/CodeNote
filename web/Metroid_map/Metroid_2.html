@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Metroid Map with Fog</title>
+    <style>
+        canvas {
+            border: 1px solid #fff;
+            background: #000;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #111;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="mapCanvas" width="400" height="400"></canvas>
+
+    <script>
+        class MetroidMap {
+            constructor(canvasId, mapData, tileSize = 40) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                this.map = mapData;
+                this.tileSize = tileSize;
+                this.mapWidth = mapData[0].length;
+                this.mapHeight = mapData.length;
+                
+                // 初始化探索状态数组，所有区域默认未探索
+                this.explored = Array(this.mapHeight).fill()
+                    .map(() => Array(this.mapWidth).fill(false));
+                
+                // 玩家初始位置
+                this.playerX = 0;
+                this.playerY = 0;
+                this.explore(this.playerX, this.playerY); // 初始位置设为已探索
+            }
+
+            // 检查相邻位置是否为空
+            isEmpty(x, y) {
+                if (x < 0 || x >= this.mapWidth || y < 0 || y >= this.mapHeight) {
+                    return true;
+                }
+                return this.map[y][x] === 0;
+            }
+
+            // 标记区域为已探索
+            explore(x, y) {
+                if (x >= 0 && x < this.mapWidth && y >= 0 && y < this.mapHeight) {
+                    this.explored[y][x] = true;
+                }
+            }
+
+            // 绘制单个房间
+            drawRoom(x, y) {
+                const tileX = x * this.tileSize;
+                const tileY = y * this.tileSize;
+
+                this.ctx.fillStyle = '#3333ff';
+                this.ctx.fillRect(tileX, tileY, this.tileSize, this.tileSize);
+
+                this.ctx.strokeStyle = '#6666ff';
+                this.ctx.lineWidth = 2;
+
+                if (this.isEmpty(x, y - 1)) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(tileX, tileY);
+                    this.ctx.lineTo(tileX + this.tileSize, tileY);
+                    this.ctx.stroke();
+                }
+                if (this.isEmpty(x, y + 1)) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(tileX, tileY + this.tileSize);
+                    this.ctx.lineTo(tileX + this.tileSize, tileY + this.tileSize);
+                    this.ctx.stroke();
+                }
+                if (this.isEmpty(x - 1, y)) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(tileX, tileY);
+                    this.ctx.lineTo(tileX, tileY + this.tileSize);
+                    this.ctx.stroke();
+                }
+                if (this.isEmpty(x + 1, y)) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(tileX + this.tileSize, tileY);
+                    this.ctx.lineTo(tileX + this.tileSize, tileY + this.tileSize);
+                    this.ctx.stroke();
+                }
+
+                // 绘制玩家位置
+                if (x === this.playerX && y === this.playerY) {
+                    this.ctx.fillStyle = '#ff3333';
+                    this.ctx.fillRect(
+                        tileX + 4,
+                        tileY + 4,
+                        this.tileSize - 8,
+                        this.tileSize - 8
+                    );
+                }
+            }
+
+            // 绘制遮罩效果
+            drawFog() {
+                for (let y = 0; y < this.mapHeight; y++) {
+                    for (let x = 0; x < this.mapWidth; x++) {
+                        if (!this.explored[y][x]) {
+                            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+                            this.ctx.fillRect(
+                                x * this.tileSize,
+                                y * this.tileSize,
+                                this.tileSize,
+                                this.tileSize
+                            );
+                        }
+                    }
+                }
+            }
+
+            // 绘制整个地图
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // 先绘制所有房间
+                for (let y = 0; y < this.mapHeight; y++) {
+                    for (let x = 0; x < this.mapWidth; x++) {
+                        if (this.map[y][x] === 1) {
+                            this.drawRoom(x, y);
+                        }
+                    }
+                }
+
+                // 再绘制遮罩
+                this.drawFog();
+            }
+
+            // 移动玩家并更新探索状态
+            movePlayer(direction) {
+                let newX = this.playerX;
+                let newY = this.playerY;
+
+                switch(direction) {
+                    case 'up': newY--; break;
+                    case 'down': newY++; break;
+                    case 'left': newX--; break;
+                    case 'right': newX++; break;
+                }
+
+                if (newX >= 0 && newX < this.mapWidth && 
+                    newY >= 0 && newY < this.mapHeight && 
+                    this.map[newY][newX] === 1) {
+                    this.playerX = newX;
+                    this.playerY = newY;
+                    this.explore(newX, newY);
+                    this.draw();
+                }
+            }
+        }
+
+        // 地图数据
+        const map = [
+            [1, 1, 1, 0, 0, 0, 0, 0, 0, 1],
+            [0, 0, 1, 0, 0, 1, 1, 0, 0, 1],
+            [0, 0, 1, 1, 1, 1, 0, 0, 0, 1],
+            [0, 0, 0, 0, 0, 1, 0, 1, 1, 1],
+            [0, 1, 1, 0, 0, 1, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 1, 1, 1, 0, 0, 0, 1, 1, 0],
+            [0, 0, 0, 1, 0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 1, 1, 1, 1, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ];
+
+        // 创建并初始化地图
+        const metroidMap = new MetroidMap('mapCanvas', map, 40);
+        metroidMap.draw();
+
+        // 添加键盘控制
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp': metroidMap.movePlayer('up'); break;
+                case 'ArrowDown': metroidMap.movePlayer('down'); break;
+                case 'ArrowLeft': metroidMap.movePlayer('left'); break;
+                case 'ArrowRight': metroidMap.movePlayer('right'); break;
+            }
+        });
+    </script>
+</body>
+</html>
