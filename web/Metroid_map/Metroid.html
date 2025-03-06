@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Metroid Map with Smart Borders</title>
+    <style>
+        canvas {
+            border: 1px solid #fff;
+            background: #000;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #111;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="mapCanvas" width="400" height="400"></canvas>
+
+    <script>
+        class MetroidMap {
+            constructor(canvasId, mapData, tileSize = 40) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                this.map = mapData;
+                this.tileSize = tileSize;
+                this.mapWidth = mapData[0].length;
+                this.mapHeight = mapData.length;
+            }
+
+            // 检查相邻位置是否为空
+            isEmpty(x, y) {
+                if (x < 0 || x >= this.mapWidth || y < 0 || y >= this.mapHeight)
+                {
+                    return true; // 地图边界视为空
+                }
+                return this.map[y][x] === 0;
+            }
+
+            // 绘制单个房间
+            drawRoom(x, y) {
+                const tileX = x * this.tileSize;
+                const tileY = y * this.tileSize;
+
+                // 填充房间
+                this.ctx.fillStyle = '#3333ff';
+                this.ctx.fillRect(tileX, tileY, this.tileSize, this.tileSize);
+
+                // 设置边框样式
+                this.ctx.strokeStyle = '#6666ff';
+                this.ctx.lineWidth = 2;
+
+                // 检查四个方向并绘制边框
+                // 上边框
+                if (this.isEmpty(x, y - 1))
+                {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(tileX, tileY);
+                    this.ctx.lineTo(tileX + this.tileSize, tileY);
+                    this.ctx.stroke();
+                }
+
+                // 下边框
+                if (this.isEmpty(x, y + 1))
+                {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(tileX, tileY + this.tileSize);
+                    this.ctx.lineTo(tileX + this.tileSize, tileY + this.tileSize);
+                    this.ctx.stroke();
+                }
+
+                // 左边框
+                if (this.isEmpty(x - 1, y))
+                {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(tileX, tileY);
+                    this.ctx.lineTo(tileX, tileY + this.tileSize);
+                    this.ctx.stroke();
+                }
+
+                // 右边框
+                if (this.isEmpty(x + 1, y))
+                {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(tileX + this.tileSize, tileY);
+                    this.ctx.lineTo(tileX + this.tileSize, tileY + this.tileSize);
+                    this.ctx.stroke();
+                }
+            }
+
+            // 绘制整个地图
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                for (let y = 0; y < this.mapHeight; y++)
+                {
+                    for (let x = 0; x < this.mapWidth; x++)
+                    {
+                        if (this.map[y][x] === 1)
+                        {
+                            this.drawRoom(x, y);
+                        }
+                    }
+                }
+            }
+        }
+
+        // 地图数据
+        const map = [
+            [1, 1, 1, 0, 0, 0, 0, 0, 0, 1],
+            [0, 0, 1, 0, 0, 1, 1, 0, 0, 1],
+            [0, 0, 1, 1, 1, 1, 0, 0, 0, 1],
+            [0, 0, 0, 0, 0, 1, 0, 1, 1, 1],
+            [0, 1, 1, 0, 0, 1, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 1, 1, 1, 0, 0, 0, 1, 1, 0],
+            [0, 0, 0, 1, 0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 1, 1, 1, 1, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ];
+
+        // 创建并绘制地图
+        const metroidMap = new MetroidMap('mapCanvas', map, 40);
+        metroidMap.draw();
+
+
+        // example
+        /*
+        const myMap = new MetroidMap('mapCanvas', customMap, 30); // 使用30px的瓦片大小
+        myMap.draw();
+
+        // 修改地图数据后重新绘制
+        customMap[0][0] = 0;
+        myMap.draw();
+        */
+    </script>
+</body>
+
+</html>
