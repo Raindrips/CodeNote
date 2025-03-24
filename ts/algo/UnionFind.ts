@@ -1,5 +1,4 @@
 //并查集
-
 class UnionFind {
     private parent: number[]; // 用于记录每个元素的父节点
     private rank: number[]; // 用于记录树的高度（按秩合并）
