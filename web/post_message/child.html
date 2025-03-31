@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+</head>
+
+<body>
+    <h1>子页面</h1>
+    <h2 id="h2">12345</h2>
+
+    <script src="./dist/MessagePipe.js"></script>
+    <script>
+        console.log('child', window);
+        let mp = new MessagePipe();
+        mp.onMessage('hello', (data) => {
+            console.log('child 收到数据', data);
+        })
+        setTimeout(() => {
+            const target = window.parent;
+            console.log(target)
+            mp.sendMessage(target, 'hello', { data: '来自child' })
+            console.log('child 向父页面发送数据')
+        }, 1000);
+
+    </script>
+</body>
+
+
+</html>
