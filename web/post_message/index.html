@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跨域测试</title>
+</head>
+
+<body>
+    <!-- <iframe src="http://localhost:5000/child.html" id="myIframe"></iframe> -->
+    <button onclick="fetchData()">获取跨域数据</button>
+    <p id="output"></p>
+    <script src="./dist/MessagePipe.js"></script>
+    <script>
+        function fetchData() {
+            fetch('http://localhost:5000/api/data')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('output').innerText = data.message;
+                })
+                .catch(error => console.error('跨域请求失败:', error));
+        }
+        //子页面
+        const iframe = document.getElementById('myIframe');
+        const iframeWindow = iframe.contentWindow;
+        console.log('子页面', iframeWindow);
+
+        let mp = new MessagePipe();
+        mp.onMessage('hello', (data) => {
+            console.log('index 收到数据', data);
+        })
+        setTimeout(() => {
+            mp.sendMessage(iframeWindow, 'hello', { data: '来自index' })
+            console.log('向子页面发送数据')
+        }, 1000);
+
+
+    </script>
+
+
+</body>
+
+</html>

@@ -8,8 +8,9 @@ class ABC {
 }
 
 function main() {
-    console.log(ABC);
     get(ABC);
+    get(Number);
+    get(Date);
 }
 
 main();
