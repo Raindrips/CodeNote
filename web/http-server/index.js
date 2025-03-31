@@ -18,7 +18,7 @@ const server = http.createServer((req, res) =>
     }
 
     // 检查文件是否存在
-    fs.exists(filePath, (exists) =>
+    fs.access(filePath, (exists) =>
     {
         if (exists) {
             // 读取文件内容并返回给客户端
