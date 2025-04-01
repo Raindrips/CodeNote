@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+<html>
+
+<body>
+    <h1>网页与App通信演示</h1>
+    <script>
+        // 监听来自 App 的消息（通过自定义事件）
+        window.addEventListener('FROM_APP', (event) => {
+            alert('网页收到: ' + event.detail.message, event);
+
+        });
+
+        // 主动向 App 发送消息
+        function sendToApp() {
+            if (window.ReactNativeWebView)
+            {
+                window.ReactNativeWebView.postMessage("Hello from Web!");
+                alert('发送数据',)
+            } else
+            {
+                console.log("非App环境");
+                alert('非App环境',)
+            }
+        }
+    </script>
+    <button onclick="sendToApp()">发送消息到App</button>
+</body>
+
+</html>

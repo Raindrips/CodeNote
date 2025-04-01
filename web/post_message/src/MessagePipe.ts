@@ -1,3 +1,8 @@
+/**
+ * @version 1.2
+ * @author yun_jian
+ */
+
 export interface MessageData {
     name: string;
     data: any;
@@ -10,7 +15,6 @@ export class MessagePipe {
         if (!targetWindow) {
             throw new Error('无法获取目标窗口对象');
         }
-
         targetWindow.addEventListener('message', (event) =>
             this.receiveMessage(event),
         );
@@ -30,8 +34,17 @@ export class MessagePipe {
         if (!targetWindow) {
             throw new Error('发送失败,无法获取目标窗口对象');
         }
-        const message: MessageData = { name, data };
-        targetWindow.postMessage(message, '*'); // '*' 表示允许所有域接收
+
+        if ('ReactNativeWebView' in targetWindow) {
+            console.log('发送数据 app环境');
+            //APP环境
+            const appWindow: any = window;
+            appWindow.ReactNativeWebView.postMessage(name);
+        } else {
+            // 非App环境 '*' 表示允许所有域接收
+            const message: MessageData = { name, data };
+            targetWindow.postMessage(message, '*');
+        }
     }
 
     /**
@@ -58,13 +71,13 @@ export class MessagePipe {
             );
         }
     }
-}
 
-/**
- * 获取父窗口的代理对象
- */
-export function getParent(): WindowProxy {
-    return window.parent || window.opener;
+    /**
+     * 获取父窗口的代理对象
+     */
+    getParent(): WindowProxy {
+        return window.parent || window.opener;
+    }
 }
 
 //使用示例
@@ -75,7 +88,7 @@ function test() {
         console.log('收到消息 message1:', data);
     });
 
-    pipe.sendMessage(getParent(), 'message1', {
+    pipe.sendMessage(pipe.getParent(), 'message1', {
         someData: '发送消息 message1',
     });
 }
