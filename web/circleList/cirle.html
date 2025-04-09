@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    #container {
+      height: 400px;
+      width: 300px;
+      border: 1px solid #ccc;
+      position: relative;
+      overflow: hidden;
+    }
+    .item {
+      position: absolute;
+      width: 100%;
+      height: 100px;
+      box-sizing: border-box;
+      border-bottom: 1px solid #eee;
+      /* transition: top 0.3s ease; */
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+
+  <script>
+    class VirtualScroll {
+      constructor(options) {
+        this.container = options.container
+        this.itemHeight = 100
+        this.visibleCount = 4
+        this.total = 100
+        this.onRender = options.onRender
+        this.nodes = []
+        this.scrollTop = 0
+        this.init()
+      }
+
+      init() {
+        // 创建可见节点
+        for(let i = 0; i < this.visibleCount; i++) {
+          const node = document.createElement('div')
+          node.className = 'item'
+          this.container.appendChild(node)
+          this.nodes.push(node)
+        }
+
+        // 滚动事件处理
+        let isScrolling = false
+        this.container.addEventListener('wheel', (e) => {
+          e.preventDefault()
+          this.scrollTop += e.deltaY*0.1
+          this.in(this.scrollTop)
+        })
+        
+        this.in(0) // 初始位置
+      }
+
+      in(pos) {
+        const startIndex = Math.floor(pos / this.itemHeight)
+        const offset = pos % this.itemHeight
+        
+        this.nodes.forEach((node, i) => {
+          const index = startIndex + i
+          if(index < 0 || index >= this.total) return
+          
+          // 计算节点位置
+          const top = i * this.itemHeight - offset
+          
+          // 更新节点位置
+          node.style.top = `${top}px`
+          
+          // 触发渲染事件
+          this.onRender?.(i, index, top)
+        })
+      }
+    }
+
+    // 测试代码
+    const vs = new VirtualScroll({
+      container: document.getElementById('container'),
+      onRender: (id, index, pos) => {
+        const node = document.getElementsByClassName('item')[id]
+        node.innerHTML = `Index: ${index}<br>Position: ${pos.toFixed(1)}`
+        console.log(`Render - ID: ${id}, Index: ${index}, Pos: ${pos}`)
+      }
+    })
+  </script>
+</body>
+</html>
