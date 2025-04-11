@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <style>
     #container {
@@ -8,7 +9,10 @@
       border: 1px solid #ccc;
       position: relative;
       overflow: hidden;
+      user-select: none;
+      cursor: move;
     }
+
     .item {
       position: absolute;
       width: 100%;
@@ -19,6 +23,7 @@
     }
   </style>
 </head>
+
 <body>
   <div id="container"></div>
 
@@ -37,7 +42,8 @@
 
       init() {
         // 创建可见节点
-        for(let i = 0; i < this.visibleCount; i++) {
+        for (let i = 0; i < this.visibleCount; i++)
+        {
           const node = document.createElement('div')
           node.className = 'item'
           this.container.appendChild(node)
@@ -46,29 +52,57 @@
 
         // 滚动事件处理
         let isScrolling = false
+        let offsetY = 0;
         this.container.addEventListener('wheel', (e) => {
           e.preventDefault()
-          this.scrollTop += e.deltaY*0.1
+          this.scrollTop += e.deltaY * 0.1
           this.in(this.scrollTop)
         })
-        
+
         this.in(0) // 初始位置
+
+        this.container.addEventListener("mousedown", (e) => {
+          isScrolling = true;
+          // 计算鼠标相对于窗口左上角的偏移量
+          console.log(e);
+          offsetY = e.clientY;
+          // 防止鼠标选中文本
+          e.preventDefault();
+        });
+
+        document.addEventListener("mousemove", (e) => {
+          if (!isScrolling) return;
+
+          // 计算窗口的新位置
+          const newY = e.clientY - offsetY;
+          offsetY = e.clientY;
+          console.log(newY);
+          // 更新窗口位置
+          // draggableWindow.style.top = `${newY}px`;
+          this.scrollTop += newY;
+          this.in(this.scrollTop)
+        });
+
+        // 鼠标松开时停止拖拽
+        document.addEventListener("mouseup", () => {
+          isScrolling = false;
+        });
       }
 
       in(pos) {
         const startIndex = Math.floor(pos / this.itemHeight)
         const offset = pos % this.itemHeight
-        
+
         this.nodes.forEach((node, i) => {
           const index = startIndex + i
-          if(index < 0 || index >= this.total) return
-          
+          if (index < 0 || index >= this.total) return
+
           // 计算节点位置
           const top = i * this.itemHeight - offset
-          
+
           // 更新节点位置
           node.style.top = `${top}px`
-          
+
           // 触发渲染事件
           this.onRender?.(i, index, top)
         })
@@ -84,6 +118,9 @@
         console.log(`Render - ID: ${id}, Index: ${index}, Pos: ${pos}`)
       }
     })
+
+
   </script>
 </body>
+
 </html>

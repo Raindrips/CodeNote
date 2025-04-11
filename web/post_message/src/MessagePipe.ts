@@ -1,6 +1,5 @@
 /**
- * @version 1.2
- * @author yun_jian
+ * @version 1.3
  */
 
 export interface MessageData {
@@ -31,19 +30,23 @@ export class MessagePipe {
         name: string,
         data: any,
     ) {
-        if (!targetWindow) {
-            throw new Error('发送失败,无法获取目标窗口对象');
-        }
-
         if ('ReactNativeWebView' in targetWindow) {
             console.log('发送数据 app环境');
             //APP环境
             const appWindow: any = window;
             appWindow.ReactNativeWebView.postMessage(name);
         } else {
-            // 非App环境 '*' 表示允许所有域接收
-            const message: MessageData = { name, data };
-            targetWindow.postMessage(message, '*');
+            // 非App环境
+            try {
+                let target = window.top ? window.top : targetWindow;
+                if (target) {
+                    // '*' 表示允许所有域接收
+                    const message: MessageData = { name, data };
+                    target.postMessage(message, '*');
+                }
+            } catch (e) {
+                console.error(e);
+            }
         }
     }
 

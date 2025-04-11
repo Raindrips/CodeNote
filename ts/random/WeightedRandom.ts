@@ -1,3 +1,4 @@
+
 class WeightedRandom<T> {
     private items: { value: T, weight: number }[];
     private cumulativeWeights: number[];
@@ -31,6 +32,7 @@ class WeightedRandom<T> {
         // Fallback to the last item (shouldn't really happen if the logic is correct)
         return this.items[this.items.length - 1].value;
     }
+
 }
 
 // 示例用法
@@ -45,3 +47,4 @@ const weightedRandom = new WeightedRandom(items);
 console.log(weightedRandom.random());
 console.log(weightedRandom.random());
 console.log(weightedRandom.random());
+
