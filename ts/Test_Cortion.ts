@@ -1,4 +1,4 @@
-namespace test {
+{
     function* getData(obj: any) {
         console.log(obj);
         yield null;
