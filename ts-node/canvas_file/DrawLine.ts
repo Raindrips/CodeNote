@@ -1,6 +1,6 @@
 import { CanvasRenderingContext2D, createCanvas, loadImage } from 'canvas';
 import * as fs from 'fs';
-import { showLineByVec, v2, v22v, Vec2 } from './Line';
+import { Canvas_Height, Canvas_Width, showLineByArc, showLineByVec, v2, v22v, Vec2 } from './Line';
 
 async function readFile(path: string) {
     try {
@@ -31,14 +31,12 @@ function toVec2(arr: [number, number][]) {
 }
 
 async function main() {
-    const data = await readFile('./line.txt');
-    // console.log(data);
+    const data = await readFile('./line_121_2.txt');
     const posArr = dataParse(data);
-    // console.log(posArr);
 
   
     for (let i = 0; i < posArr.length; i++) {
-        const canvas = createCanvas(270, 270);
+        const canvas = createCanvas(Canvas_Width, Canvas_Height);
         const g = canvas.getContext('2d');
         const arr = posArr[i];
         const pos = toVec2(arr);
