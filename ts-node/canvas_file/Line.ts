@@ -1,5 +1,8 @@
 import { CanvasRenderingContext2D, createCanvas, loadImage } from 'canvas';
 
+export const Canvas_Width = 1080;
+export const Canvas_Height = 450;
+
 const angleMax: number = 170;
 const r: number = 15;
 const romveNum: number = Math.PI * 0.02;
@@ -10,6 +13,28 @@ export interface Vec2 {
 }
 
 export function showLineByVec(
+    g: CanvasRenderingContext2D,
+    positionArray: Vec2[],
+) {
+    let first = positionArray[0];
+    g.moveTo(first.x, first.y);
+
+    for (let i = 1; i < positionArray.length; i++) {
+        let pos = positionArray[i];
+        g.lineTo(pos.x, pos.y);
+    }
+
+    g.lineJoin = 'round'; // 连接处圆角
+    g.lineCap = 'round'; // 端点圆角
+
+    g.lineWidth = 4;
+    g.strokeStyle = 'rgba(255,255,255,255)';
+    g.translate(0.5, 0.5);
+    g.stroke();
+    g.closePath();
+}
+
+export function showLineByArc(
     g: CanvasRenderingContext2D,
     positionArray: Vec2[],
 ) {
@@ -35,6 +60,7 @@ export function showLineByVec(
         }
     }
     g.lineWidth = 1.5;
+
     g.strokeStyle = 'rgba(255,255,255,255)';
     g.stroke();
     g.closePath();
@@ -49,7 +75,7 @@ function getCentreCircle(posList: Vec2[]): [Vec2[], number[], Vec2[]] {
 
     let radiusList: number[] = [];
     let posList2: Vec2[] = [];
-    let AugleList: Vec2[] = [];
+    let angleList: Vec2[] = [];
 
     posList2.push(v2(posList[0].x, posList[0].y));
     radiusList.push(0);
@@ -111,22 +137,28 @@ function getCentreCircle(posList: Vec2[]): [Vec2[], number[], Vec2[]] {
         );
         radiusList.push(0);
 
-        let augle: Vec2 = v2(0, 0);
-        augle.x = getAngleFromXAxis(pos1.x - centre.x, pos1.y - centre.y);
-        augle.y = getAngleFromXAxis(pos2.x - centre.x, pos2.y - centre.y);
+        let ratioPos: Vec2 = v2(0, 0);
+        ratioPos.x = getAngleFromXAxis(
+            pos1.x - centre.x,
+            pos1.y - centre.y,
+        );
+        ratioPos.y = getAngleFromXAxis(
+            pos2.x - centre.x,
+            pos2.y - centre.y,
+        );
         if (centre.y < posList[i].y) {
-            augle.y = augle.y + romveNum;
+            ratioPos.y = ratioPos.y + romveNum;
         } else {
-            augle.y = augle.y - romveNum;
+            ratioPos.y = ratioPos.y - romveNum;
         }
-        AugleList.push(augle);
+        angleList.push(ratioPos);
     }
     posList2.push(
         v2(posList[posList.length - 1].x, posList[posList.length - 1].y),
     );
     radiusList.push(0);
 
-    return [posList2, radiusList, AugleList];
+    return [posList2, radiusList, angleList];
 }
 
 export function v2(x: number, y: number): Vec2 {
@@ -134,7 +166,10 @@ export function v2(x: number, y: number): Vec2 {
 }
 
 export function v22v(x: number, y: number) {
-    return { x: (x + 540) * 0.25, y: (1080 - (y + 540)) * 0.25 };
+    return {
+        x: x + Canvas_Width * 0.5,
+        y: Canvas_Height - (y + Canvas_Height * 0.5),
+    };
 }
 
 function V2Angle(a: Vec2, b: Vec2) {
