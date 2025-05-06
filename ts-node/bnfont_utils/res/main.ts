@@ -3,17 +3,7 @@ import { generateFntContent } from './bmfontSave';
 import { FntData } from './FntData';
 import { readFile, writeFile } from './FileUtils';
 
-async function main() {
-    const path = process.argv[2];
-    let data = await readFile(path);
-    console.log(path, '\n', data);
-    let fntData = parseFntData(data);
-    formatData(fntData);
-    let bmFont = generateFntContent(fntData);
-    console.log(bmFont);
-    await writeFile(path, bmFont);
-    console.log('done');
-}
+
 
 function formatData(fntData: FntData) {
     let maxWidth = 0;
@@ -28,6 +18,18 @@ function formatData(fntData: FntData) {
         char.xadvance = maxWidth;
         char.xoffset = maxWidth - char.width;
     }
+}
+
+async function main() {
+    const path = process.argv[2];
+    let data = await readFile(path);
+    console.log(path, '\n', data);
+    let fntData = parseFntData(data);
+    formatData(fntData);
+    let bmFont = generateFntContent(fntData);
+    console.log(bmFont);
+    await writeFile(path, bmFont);
+    console.log('done');
 }
 
 main();
