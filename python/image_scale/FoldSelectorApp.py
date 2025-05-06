@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, filedialog
 
-from main import start_processing
+from main_scale import start_processing
 
 
 class FolderSelectorApp:
@@ -50,7 +50,7 @@ class FolderSelectorApp:
 
         ttk.Label(frame, text="缩放比：").pack(pady=(10, 0))
         
-        self.scale = tk.DoubleVar(value=0.5)
+        self.scale = tk.DoubleVar(value=0.7)
         scale_entry = ttk.Entry(frame, textvariable=self.scale, width=10)
         scale_entry.pack(pady=(0, 10))
         scale_entry.bind("<FocusOut>", lambda event: self.update_scale(scale_entry))
@@ -80,7 +80,7 @@ class FolderSelectorApp:
         if self.input and self.output:
             print(f"开始处理：{self.input} -> {self.output} {self.scale.get()}")
             # 在这里添加处理代码
-            start_processing(self.input, self.output, 0.5)  # 假设缩放比为0.5
+            start_processing(self.input, self.output, self.scale.get())
             print("处理完成")
         else:
             print("请确保选择了输入和输出文件夹")

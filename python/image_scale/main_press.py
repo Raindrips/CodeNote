@@ -2,6 +2,7 @@ from PIL import Image
 import os
 import sys
 import re
+import subprocess
 
 
 def process_image(im, scale):
@@ -17,7 +18,30 @@ def process_image(im, scale):
     return im.resize((new_width, new_height), Image.LANCZOS)
 
 
-def start_processing(source_dir, output_dir, scale):
+def press_image(source_file, out_file):
+    # pngquant --strip --quality 0-80 --speed 1 test.png -o ./out/test.png
+    result = subprocess.run(
+        [
+            "E:/bin/pngquant/pngquant.exe",
+            "--strip",     
+            "--quality",
+            "60-80",
+            "--speed",
+            "4",
+            "--force",
+            "--skip-if-larger",
+            source_file,
+            "-o",
+            out_file,
+        ],
+        capture_output=True,
+        text=True,
+    )
+    print(f"{result.stdout}", end="")
+    print(f"{result.stderr}", end="")
+
+
+def start_press(source_dir, output_dir):
     """_summary_
 
     Args:
@@ -26,7 +50,7 @@ def start_processing(source_dir, output_dir, scale):
         scale (float): 缩放比
     """
     # 默认正则表达式，用于匹配常见图片扩展名
-    regex_pattern = r".*\.(jpg|jpeg|png|gif|bmp)$"
+    regex_pattern = r".*\.(png)$"
     regex = re.compile(regex_pattern, re.IGNORECASE)
 
     # 递归遍历源文件夹
@@ -41,31 +65,17 @@ def start_processing(source_dir, output_dir, scale):
             if regex.search(file):
                 source_file = os.path.join(root, file)
                 target_file = os.path.join(target_dir, file)
-                try:
-                    with Image.open(source_file) as im:
-                        im_resized = process_image(im, scale)
-                        im_resized.save(target_file, format=im.format)
-                    print(f"Processed {source_file} -> {target_file}")
-                except Exception as e:
-                    print(f"Error processing {source_file}: {e}")
+                press_image(source_file, target_file)
 
 
 if __name__ == "__main__":
     # 验证命令行参数
-    if len(sys.argv) != 4:
-        print("Usage: python main.py <source_dir> <output_dir> <scale_factor>")
+    if len(sys.argv) != 3:
+        print("Usage: python main.py <source_dir> <output_dir>")
         sys.exit(1)
 
     # 解析命令行参数
     source_dir = sys.argv[1]
     output_dir = sys.argv[2]
-    try:
-        scale = float(sys.argv[3])
-        if scale <= 0:
-            raise ValueError("Scale factor must be positive")
-    except ValueError as e:
-        print(f"Error: Invalid scale factor. {e}")
-        sys.exit(1)
 
-    start_processing(source_dir, output_dir, scale)
-
+    start_press(source_dir, output_dir)
