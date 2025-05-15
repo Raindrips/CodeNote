@@ -62,6 +62,7 @@ export class JsonConvert {
 
 }
 
+// json去除特殊符号
 export function main() {
     let jsonValue = new JsonConvert()
     jsonValue.exec();
