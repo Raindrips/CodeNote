@@ -41,4 +41,9 @@
     let str2 = str;
     str2 = 'hello';
     console.log(E.number);
+
+    let b = 'set'.substring(1, 3);
+
+    console.log(b);
+    console.log(parseInt("1101",2));
 }

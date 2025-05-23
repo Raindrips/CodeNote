@@ -1,4 +1,4 @@
-import { FontInfo, CommonInfo, FntData } from './FntData';
+import { FntData } from './FntData';
 
 export function generateFntContent(fntData: FntData): string {
     const info = fntData.info;
