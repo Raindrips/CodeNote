@@ -5,9 +5,6 @@ import sys
 
 
 def split_audio(input_path, output_dir, min_silence_len=100, bitrate="192k"):
-
-    valid_bitrates = ["96k", "128k", "192k", "256k", "320k"]
-
     # 加载并预处理音频
     audio = AudioSegment.from_mp3(input_path)
     mono_audio = audio.set_channels(1).set_frame_rate(16000)

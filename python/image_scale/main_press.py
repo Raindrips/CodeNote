@@ -37,8 +37,8 @@ def press_image(source_file, out_file):
         capture_output=True,
         text=True,
     )
-    print(f"{result.stdout}", end="")
     print(f"{result.stderr}", end="")
+    print(f"{result.stdout}", end="")
 
 
 def start_press(source_dir, output_dir):
