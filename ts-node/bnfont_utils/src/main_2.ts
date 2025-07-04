@@ -18,10 +18,12 @@ function formatData(fntData: FntData) {
             continue;
         }
         char.xadvance = maxWidth;
+        // 当1在最后面的时候无法实现等宽
         if (char.id == '1'.charCodeAt(0)) {
             char.xoffset = (maxWidth - char.width) / 2;
+        } else {
+            char.xoffset = maxWidth - char.width;
         }
-        char.xoffset = maxWidth - char.width;
     }
 }
 
