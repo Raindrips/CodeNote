@@ -6,6 +6,10 @@ screen = pygame.display.set_mode((640, 480))
 clock = pygame.time.Clock()
 FPS = 60
 
+# 加载图片
+image = pygame.image.load("res/1.png").convert_alpha()
+
+
 # 颜色
 BLACK, WHITE, RED, GREEN, BLUE = (
     (20, 20, 20),
@@ -43,6 +47,10 @@ def draw():
     pygame.draw.rect(screen, GREEN, pygame.Rect(100, 100, 150, 80), 3)
     pygame.draw.circle(screen, BLUE, (320, 240), 50, 0)
     pygame.draw.rect(screen, BLACK, pygame.Rect(10, 10, 30, 30), 0)
+
+    rect = image.get_rect()
+    # rect.center = (400, 300)
+    screen.blit(image, rect)
 
     pygame.display.flip()
 
