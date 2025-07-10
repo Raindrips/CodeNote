@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>通用HTML模板 - 完整UI组件库</title>
+    <style>
+        /* ===== 基础样式 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ===== 标题样式 ===== */
+        .main-title {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 40px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #333;
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        /* ===== 卡片样式 ===== */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        /* ===== 网格布局 ===== */
+        .grid {
+            display: grid;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .grid-4 {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        /* ===== 按钮样式 ===== */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #e83e8c);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: #333;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ===== 表单样式 ===== */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        /* ===== 表格样式 ===== */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .table td {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .table tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* ===== 统计卡片 ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        /* ===== 进度条 ===== */
+        .progress-container {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 8px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        /* ===== 标签和徽章 ===== */
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+            margin: 2px;
+        }
+
+        .badge-primary {
+            background: #667eea;
+        }
+
+        .badge-success {
+            background: #28a745;
+        }
+
+        .badge-danger {
+            background: #dc3545;
+        }
+
+        .badge-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .badge-info {
+            background: #17a2b8;
+        }
+
+        /* ===== 提示框 ===== */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-color: #28a745;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #dc3545;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-color: #ffc107;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-color: #17a2b8;
+        }
+
+        /* ===== 标签页 ===== */
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 10px 10px 0 0;
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background: white;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ===== 图表容器 ===== */
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-bar {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .chart-label {
+            width: 100px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .chart-bar-fill {
+            flex: 1;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            margin: 0 10px;
+            overflow: hidden;
+        }
+
+        .chart-bar-value {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .chart-value {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        /* ===== 响应式设计 ===== */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .main-title {
+                font-size: 2rem;
+            }
+
+            .form-row {
+                flex-direction: column;
+            }
+
+            .form-row .form-group {
+                min-width: unset;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+        }
+
+        /* ===== 动画效果 ===== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .animate-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* ===== 加载状态 ===== */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ===== 工具类 ===== */
+        .text-center {
+            text-align: center;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .mt-10 {
+            margin-top: 10px;
+        }
+
+        .mt-20 {
+            margin-top: 20px;
+        }
+
+        .mb-10 {
+            margin-bottom: 10px;
+        }
+
+        .mb-20 {
+            margin-bottom: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .visible {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- 主标题 -->
+        <h1 class="main-title">🚀 通用HTML模板</h1>
+
+        <!-- 统计卡片演示 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="stat1">1,234</div>
+                <div class="stat-label">总用户数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat2">89.5%</div>
+                <div class="stat-label">成功率</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat3">567</div>
+                <div class="stat-label">活跃用户</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat4">$12,345</div>
+                <div class="stat-label">总收入</div>
+            </div>
+        </div>
+
+        <!-- 提示框演示 -->
+        <div class="alert alert-success">
+            ✅ 这是一个成功提示框！所有组件都已加载完成。
+        </div>
+
+        <!-- 标签页演示 -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab(this, 'tab1')">📊 表单与控件</button>
+            <button class="tab" onclick="switchTab(this, 'tab2')">📈 数据展示</button>
+            <button class="tab" onclick="switchTab(this, 'tab3')">🎨 样式组件</button>
+            <button class="tab" onclick="switchTab(this, 'tab4')">⚙️ 功能测试</button>
+        </div>
+
+        <!-- 标签页内容1：表单与控件 -->
+        <div id="tab1" class="tab-content active">
+            <h2 class="section-title">📝 表单与控件</h2>
+
+            <div class="card">
+                <div class="card-header">基础表单</div>
+                <form id="demoForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">姓名</label>
+                            <input type="text" class="form-input" placeholder="请输入姓名" id="name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">邮箱</label>
+                            <input type="email" class="form-input" placeholder="请输入邮箱" id="email">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">年龄</label>
+                            <input type="number" class="form-input" placeholder="请输入年龄" id="age">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">城市</label>
+                            <select class="form-input" id="city">
+                                <option value="">请选择城市</option>
+                                <option value="beijing">北京</option>
+                                <option value="shanghai">上海</option>
+                                <option value="guangzhou">广州</option>
+                                <option value="shenzhen">深圳</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">个人简介</label>
+                        <textarea class="form-input" rows="4" placeholder="请输入个人简介" id="bio"></textarea>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-header">按钮组合</div>
+                <button class="btn btn-primary" onclick="showAlert('primary')">🎯 主要按钮</button>
+                <button class="btn btn-secondary" onclick="showAlert('secondary')">⚪ 次要按钮</button>
+                <button class="btn btn-success" onclick="showAlert('success')">✅ 成功按钮</button>
+                <button class="btn btn-danger" onclick="showAlert('danger')">❌ 危险按钮</button>
+                <button class="btn btn-warning" onclick="showAlert('warning')">⚠️ 警告按钮</button>
+                <button class="btn btn-primary" onclick="simulateLoading(this)">🔄 加载测试</button>
+            </div>
+        </div>
+
+        <!-- 标签页内容2：数据展示 -->
+        <div id="tab2" class="tab-content">
+            <h2 class="section-title">📊 数据展示</h2>
+
+            <div class="card">
+                <div class="card-header">数据表格</div>
+                <div class="table-container">
+                    <table class="table" id="dataTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>用户名</th>
+                                <th>邮箱</th>
+                                <th>状态</th>
+                                <th>最后登录</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- 动态生成表格数据 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">进度图表</div>
+                <div class="chart-container">
+                    <div class="chart-bar">
+                        <div class="chart-label">HTML</div>
+                        <div class="chart-bar-fill">
+                            <div class="chart-bar-value" style="width: 90%"></div>
+                        </div>
+                        <div class="chart-value">90%</div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="chart-label">CSS</div>
+                        <div class="chart-bar-fill">
+                            <div class="chart-bar-value" style="width: 85%"></div>
+                        </div>
+                        <div class="chart-value">85%</div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="chart-label">JavaScript</div>
+                        <div class="chart-bar-fill">
+                            <div class="chart-bar-value" style="width: 78%"></div>
+                        </div>
+                        <div class="chart-value">78%</div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="chart-label">Vue.js</div>
+                        <div class="chart-bar-fill">
+                            <div class="chart-bar-value" style="width: 70%"></div>
+                        </div>
+                        <div class="chart-value">70%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 标签页内容3：样式组件 -->
+        <div id="tab3" class="tab-content">
+            <h2 class="section-title">🎨 样式组件</h2>
+
+            <div class="card">
+                <div class="card-header">徽章和标签</div>
+                <span class="badge badge-primary">主要</span>
+                <span class="badge badge-success">成功</span>
+                <span class="badge badge-danger">危险</span>
+                <span class="badge badge-warning">警告</span>
+                <span class="badge badge-info">信息</span>
+            </div>
+
+            <div class="card">
+                <div class="card-header">提示框类型</div>
+                <div class="alert alert-info">
+                    ℹ️ 这是一个信息提示框，用于显示一般信息。
+                </div>
+                <div class="alert alert-warning">
+                    ⚠️ 这是一个警告提示框，用于显示警告信息。
+                </div>
+                <div class="alert alert-danger">
+                    ❌ 这是一个错误提示框，用于显示错误信息。
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">进度条演示</div>
+                <div>
+                    <label>任务进度：</label>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                    </div>
+                    <button class="btn btn-primary mt-10" onclick="animateProgress()">🎯 开始进度</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 标签页内容4：功能测试 -->
+        <div id="tab4" class="tab-content">
+            <h2 class="section-title">⚙️ 功能测试</h2>
+
+            <div class="card">
+                <div class="card-header">计算器演示</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">数字 A</label>
+                        <input type="number" class="form-input" id="numA" value="10">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">运算符</label>
+                        <select class="form-input" id="operator">
+                            <option value="+">加法 (+)</option>
+                            <option value="-">减法 (-)</option>
+                            <option value="*">乘法 (×)</option>
+                            <option value="/">除法 (÷)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">数字 B</label>
+                        <input type="number" class="form-input" id="numB" value="5">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="calculate()">🧮 计算</button>
+                <div id="calcResult" class="mt-20"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">数组处理演示</div>
+                <div class="form-group">
+                    <label class="form-label">数组数据 (用逗号分隔)</label>
+                    <input type="text" class="form-input" id="arrayInput" value="1,2,3,4,5,6,7,8,9,10">
+                </div>
+                <button class="btn btn-success" onclick="processArray('sum')">➕ 求和</button>
+                <button class="btn btn-warning" onclick="processArray('avg')">📊 平均值</button>
+                <button class="btn btn-danger" onclick="processArray('max')">⬆️ 最大值</button>
+                <button class="btn btn-secondary" onclick="processArray('min')">⬇️ 最小值</button>
+                <div id="arrayResult" class="mt-20"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">数据生成器</div>
+                <button class="btn btn-primary" onclick="generateRandomData()">🎲 生成随机数据</button>
+                <button class="btn btn-secondary" onclick="generateTableData()">📊 生成表格数据</button>
+                <button class="btn btn-success" onclick="updateStats()">📈 更新统计</button>
+                <div id="generatedData" class="mt-20"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== 全局变量 =====
+        let currentProgress = 0;
+        let progressInterval;
+
+        // ===== 标签页切换 =====
+        function switchTab(tab, tabId) {
+            // 移除所有标签页的active类
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            // 添加当前标签页的active类
+            tab.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // ===== 按钮点击演示 =====
+        function showAlert(type) {
+            const messages = {
+                primary: '🎯 主要按钮被点击了！',
+                secondary: '⚪ 次要按钮被点击了！',
+                success: '✅ 成功按钮被点击了！',
+                danger: '❌ 危险按钮被点击了！',
+                warning: '⚠️ 警告按钮被点击了！'
+            };
+
+            alert(messages[type] || '按钮被点击了！');
+        }
+
+        // ===== 加载按钮演示 =====
+        function simulateLoading(button) {
+            const originalText = button.innerHTML;
+            button.innerHTML = '<span class="loading"></span> 加载中...';
+            button.disabled = true;
+
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+                showAlert('success');
+            }, 2000);
+        }
+
+        // ===== 进度条动画 =====
+        function animateProgress() {
+            const progressBar = document.getElementById('progressBar');
+            currentProgress = 0;
+
+            if (progressInterval)
+            {
+                clearInterval(progressInterval);
+            }
+
+            progressInterval = setInterval(() => {
+                currentProgress += 2;
+                progressBar.style.width = currentProgress + '%';
+
+                if (currentProgress >= 100)
+                {
+                    clearInterval(progressInterval);
+                    setTimeout(() => {
+                        showAlert('success');
+                    }, 500);
+                }
+            }, 50);
+        }
+
+        // ===== 计算器功能 =====
+        function calculate() {
+            const numA = parseFloat(document.getElementById('numA').value);
+            const numB = parseFloat(document.getElementById('numB').value);
+            const operator = document.getElementById('operator').value;
+            const resultDiv = document.getElementById('calcResult');
+
+            if (isNaN(numA) || isNaN(numB))
+            {
+                resultDiv.innerHTML = '<div class="alert alert-danger">请输入有效的数字！</div>';
+                return;
+            }
+
+            let result;
+            switch (operator)
+            {
+                case '+':
+                    result = numA + numB;
+                    break;
+                case '-':
+                    result = numA - numB;
+                    break;
+                case '*':
+                    result = numA * numB;
+                    break;
+                case '/':
+                    if (numB === 0)
+                    {
+                        resultDiv.innerHTML = '<div class="alert alert-danger">除数不能为零！</div>';
+                        return;
+                    }
+                    result = numA / numB;
+                    break;
+                default:
+                    result = 0;
+            }
+
+            resultDiv.innerHTML = `
+        <div class="alert alert-success">
+            <strong>计算结果：</strong> ${numA} ${operator} ${numB} = ${result}
+        </div>
+    `;
+        }
+
+        // ===== 数组处理功能 =====
+        function processArray(operation) {
+            const input = document.getElementById('arrayInput').value;
+            const resultDiv = document.getElementById('arrayResult');
+
+            if (!input.trim())
+            {
+                resultDiv.innerHTML = '<div class="alert alert-danger">请输入数组数据！</div>';
+                return;
+            }
+
+            try
+            {
+                const array = input.split(',').map(item => parseFloat(item.trim())).filter(num => !isNaN(num));
+
+                if (array.length === 0)
+                {
+                    resultDiv.innerHTML = '<div class="alert alert-danger">请输入有效的数字！</div>';
+                    return;
+                }
+
+                let result;
+                let operationName;
+
+                switch (operation)
+                {
+                    case 'sum':
+                        result = array.reduce((sum, num) => sum + num, 0);
+                        operationName = '求和';
+                        break;
+                    case 'avg':
+                        result = array.reduce((sum, num) => sum + num, 0) / array.length;
+                        operationName = '平均值';
+                        break;
+                    case 'max':
+                        result = Math.max(...array);
+                        operationName = '最大值';
+                        break;
+                    case 'min':
+                        result = Math.min(...array);
+                        operationName = '最小值';
+                        break;
+                    default:
+                        result = 0;
+                        operationName = '未知操作';
+                }
+
+                resultDiv.innerHTML = `
+            <div class="alert alert-success">
+                <strong>${operationName}结果：</strong> ${result}<br>
+                <strong>处理的数组：</strong> [${array.join(', ')}]<br>
+                <strong>数组长度：</strong> ${array.length}
+            </div>
+        `;
+
+            } catch (error)
+            {
+                resultDiv.innerHTML = '<div class="alert alert-danger">数据处理出错，请检查输入格式！</div>';
+            }
+        }
+
+        // ===== 随机数据生成器 =====
+        function generateRandomData() {
+            const resultDiv = document.getElementById('generatedData');
+            const randomData = [];
+
+            for (let i = 0; i < 10; i++)
+            {
+                randomData.push({
+                    id: i + 1,
+                    value: Math.floor(Math.random() * 100) + 1,
+                    category: ['A', 'B', 'C', 'D'][Math.floor(Math.random() * 4)],
+                    timestamp: new Date().toLocaleString()
+                });
+            }
+
+            let tableHTML = `
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>数值</th>
+                        <th>分类</th>
+                        <th>时间戳</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+            randomData.forEach(item => {
+                tableHTML += `
+            <tr>
+                <td>${item.id}</td>
+                <td>${item.value}</td>
+                <td><span class="badge badge-primary">${item.category}</span></td>
+                <td>${item.timestamp}</td>
+            </tr>
+        `;
+            });
+
+            tableHTML += `
+                </tbody>
+            </table>
+        </div>
+    `;
+
+            resultDiv.innerHTML = tableHTML;
+        }
+
+        // ===== 生成表格数据 =====
+        function generateTableData() {
+            const tableBody = document.getElementById('tableBody');
+            const users = [
+                { id: 1, name: '张三', email: 'zhangsan@example.com', status: '在线', lastLogin: '2024-01-15 14:30' },
+                { id: 2, name: '李四', email: 'lisi@example.com', status: '离线', lastLogin: '2024-01-14 09:15' },
+                { id: 3, name: '王五', email: 'wangwu@example.com', status: '在线', lastLogin: '2024-01-15 16:20' },
+                { id: 4, name: '赵六', email: 'zhaoliu@example.com', status: '忙碌', lastLogin: '2024-01-15 11:45' },
+                { id: 5, name: '钱七', email: 'qianqi@example.com', status: '在线', lastLogin: '2024-01-15 13:10' }
+            ];
+
+            let tableHTML = '';
+            users.forEach(user => {
+                const statusClass = user.status === '在线' ? 'success' :
+                    user.status === '离线' ? 'danger' : 'warning';
+
+                tableHTML += `
+            <tr>
+                <td>${user.id}</td>
+                <td>${user.name}</td>
+                <td>${user.email}</td>
+                <td><span class="badge badge-${statusClass}">${user.status}</span></td>
+                <td>${user.lastLogin}</td>
+                <td>
+                    <button class="btn btn-primary" onclick="editUser(${user.id})">编辑</button>
+                    <button class="btn btn-danger" onclick="deleteUser(${user.id})">删除</button>
+                </td>
+            </tr>
+        `;
+            });
+
+            tableBody.innerHTML = tableHTML;
+        }
+
+        // ===== 用户操作函数 =====
+        function editUser(userId) {
+            alert(`编辑用户 ID: ${userId}`);
+        }
+
+        function deleteUser(userId) {
+            if (confirm(`确定要删除用户 ID: ${userId} 吗？`))
+            {
+                alert(`用户 ID: ${userId} 已删除`);
+                generateTableData(); // 重新生成表格数据
+            }
+        }
+
+        // ===== 更新统计数据 =====
+        function updateStats() {
+            const stats = [
+                { id: 'stat1', value: Math.floor(Math.random() * 9000) + 1000, suffix: '' },
+                { id: 'stat2', value: (Math.random() * 20 + 80).toFixed(1), suffix: '%' },
+                { id: 'stat3', value: Math.floor(Math.random() * 500) + 100, suffix: '' },
+                { id: 'stat4', value: Math.floor(Math.random() * 50000) + 10000, suffix: '', prefix: '$' }
+            ];
+
+            stats.forEach(stat => {
+                const element = document.getElementById(stat.id);
+                if (element)
+                {
+                    const prefix = stat.prefix || '';
+                    const suffix = stat.suffix || '';
+                    element.textContent = `${prefix}${stat.value.toLocaleString()}${suffix}`;
+                    element.classList.add('animate-pulse');
+                    setTimeout(() => {
+                        element.classList.remove('animate-pulse');
+                    }, 2000);
+                }
+            });
+        }
+
+        // ===== 页面加载完成后的初始化 =====
+        document.addEventListener('DOMContentLoaded', function () {
+            // 初始化表格数据
+            generateTableData();
+
+            // 添加表单验证
+            const form = document.getElementById('demoForm');
+            if (form)
+            {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    validateForm();
+                });
+            }
+
+            // 添加实时输入验证
+            const inputs = document.querySelectorAll('.form-input');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function () {
+                    validateField(this);
+                });
+            });
+
+            // 添加键盘快捷键
+            document.addEventListener('keydown', function (e) {
+                if (e.ctrlKey && e.key === 'Enter')
+                {
+                    calculate();
+                }
+            });
+        });
+
+        // ===== 表单验证功能 =====
+        function validateForm() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const age = document.getElementById('age').value;
+
+            let isValid = true;
+            let message = '';
+
+            if (!name.trim())
+            {
+                isValid = false;
+                message += '姓名不能为空！\n';
+            }
+
+            if (!email.trim())
+            {
+                isValid = false;
+                message += '邮箱不能为空！\n';
+            } else if (!isValidEmail(email))
+            {
+                isValid = false;
+                message += '邮箱格式不正确！\n';
+            }
+
+            if (!age || age < 1 || age > 120)
+            {
+                isValid = false;
+                message += '年龄必须在1-120之间！\n';
+            }
+
+            if (isValid)
+            {
+                alert('✅ 表单验证通过！\n' +
+                    `姓名: ${name}\n` +
+                    `邮箱: ${email}\n` +
+                    `年龄: ${age}`);
+            } else
+            {
+                alert('❌ 表单验证失败！\n' + message);
+            }
+        }
+
+        // ===== 单个字段验证 =====
+        function validateField(field) {
+            const value = field.value.trim();
+            let isValid = true;
+
+            // 移除之前的错误样式
+            field.style.borderColor = '';
+
+            switch (field.id)
+            {
+                case 'name':
+                    isValid = value.length >= 2;
+                    break;
+                case 'email':
+                    isValid = value === '' || isValidEmail(value);
+                    break;
+                case 'age':
+                    isValid = value === '' || (value >= 1 && value <= 120);
+                    break;
+            }
+
+            if (!isValid)
+            {
+                field.style.borderColor = '#dc3545';
+            } else
+            {
+                field.style.borderColor = '#28a745';
+            }
+        }
+
+        // ===== 邮箱格式验证 =====
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // ===== 数据导出功能 =====
+        function exportData() {
+            const data = {
+                timestamp: new Date().toISOString(),
+                formData: {
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    age: document.getElementById('age').value,
+                    city: document.getElementById('city').value,
+                    bio: document.getElementById('bio').value
+                },
+                arrayData: document.getElementById('arrayInput').value,
+                calculatorData: {
+                    numA: document.getElementById('numA').value,
+                    numB: document.getElementById('numB').value,
+                    operator: document.getElementById('operator').value
+                }
+            };
+
+            const jsonString = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'template_data.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // ===== 主题切换功能 =====
+        function toggleTheme() {
+            const body = document.body;
+            const isDark = body.classList.contains('dark-theme');
+
+            if (isDark)
+            {
+                body.classList.remove('dark-theme');
+                localStorage.setItem('theme', 'light');
+            } else
+            {
+                body.classList.add('dark-theme');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // ===== 搜索功能 =====
+        function searchTable() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('dataTable');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++)
+            {
+                const cells = rows[i].getElementsByTagName('td');
+                let found = false;
+
+                for (let j = 0; j < cells.length; j++)
+                {
+                    if (cells[j].textContent.toLowerCase().indexOf(filter) > -1)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                rows[i].style.display = found ? '' : 'none';
+            }
+        }
+
+        // ===== 动态添加内容 =====
+        function addDynamicContent() {
+            const container = document.createElement('div');
+            container.className = 'card';
+            container.innerHTML = `
+        <div class="card-header">动态添加的内容 - ${new Date().toLocaleString()}</div>
+        <p>这是一个动态添加的卡片组件，演示了JavaScript动态创建DOM元素的功能。</p>
+        <button class="btn btn-danger" onclick="removeDynamicContent(this)">删除此卡片</button>
+    `;
+
+            document.querySelector('.container').appendChild(container);
+        }
+
+        function removeDynamicContent(button) {
+            const card = button.closest('.card');
+            card.remove();
+        }
+
+        // ===== 工具函数 =====
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        function getRandomColor() {
+            const colors = ['#667eea', '#764ba2', '#28a745', '#dc3545', '#ffc107', '#17a2b8'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+    </script>
+</body>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<body>
+<canvas id="myCanvas" width="400" height="200"></canvas>
+<script>
+const canvas = document.getElementById('myCanvas');
+const ctx = canvas.getContext('2d');
+
+// 绘制外发光线条
+function drawOuterGlowLine() {
+    ctx.beginPath();
+    ctx.moveTo(50, 100);
+    ctx.lineTo(350, 100);
+    
+    // 设置阴影属性实现外发光
+    ctx.shadowBlur = 20;          // 模糊半径
+    ctx.shadowColor = "#00ff00";  // 发光颜色
+    ctx.shadowOffsetX = 0;        // X轴偏移
+    ctx.shadowOffsetY = 0;        // Y轴偏移
+    
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#ffffff";  // 线条颜色
+    ctx.stroke();
+    
+    // 清除阴影设置，避免影响后续绘制
+    ctx.shadowBlur = 0;
+    ctx.shadowColor = "transparent";
+}
+
+drawOuterGlowLine();
+</script>
+</body>
+</html>

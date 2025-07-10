@@ -1,0 +1,712 @@
+<div class="markdown prose dark:prose-invert w-full break-words dark deep-research-result">
+    <h1 data-start="0" data-end="16" class="">2D RTS群体寻路系统设计</h1>
+    <p data-start="18" data-end="774" class="">本方案基于 Unity 内置导航网格（NavMesh）实现 2D 平面群体寻路，支持至少 400 个单位同时移动。整体架构包括：<strong
+            data-start="82" data-end="92">导航网格模块</strong>（NavMeshSurface，用于烘焙静态场景的可行走区域）、<strong data-start="124"
+            data-end="134">路径规划模块</strong>（在 NavMesh 上计算路径）、<strong data-start="152"
+            data-end="162">单位控制模块</strong>（RTSUnit 脚本，控制单个单位的移动与避让）、以及<strong data-start="190"
+            data-end="199">组管理模块</strong>（RTSGroup，负责接收玩家命令、计算组目标和保持队形）。墙体使用多边形碰撞器作为静态障碍；单位使用圆形碰撞器和刚体来检测碰撞。系统流程如下：当玩家下达移动命令时，组管理器先计算目标点的全局路径或流场信息（可复用给组内所有单位），然后每个单位根据该路径逐步移动。在移动过程中，每帧检测前方其他单位的阻挡情况，并根据友军<strong
+            data-start="360" data-end="372">可推动/不可推动</strong>状态进行不同处理。若阻挡的友军可推动，则尝试推动其让路；若不可推动，则触发重新寻路（调用 NavMesh
+        重新计算绕路）。同时，对<strong data-start="437" data-end="457">两单位对向移动的“右侧通行”规则</strong>进行额外处理，避免相对而行时的死锁。每个单位还需检测路径宽度：在
+        NavMesh 烘焙时将代理半径设置为单位半径，从而自动排除比单位直径更窄的通道​<span
+            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                href="https://docs.unity3d.com/530/Documentation/Manual/nav-AdvancedSettings.html#:~:text=1,voxel%20size%20will%20not%20change"
+                target="_blank" rel="noopener"
+                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                        style="opacity: 1; transform: none;"><span
+                            class="max-w-full grow truncate overflow-hidden text-center">docs.unity3d.com</span></span></span></a></span>；必要时也可在运行时对路径点两侧做碰撞检测。整体上参考《星际争霸2》群体行为风格，实现单位间的避让、让路、保持队形和动态调整：例如根据组中心给每个单位设定带偏移的目标点​<span
+            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                href="https://www.gamedeveloper.com/programming/group-pathfinding-movement-in-rts-style-games#:~:text=The%20general%20solution%20to%20this,their%20offset%20from%20the%20destination"
+                target="_blank" rel="noopener"
+                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                        style="opacity: 1; transform: none;"><span
+                            class="max-w-full grow truncate overflow-hidden text-center">gamedeveloper.com</span></span></span></a></span>，以及单位抵达目标后的传递性停靠（“传递式碰撞”）机制​<span
+            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                href="https://www.gamedeveloper.com/programming/group-pathfinding-movement-in-rts-style-games#:~:text=What%20we%20came%20up%20with,felt%20pretty%20clever%2C%20and%20works"
+                target="_blank" rel="noopener"
+                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                        style="opacity: 1; transform: none;"><span
+                            class="max-w-full grow truncate overflow-hidden text-center">gamedeveloper.com</span></span></span></a></span>。
+    </p>
+    <h2 data-start="776" data-end="788" class="">系统组件与模块职责</h2>
+    <ul data-start="790" data-end="2189">
+        <li data-start="790" data-end="1128" class="">
+            <p data-start="792" data-end="1128" class=""><strong data-start="792" data-end="820">NavMeshSurface
+                    (导航网格表面)：</strong> 将场景中的墙体（PolygonCollider2D）和地形作为几何体烘焙为二维平面的导航网格（可附加 NavMeshSurface2d
+                或将场景旋转-90°使其位于 XZ 平面）。在烘焙设置中，将代理半径（Agent Radius）设置为单位半径，以确保窄通道被正确排除​<span
+                    class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                        href="https://docs.unity3d.com/530/Documentation/Manual/nav-AdvancedSettings.html#:~:text=1,voxel%20size%20will%20not%20change"
+                        target="_blank" rel="noopener"
+                        class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                            class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                style="opacity: 1; transform: none;"><span
+                                    class="max-w-full grow truncate overflow-hidden text-center">docs.unity3d.com</span></span></span></a></span>。按需划分不同区域（Area）或使用离散化粹粒（Voxel
+                Size）优化精度​<span
+                    class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                        href="https://docs.unity3d.com/Packages/com.unity.ai.navigation@2.0/manual/CreateNavMesh.html#:~:text=1,window%20is%20open%20and%20visible"
+                        target="_blank" rel="noopener"
+                        class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                            class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                style="opacity: 1; transform: none;"><span
+                                    class="max-w-full grow truncate overflow-hidden text-center">docs.unity3d.com</span></span></span></a></span>​<span
+                    class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                        href="https://docs.unity3d.com/530/Documentation/Manual/nav-AdvancedSettings.html#:~:text=1,voxel%20size%20will%20not%20change"
+                        target="_blank" rel="noopener"
+                        class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                            class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                style="opacity: 1; transform: none;"><span
+                                    class="max-w-full grow truncate overflow-hidden text-center">docs.unity3d.com</span></span></span></a></span>。
+            </p>
+        </li>
+        <li data-start="1130" data-end="1480" class="">
+            <p data-start="1132" data-end="1480" class=""><strong data-start="1132"
+                    data-end="1155">PathPlanner（路径规划器）：</strong> 封装对 NavMesh 的查询。提供接口计算从起点到目标的路径（如调用 <code
+                    data-start="1192"
+                    data-end="1254">NavMesh.CalculatePath(start, target, NavMesh.AllAreas, path)</code>），并缓存常用路径或流场。对于多个单位移动至相同区域的情况，可先计算一次全局路径或流场方向字段，然后让各单位基于该结果推进，从而减少重复计算。可参考流场算法：从目标点进行
+                BFS 广度优先扩散生成全局方向场，对整个地图遍历一次（初始代价大，但适用于上百甚至上千单位同时寻路​<span
+                    class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                        href="https://www.jdxdev.com/blog/2020/05/03/flowfields/#:~:text=enthusiasts,agents%20they%20may%20scale%20better"
+                        target="_blank" rel="noopener"
+                        class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                            class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                style="opacity: 1; transform: none;"><span
+                                    class="max-w-full grow truncate overflow-hidden text-center">jdxdev.com</span></span></span></a></span>​<span
+                    class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                        href="https://blog.csdn.net/weixin_42882418/article/details/128830866#:~:text=" target="_blank"
+                        rel="noopener"
+                        class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                            class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                style="opacity: 1; transform: none;"><span
+                                    class="max-w-full grow truncate overflow-hidden text-center">blog.csdn.net</span></span></span></a></span>）。
+            </p>
+        </li>
+        <li data-start="1482" data-end="1882" class="">
+            <p data-start="1484" data-end="1882" class=""><strong data-start="1484"
+                    data-end="1503">RTSUnit（单位控制器）：</strong> 挂在每个单位 GameObject
+                上，负责实际移动和局部避让。每帧根据规划好的路径朝下一个路径拐点或目标移动，并检测碰撞器。拥有状态变量（如 <code data-start="1576"
+                    data-end="1608">bool canBePushed; bool isAlly;</code> 等）区分可推动/不可推动和阵营。若前方检测到同队单位阻挡，则根据其可推动性执行<strong
+                    data-start="1648" data-end="1657">推挤或绕行</strong>逻辑；如果是不可推动或敌方阻挡，则调用路径规划器重新计算路径（向 navmesh
+                请求新的路径）。此外，实现基本的避让/分离（separation）行为：当邻近单位过于接近时，沿相反方向施加小范围推斥力，防止实体重叠。参考 Boids 算法的分离、躲避行为可以实现平滑避障​<span
+                    class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                        href="https://gamedev.stackexchange.com/questions/191954/how-can-i-create-the-arriving-engaging-in-combat-movement-like-in-starcraft-2#:~:text=The%20high%20level%20steering%20behaviors,identified%20are"
+                        target="_blank" rel="noopener"
+                        class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                            class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                style="opacity: 1; transform: none;"><span
+                                    class="max-w-full grow truncate overflow-hidden text-center">gamedev.stackexchange.com</span></span></span></a></span>​<span
+                    class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                        href="https://gamedev.stackexchange.com/questions/191954/how-can-i-create-the-arriving-engaging-in-combat-movement-like-in-starcraft-2#:~:text=,with%20their%20intended%20course%20correction"
+                        target="_blank" rel="noopener"
+                        class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                            class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                style="opacity: 1; transform: none;"><span
+                                    class="max-w-full grow truncate overflow-hidden text-center">gamedev.stackexchange.com</span></span></span></a></span>。
+            </p>
+        </li>
+        <li data-start="1884" data-end="2189" class="">
+            <p data-start="1886" data-end="2189" class=""><strong data-start="1886"
+                    data-end="1905">RTSGroup（组管理器）：</strong>
+                负责接收玩家输入的移动命令，并对组内所有单位下发目标。为了保持队形，计算所有被选中单位的几何中心，并为每个单位分配一个偏移目标点：如令每个单位的最终目标等于玩家点击点加上该单位相对于组中心的偏移向量​<span
+                    class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                        href="https://www.gamedeveloper.com/programming/group-pathfinding-movement-in-rts-style-games#:~:text=The%20general%20solution%20to%20this,their%20offset%20from%20the%20destination"
+                        target="_blank" rel="noopener"
+                        class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                            class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                style="opacity: 1; transform: none;"><span
+                                    class="max-w-full grow truncate overflow-hidden text-center">gamedeveloper.com</span></span></span></a></span>。这样可以避免所有单位追逐同一点的问题，并在开阔地形中保持相对阵型。此外，组管理器可处理传递式停靠：例如当第一个单位到达目标后，可向与其相撞的队友广播到达消息，使后续单位也视为已到达​<span
+                    class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                        href="https://www.gamedeveloper.com/programming/group-pathfinding-movement-in-rts-style-games#:~:text=What%20we%20came%20up%20with,felt%20pretty%20clever%2C%20and%20works"
+                        target="_blank" rel="noopener"
+                        class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                            class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                style="opacity: 1; transform: none;"><span
+                                    class="max-w-full grow truncate overflow-hidden text-center">gamedeveloper.com</span></span></span></a></span>。
+            </p>
+        </li>
+    </ul>
+    <h2 data-start="2191" data-end="2200" class="">核心寻路流程</h2>
+    <ol data-start="2202" data-end="3250">
+        <li data-start="2202" data-end="2421" class="">
+            <p data-start="2205" data-end="2421" class=""><strong data-start="2205" data-end="2219">NavMesh
+                    烘焙</strong>：在编辑器中将所有墙体标记为静态并添加到 NavMeshSurface，对场景执行 Bake 操作​<span
+                    class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                        href="https://docs.unity3d.com/Packages/com.unity.ai.navigation@2.0/manual/CreateNavMesh.html#:~:text=1,window%20is%20open%20and%20visible"
+                        target="_blank" rel="noopener"
+                        class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                            class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                style="opacity: 1; transform: none;"><span
+                                    class="max-w-full grow truncate overflow-hidden text-center">docs.unity3d.com</span></span></span></a></span>。确保设置适当的代理半径（与单位半径相同）和栅格精度​<span
+                    class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                        href="https://docs.unity3d.com/530/Documentation/Manual/nav-AdvancedSettings.html#:~:text=1,voxel%20size%20will%20not%20change"
+                        target="_blank" rel="noopener"
+                        class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                            class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                style="opacity: 1; transform: none;"><span
+                                    class="max-w-full grow truncate overflow-hidden text-center">docs.unity3d.com</span></span></span></a></span>。烘焙完成后，地图上只保留通过区域，无需考虑真实物理引擎即可查询路径。
+            </p>
+        </li>
+        <li data-start="2423" data-end="2569" class="">
+            <p data-start="2426" data-end="2569" class=""><strong data-start="2426"
+                    data-end="2436">接收移动命令</strong>：玩家点击地图时，组管理器获取目标点。若包含多个单位，先计算组的中心点和每个单位到组中心的偏移；然后将每个单位的目标设为点击点 +
+                该偏移向量​<span
+                    class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                        href="https://www.gamedeveloper.com/programming/group-pathfinding-movement-in-rts-style-games#:~:text=The%20general%20solution%20to%20this,their%20offset%20from%20the%20destination"
+                        target="_blank" rel="noopener"
+                        class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                            class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                style="opacity: 1; transform: none;"><span
+                                    class="max-w-full grow truncate overflow-hidden text-center">gamedeveloper.com</span></span></span></a></span>。这样可让单位“列队”前往目标。
+            </p>
+        </li>
+        <li data-start="2571" data-end="2742" class="">
+            <p data-start="2574" data-end="2742" class=""><strong data-start="2574"
+                    data-end="2582">路径计算</strong>：对于每个单位，调用 NavMesh 求路径（可以让多个单位共用一个路径数组或流场，减少重复计算）。若使用 NavMeshAgent
+                组件，可设置其 <code data-start="2657" data-end="2680">agent.CalculatePath()</code>；若手动则用 <code
+                    data-start="2687" data-end="2712">NavMesh.CalculatePath()</code>。路径生成后存为一系列拐点（corners）供后续移动使用。</p>
+        </li>
+        <li data-start="2744" data-end="3100" class="">
+            <p data-start="2747" data-end="2830" class=""><strong data-start="2747"
+                    data-end="2758">单位移动与避让</strong>：每帧更新时，单位沿当前路径依次移动到下一个拐点。若到达某拐点则切换到下一个。当预测下一个时间步会与其他单位发生碰撞时，触发避免或推挤逻辑：
+            </p>
+            <ul data-start="2834" data-end="3100">
+                <li data-start="2834" data-end="3022" class="">
+                    <p data-start="2836" data-end="3022" class=""><strong data-start="2836"
+                            data-end="2851">避让（避开狭窄/僵局）</strong>：参考 SC2 中的避障策略，不要双向选择同一侧躲避（避免“走廊舞蹈”）​<span
+                            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                                href="https://gamedev.stackexchange.com/questions/191954/how-can-i-create-the-arriving-engaging-in-combat-movement-like-in-starcraft-2#:~:text=,with%20their%20intended%20course%20correction"
+                                target="_blank" rel="noopener"
+                                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                        style="opacity: 1; transform: none;"><span
+                                            class="max-w-full grow truncate overflow-hidden text-center">gamedev.stackexchange.com</span></span></span></a></span>；在通道拥挤时尝试绕行。可通过投射多条视线或扇形检测前方空隙，选择最近的通行方向​<span
+                            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                                href="https://gamedev.stackexchange.com/questions/191954/how-can-i-create-the-arriving-engaging-in-combat-movement-like-in-starcraft-2#:~:text=,with%20their%20intended%20course%20correction"
+                                target="_blank" rel="noopener"
+                                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                        style="opacity: 1; transform: none;"><span
+                                            class="max-w-full grow truncate overflow-hidden text-center">gamedev.stackexchange.com</span></span></span></a></span>。
+                    </p>
+                </li>
+                <li data-start="3026" data-end="3100" class="">
+                    <p data-start="3028" data-end="3100" class=""><strong data-start="3028"
+                            data-end="3034">推挤</strong>：若前方为可推动的友军，则尝试推动其让路（见下一节），同时自身前进；若为敌军或不可推动单位，则终止当前路径并重新寻路（避开阻挡者）。
+                    </p>
+                </li>
+            </ul>
+        </li>
+        <li data-start="3102" data-end="3250" class="">
+            <p data-start="3105" data-end="3250" class=""><strong data-start="3105"
+                    data-end="3113">到达处理</strong>：当单位认为到达其目标时，如果有友军紧靠其身后，则可以触发“传递式停靠”逻辑——第一个到达单位接触到的所有同方向前来单位都标记为已到达​<span
+                    class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                        href="https://www.gamedeveloper.com/programming/group-pathfinding-movement-in-rts-style-games#:~:text=What%20we%20came%20up%20with,felt%20pretty%20clever%2C%20and%20works"
+                        target="_blank" rel="noopener"
+                        class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                            class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                style="opacity: 1; transform: none;"><span
+                                    class="max-w-full grow truncate overflow-hidden text-center">gamedeveloper.com</span></span></span></a></span>。这样可避免大量单位聚集在一点而无法前进的情况。
+            </p>
+        </li>
+    </ol>
+    <h2 data-start="3252" data-end="3264" class="">避让与推挤算法原理</h2>
+    <p data-start="3266" data-end="3392" class="">系统结合了基于<strong data-start="3273"
+            data-end="3282">Boids</strong>的局部避让和有限推挤物理的混合策略​<span
+            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                href="https://gamedev.stackexchange.com/questions/191954/how-can-i-create-the-arriving-engaging-in-combat-movement-like-in-starcraft-2#:~:text=The%20high%20level%20steering%20behaviors,identified%20are"
+                target="_blank" rel="noopener"
+                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                        style="opacity: 1; transform: none;"><span
+                            class="max-w-full grow truncate overflow-hidden text-center">gamedev.stackexchange.com</span></span></span></a></span>​<span
+            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                href="https://gamedev.stackexchange.com/questions/191954/how-can-i-create-the-arriving-engaging-in-combat-movement-like-in-starcraft-2#:~:text=,with%20their%20intended%20course%20correction"
+                target="_blank" rel="noopener"
+                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                        style="opacity: 1; transform: none;"><span
+                            class="max-w-full grow truncate overflow-hidden text-center">gamedev.stackexchange.com</span></span></span></a></span>：
+    </p>
+    <ul data-start="3394" data-end="4375">
+        <li data-start="3394" data-end="3574" class="">
+            <p data-start="3396" data-end="3574" class=""><strong data-start="3396" data-end="3408">Boids 避让</strong>：参考
+                SC2 的高层运动策略，每个单位在移动时执行分离（Separation）和躲避（Avoidance）行为​<span
+                    class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                        href="https://gamedev.stackexchange.com/questions/191954/how-can-i-create-the-arriving-engaging-in-combat-movement-like-in-starcraft-2#:~:text=The%20high%20level%20steering%20behaviors,identified%20are"
+                        target="_blank" rel="noopener"
+                        class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                            class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                style="opacity: 1; transform: none;"><span
+                                    class="max-w-full grow truncate overflow-hidden text-center">gamedev.stackexchange.com</span></span></span></a></span>。当检测到邻近单位时，单位会尝试向其外侧移动以保持距离。这可通过对邻近单位施加反向力来模拟，也可简单地基于屏幕空间设定偏移目标。
+            </p>
+        </li>
+        <li data-start="3576" data-end="4187" class="">
+            <p data-start="3578" data-end="3722" class=""><strong data-start="3578" data-end="3586">推挤规则</strong>：借鉴 SC2
+                单位碰撞规则​<span
+                    class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                        href="https://gamedev.stackexchange.com/questions/191954/how-can-i-create-the-arriving-engaging-in-combat-movement-like-in-starcraft-2#:~:text=SC2%20units%20are%20allowed%20to,are%20some%20of%20the%20basics"
+                        target="_blank" rel="noopener"
+                        class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                            class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                style="opacity: 1; transform: none;"><span
+                                    class="max-w-full grow truncate overflow-hidden text-center">gamedev.stackexchange.com</span></span></span></a></span>，将友军分为**可推动（movable）<strong
+                    data-start="3666" data-end="3671">和</strong>不可推动（static）**两类。实现时，每个单位脚本维护一个 <code data-start="3703"
+                    data-end="3716">canBePushed</code> 标志：</p>
+            <ul data-start="3725" data-end="4187">
+                <li data-start="3725" data-end="3874" class="">
+                    <p data-start="3727" data-end="3874" class="">如果路径前方有友军阻挡且其 <code data-start="3741"
+                            data-end="3760">canBePushed==true</code>，则尝试将其推出路线：可以通过对友军施加一定的力（如使用
+                        Rigidbody2D.AddForce）或命令其临时偏移来实现“让路”​<span
+                            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                                href="https://www.gamedeveloper.com/programming/group-pathfinding-movement-in-rts-style-games#:~:text=A%20more%20natural%20looking%20solution,a%20more%20generic%20solve%20here"
+                                target="_blank" rel="noopener"
+                                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                        style="opacity: 1; transform: none;"><span
+                                            class="max-w-full grow truncate overflow-hidden text-center">gamedeveloper.com</span></span></span></a></span>。
+                    </p>
+                </li>
+                <li data-start="3877" data-end="4187" class="">
+                    <p data-start="3879" data-end="4187" class="">推挤过程中遵循规则：“可推友军推进，推不动敌军；推空闲单位，不推战斗中单位”​<span
+                            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                                href="https://www.gamedeveloper.com/programming/group-pathfinding-movement-in-rts-style-games#:~:text=A%20more%20natural%20looking%20solution,a%20more%20generic%20solve%20here"
+                                target="_blank" rel="noopener"
+                                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                        style="opacity: 1; transform: none;"><span
+                                            class="max-w-full grow truncate overflow-hidden text-center">gamedeveloper.com</span></span></span></a></span>​<span
+                            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                                href="https://gamedev.stackexchange.com/questions/191954/how-can-i-create-the-arriving-engaging-in-combat-movement-like-in-starcraft-2#:~:text=,mentioned%20during%20the%20Q%26A"
+                                target="_blank" rel="noopener"
+                                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                        style="opacity: 1; transform: none;"><span
+                                            class="max-w-full grow truncate overflow-hidden text-center">gamedev.stackexchange.com</span></span></span></a></span>。例如，空闲的友军会被前来的高速单位推动出路，而正在攻击或坚守位置的单位则视为不可推动​<span
+                            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                                href="https://gamedev.stackexchange.com/questions/191954/how-can-i-create-the-arriving-engaging-in-combat-movement-like-in-starcraft-2#:~:text=,mentioned%20during%20the%20Q%26A"
+                                target="_blank" rel="noopener"
+                                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                        style="opacity: 1; transform: none;"><span
+                                            class="max-w-full grow truncate overflow-hidden text-center">gamedev.stackexchange.com</span></span></span></a></span>。两单位对抗时则相互推动。推力大小可以基于单位速度差异决定：速度快的单位推动幅度更大​<span
+                            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                                href="https://gamedev.stackexchange.com/questions/191954/how-can-i-create-the-arriving-engaging-in-combat-movement-like-in-starcraft-2#:~:text=,mentioned%20during%20the%20Q%26A"
+                                target="_blank" rel="noopener"
+                                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                        style="opacity: 1; transform: none;"><span
+                                            class="max-w-full grow truncate overflow-hidden text-center">gamedev.stackexchange.com</span></span></span></a></span>。
+                    </p>
+                </li>
+            </ul>
+        </li>
+        <li data-start="4189" data-end="4375" class="">
+            <p data-start="4191" data-end="4375" class=""><strong data-start="4191"
+                    data-end="4199">对向让路</strong>：对于迎面相向的单位，采用“右侧通行”规则：当两单位头对头时，默认各自向右侧偏移通过。这一规则是为了避免“走廊式对抗”死锁，即当对方向某侧躲避时，本方应选择另一侧​<span
+                    class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                        href="https://gamedev.stackexchange.com/questions/191954/how-can-i-create-the-arriving-engaging-in-combat-movement-like-in-starcraft-2#:~:text=,with%20their%20intended%20course%20correction"
+                        target="_blank" rel="noopener"
+                        class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                            class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                style="opacity: 1; transform: none;"><span
+                                    class="max-w-full grow truncate overflow-hidden text-center">gamedev.stackexchange.com</span></span></span></a></span>。实现上，可判断两单位的前进方向与相对位置，统一选取右侧偏移，例如令两个单位分别按各自右手边绕行。
+            </p>
+        </li>
+    </ul>
+    <p data-start="4377" data-end="4519" class="">通过上述算法，单位既能自主避开碰撞，也能在拥挤时形成仿真推挤行为，从而实现类似 SC2 的群体效果​<span class=""
+            data-state="closed"><span
+                class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                    href="https://gamedev.stackexchange.com/questions/191954/how-can-i-create-the-arriving-engaging-in-combat-movement-like-in-starcraft-2#:~:text=SC2%20units%20are%20allowed%20to,are%20some%20of%20the%20basics"
+                    target="_blank" rel="noopener"
+                    class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                        class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                            class="flex h-4 w-full items-center justify-between overflow-hidden"
+                            style="opacity: 1; transform: none;"><span
+                                class="max-w-full grow truncate overflow-hidden text-center">gamedev.stackexchange.com</span></span></span></a></span></span>​<span
+            class="" data-state="closed"><span
+                class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                    href="https://www.gamedeveloper.com/programming/group-pathfinding-movement-in-rts-style-games#:~:text=A%20more%20natural%20looking%20solution,a%20more%20generic%20solve%20here"
+                    target="_blank" rel="noopener"
+                    class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                        class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                            class="flex h-4 w-full items-center justify-between overflow-hidden"
+                            style="opacity: 1; transform: none;"><span
+                                class="max-w-full grow truncate overflow-hidden text-center">gamedeveloper.com</span></span></span></a></span></span>。
+    </p>
+    <h2 data-start="4521" data-end="4530" class="">路径宽度评估</h2>
+    <p data-start="4532" data-end="4882" class="">为避免无法通过的狭窄通道，方案依赖 NavMesh 本身的代理半径机制：在烘焙时，将 NavMeshSurface 的 <strong
+            data-start="4592" data-end="4608">Agent Radius</strong> 设置为单位的半径​<span
+            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                href="https://docs.unity3d.com/530/Documentation/Manual/nav-AdvancedSettings.html#:~:text=1,voxel%20size%20will%20not%20change"
+                target="_blank" rel="noopener"
+                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                        style="opacity: 1; transform: none;"><span
+                            class="max-w-full grow truncate overflow-hidden text-center">docs.unity3d.com</span></span></span></a></span>。这样烘焙出的网格自动“收缩”空隙，任何宽度小于两个单位直径的通道都不会生成可行走网格，有效避免了过窄通路。若动态检测需要补充，可在路径生成后，对路径上的每个节点向两侧做射线检测，确保其两侧至少有单位半径的空间，若不足则认为此路径不合格并重新寻路。官方文档建议：为保证窄通道可通行，代理半径周围应留出至少
+        <code data-start="4816" data-end="4831">4 * voxelSize</code> 的余量​<span
+            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                href="https://docs.unity3d.com/530/Documentation/Manual/nav-AdvancedSettings.html#:~:text=When%20you%20intentionally%20build%20tight,the%20corridors%20are%20at%20angles"
+                target="_blank" rel="noopener"
+                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                        style="opacity: 1; transform: none;"><span
+                            class="max-w-full grow truncate overflow-hidden text-center">docs.unity3d.com</span></span></span></a></span>。
+    </p>
+    <h2 data-start="4884" data-end="4896" class="">群体行为与队形保持</h2>
+    <p data-start="4898" data-end="5323" class="">整体寻路行为采用<strong data-start="4906"
+            data-end="4913">群体式</strong>运动策略：所有单位对目标“聚集”但保持一定队形。常用方法是<strong data-start="4942"
+            data-end="4951">位置偏移法</strong>：先计算单位群的中心点，然后为每个单位将目标点偏移其相对于中心的向量​<span
+            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                href="https://www.gamedeveloper.com/programming/group-pathfinding-movement-in-rts-style-games#:~:text=The%20general%20solution%20to%20this,their%20offset%20from%20the%20destination"
+                target="_blank" rel="noopener"
+                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                        style="opacity: 1; transform: none;"><span
+                            class="max-w-full grow truncate overflow-hidden text-center">gamedeveloper.com</span></span></span></a></span>。例如，选中
+        A、B、C 三个单位后点击红点时，将 A、B、C 与群中心的差值作为偏移，各自向红点发出不同的目标（见下图示意）​<span
+            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                href="https://www.gamedeveloper.com/programming/group-pathfinding-movement-in-rts-style-games#:~:text=The%20general%20solution%20to%20this,their%20offset%20from%20the%20destination"
+                target="_blank" rel="noopener"
+                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                        style="opacity: 1; transform: none;"><span
+                            class="max-w-full grow truncate overflow-hidden text-center">gamedeveloper.com</span></span></span></a></span>。如此可让分散单位向目标点聚集同时保持层次。此方法参考了《Maestros》团队在
+        RTS 群组移动中的设计​<span
+            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                href="https://www.gamedeveloper.com/programming/group-pathfinding-movement-in-rts-style-games#:~:text=The%20general%20solution%20to%20this,their%20offset%20from%20the%20destination"
+                target="_blank" rel="noopener"
+                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                        style="opacity: 1; transform: none;"><span
+                            class="max-w-full grow truncate overflow-hidden text-center">gamedeveloper.com</span></span></span></a></span>。当组内单位分布较宽时，还可以结合转向行为自动收拢：单位在移动过程中根据邻近单位的相对位置轻微调整方向，形成类似<strong
+            data-start="5296" data-end="5302">编队</strong>的动态移动方式（类似编队行进或蜂群行为）。</p>
+    <p data-start="5325" data-end="5478" class="">在单位到达目标的处理上，引入<strong data-start="5339"
+            data-end="5348">传递式停止</strong>机制：当一个单位率先到达目标并停止时，任何接触到它的仍在移动的友军也将认为自己已到达，从而停止移动​<span
+            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                href="https://www.gamedeveloper.com/programming/group-pathfinding-movement-in-rts-style-games#:~:text=What%20we%20came%20up%20with,felt%20pretty%20clever%2C%20and%20works"
+                target="_blank" rel="noopener"
+                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                        style="opacity: 1; transform: none;"><span
+                            class="max-w-full grow truncate overflow-hidden text-center">gamedeveloper.com</span></span></span></a></span>。这一做法可避免后续单位无限撞向已停下的前队单位，实现最终的群体停靠。
+    </p>
+    <h2 data-start="5480" data-end="5504" class="">Unity 2D NavMesh 配置建议</h2>
+    <p data-start="5506" data-end="5645" class="">Unity 的 NavMesh 原生为 3D 环境设计，但自 Unity 2017 起可用于 2D 场景。推荐做法是在 3D 空间中将 2D
+        平面视作水平面，或使用开源组件（如 NavMeshComponents 中的 NavMeshSurface2d）进行烘焙。具体步骤：</p>
+    <ul data-start="5646" data-end="6107">
+        <li data-start="5646" data-end="5710" class="">
+            <p data-start="5648" data-end="5710" class="">为地形和墙体添加 Collider（2D Collider），并将墙体标记为静态（Navigation Static）。
+            </p>
+        </li>
+        <li data-start="5711" data-end="5919" class="">
+            <p data-start="5713" data-end="5919" class="">创建一个空物体，添加 <strong data-start="5724"
+                    data-end="5742">NavMeshSurface</strong> 组件；设置其 BuildSource 为 “Collider Volume” 或 “Mesh”，并启用 <code
+                    data-start="5795" data-end="5828">Use Geometry: Physics Colliders</code>，以让 2D 碰撞器参与烘焙。若使用
+                NavMeshSurface2d，可在 Inspector 中旋转场景或 Surface 组件，使 NavMesh 平面与 2D 视图对齐。</p>
+        </li>
+        <li data-start="5920" data-end="6107" class="">
+            <p data-start="5922" data-end="6107" class="">在 NavMeshSurface 中调整参数：<code data-start="5945"
+                    data-end="5959">Agent Radius</code> 设为单位半径，<code data-start="5967" data-end="5979">Voxel Size</code>
+                设为合适精度（建议代理半径的四分之一到半倍），Bake 生成网格​<span
+                    class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                        href="https://docs.unity3d.com/Packages/com.unity.ai.navigation@2.0/manual/CreateNavMesh.html#:~:text=1,window%20is%20open%20and%20visible"
+                        target="_blank" rel="noopener"
+                        class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                            class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                style="opacity: 1; transform: none;"><span
+                                    class="max-w-full grow truncate overflow-hidden text-center">docs.unity3d.com</span></span></span></a></span>​<span
+                    class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                        href="https://docs.unity3d.com/530/Documentation/Manual/nav-AdvancedSettings.html#:~:text=1,voxel%20size%20will%20not%20change"
+                        target="_blank" rel="noopener"
+                        class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                            class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                style="opacity: 1; transform: none;"><span
+                                    class="max-w-full grow truncate overflow-hidden text-center">docs.unity3d.com</span></span></span></a></span>。
+            </p>
+        </li>
+    </ul>
+    <p data-start="6109" data-end="6224" class="">完成烘焙后，可通过脚本调用 <code data-start="6123"
+            data-end="6146">NavMesh.CalculatePath</code> 在该平面上获取路径。注意如果采用 Rigidbody2D 进行物理移动，应让 NavMesh 计算保持在平面（z
+        轴固定）或在移动时手动忽略 z 轴偏移。</p>
+    <h2 data-start="6226" data-end="6233" class="">性能优化</h2>
+    <p data-start="6235" data-end="6259" class="">面对数百至上千单位同时寻路，可采取多种优化：</p>
+    <ul data-start="6260" data-end="6951">
+        <li data-start="6260" data-end="6392" class="">
+            <p data-start="6262" data-end="6392" class=""><strong data-start="6262" data-end="6274">路径共享与缓存：</strong>
+                对朝向相同目标、靠近的单位群，采用共享路径或流场。可计算组中心到目标的路径，并让每个单位在此基础上加偏移跟随；或者生成目标点的流场矢量字段，所有单位直接沿该场移动。还可缓存常用起点-终点的 NavMesh
+                路径，避免频繁重复计算。</p>
+        </li>
+        <li data-start="6393" data-end="6652" class="">
+            <p data-start="6395" data-end="6652" class=""><strong data-start="6395" data-end="6406">多帧分布计算：</strong>
+                不要在一帧内同时对 400 个单位调用路径查询，可将寻路请求排队分布到若干帧中​<span
+                    class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                        href="https://arongranberg.com/astar/documentation/3_8_7_d3d926f/calling-pathfinding.php#:~:text=the%20path%20in%20a%20queue,a%20coroutine%20using%20%2011"
+                        target="_blank" rel="noopener"
+                        class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                            class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                style="opacity: 1; transform: none;"><span
+                                    class="max-w-full grow truncate overflow-hidden text-center">arongranberg.com</span></span></span></a></span>。如
+                Aron Granberg 的示例，将 <code data-start="6515" data-end="6526">StartPath</code> 放入队列，每帧处理一批请求，以平衡帧率​<span
+                    class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                        href="https://arongranberg.com/astar/documentation/3_8_7_d3d926f/calling-pathfinding.php#:~:text=the%20path%20in%20a%20queue,a%20coroutine%20using%20%2011"
+                        target="_blank" rel="noopener"
+                        class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                            class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                                class="flex h-4 w-full items-center justify-between overflow-hidden"
+                                style="opacity: 1; transform: none;"><span
+                                    class="max-w-full grow truncate overflow-hidden text-center">arongranberg.com</span></span></span></a></span>。必要时启用多线程寻路（Jobs
+                或 A* Pathfinding Project 的线程版）进一步减轻主线程开销。</p>
+        </li>
+        <li data-start="6653" data-end="6733" class="">
+            <p data-start="6655" data-end="6733" class=""><strong data-start="6655" data-end="6666">裁剪静态单位：</strong>
+                对于长时间静止或已到达目标的单位，可临时将其退出寻路计算（停止调用路径更新），只保留动态单位执行寻路逻辑，从而减轻每帧的计算量。</p>
+        </li>
+        <li data-start="6734" data-end="6816" class="">
+            <p data-start="6736" data-end="6816" class=""><strong data-start="6736" data-end="6745">合并队列：</strong>
+                大规模单位行进时，可对远处视角不清的单元降低更新率，例如每隔若干帧才做一次路径检查或碰撞检测，对玩家当前视野外的单位进行 LOD 处理。</p>
+        </li>
+        <li data-start="6817" data-end="6951" class="">
+            <p data-start="6819" data-end="6951" class=""><strong data-start="6819" data-end="6839">NavMesh
+                    瓦片与局部更新：</strong> 若地图有动态生成或移动的障碍物，可只对影响区域使用 NavMeshSurface 的局部更新，避免重烘焙整个网格。Unity 的 NavMeshComponents
+                支持生成离线 NavMeshAsset 并动态加载。</p>
+        </li>
+    </ul>
+    <p data-start="6953" data-end="7102" class="">总之，通过路径结果复用、分帧运算、减少无效计算等手段，可使 400+ 单位的寻路在 PC 平台上保持可接受的性能​<span
+            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                href="https://arongranberg.com/astar/documentation/3_8_7_d3d926f/calling-pathfinding.php#:~:text=the%20path%20in%20a%20queue,a%20coroutine%20using%20%2011"
+                target="_blank" rel="noopener"
+                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                        style="opacity: 1; transform: none;"><span
+                            class="max-w-full grow truncate overflow-hidden text-center">arongranberg.com</span></span></span></a></span>​<span
+            class="" data-state="closed"><span
+                class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                    href="https://www.jdxdev.com/blog/2020/05/03/flowfields/#:~:text=enthusiasts,agents%20they%20may%20scale%20better"
+                    target="_blank" rel="noopener"
+                    class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                        class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                            class="flex h-4 w-full items-center justify-between overflow-hidden"
+                            style="opacity: 1; transform: none;"><span
+                                class="max-w-full grow truncate overflow-hidden text-center">jdxdev.com</span></span></span></a></span></span>。
+    </p>
+    <h2 data-start="7104" data-end="7115" class="">核心代码框架示例</h2>
+    <p data-start="7117" data-end="7162" class="">以下提供关键 C# 脚本框架示例，帮助实现上述功能（仅示意性代码，需按项目需求补充细节）：</p>
+    <pre class="overflow-visible!" data-start="7164" data-end="10222"><div class="contain-inline-size rounded-md border-[0.5px] border-token-border-medium relative bg-token-sidebar-surface-primary"><div class="flex items-center text-token-text-secondary px-4 py-2 text-xs font-sans justify-between h-9 bg-token-sidebar-surface-primary dark:bg-token-main-surface-secondary select-none rounded-t-[5px]">csharp</div><div class="sticky top-9"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-sidebar-surface-primary text-token-text-secondary dark:bg-token-main-surface-secondary flex items-center rounded-sm px-2 font-sans text-xs"><span class="" data-state="closed"><button class="flex gap-1 items-center select-none px-4 py-1" aria-label="复制"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-xs"><path fill-rule="evenodd" clip-rule="evenodd" d="M7 5C7 3.34315 8.34315 2 10 2H19C20.6569 2 22 3.34315 22 5V14C22 15.6569 20.6569 17 19 17H17V19C17 20.6569 15.6569 22 14 22H5C3.34315 22 2 20.6569 2 19V10C2 8.34315 3.34315 7 5 7H7V5ZM9 7H14C15.6569 7 17 8.34315 17 10V15H19C19.5523 15 20 14.5523 20 14V5C20 4.44772 19.5523 4 19 4H10C9.44772 4 9 4.44772 9 5V7ZM5 9C4.44772 9 4 9.44772 4 10V19C4 19.5523 4.44772 20 5 20H14C14.5523 20 15 19.5523 15 19V10C15 9.44772 14.5523 9 14 9H5Z" fill="currentColor"></path></svg>复制</button></span></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre! language-csharp"><span><span><span class="hljs-keyword">using</span></span><span> UnityEngine;
+    </span><span><span class="hljs-keyword">using</span></span><span> UnityEngine.AI;
+    </span><span><span class="hljs-keyword">using</span></span><span> System.Collections.Generic;
+    
+    </span><span><span class="hljs-keyword">public</span></span><span> </span><span><span class="hljs-keyword">class</span></span><span> </span><span><span class="hljs-title">RTSUnit</span></span><span> : </span><span><span class="hljs-title">MonoBehaviour</span></span><span> {
+        </span><span><span class="hljs-keyword">public</span></span><span> </span><span><span class="hljs-built_in">float</span></span><span> moveSpeed = </span><span><span class="hljs-number">3f</span></span><span>;
+        </span><span><span class="hljs-keyword">public</span></span><span> </span><span><span class="hljs-built_in">bool</span></span><span> canBePushed = </span><span><span class="hljs-literal">true</span></span><span>;
+        </span><span><span class="hljs-keyword">public</span></span><span> </span><span><span class="hljs-built_in">bool</span></span><span> isAlly = </span><span><span class="hljs-literal">true</span></span><span>;          </span><span><span class="hljs-comment">// 阵营标志</span></span><span>
+        </span><span><span class="hljs-keyword">public</span></span><span> Rigidbody2D rb2d;            </span><span><span class="hljs-comment">// 2D 刚体用于物理推挤</span></span><span>
+    
+        </span><span><span class="hljs-keyword">private</span></span><span> List&lt;Vector3&gt; path = </span><span><span class="hljs-literal">null</span></span><span>;
+        </span><span><span class="hljs-keyword">private</span></span><span> </span><span><span class="hljs-built_in">int</span></span><span> currentPathIndex = </span><span><span class="hljs-number">0</span></span><span>;
+    
+        </span><span><span class="hljs-function"><span class="hljs-keyword">void</span></span></span><span> </span><span><span class="hljs-title">Start</span></span><span>() {
+            rb2d = GetComponent&lt;Rigidbody2D&gt;();
+        }
+    
+        </span><span><span class="hljs-comment">// 设置目标点，计算路径</span></span><span>
+        </span><span><span class="hljs-function"><span class="hljs-keyword">public</span></span></span><span> </span><span><span class="hljs-keyword">void</span></span><span> </span><span><span class="hljs-title">SetDestination</span></span><span>(</span><span><span class="hljs-params">Vector3 target</span></span><span>) {
+            NavMeshPath navPath = </span><span><span class="hljs-keyword">new</span></span><span> NavMeshPath();
+            NavMesh.CalculatePath(transform.position, target, NavMesh.AllAreas, navPath);
+            path = </span><span><span class="hljs-keyword">new</span></span><span> List&lt;Vector3&gt;(navPath.corners);
+            currentPathIndex = </span><span><span class="hljs-number">0</span></span><span>;
+        }
+    
+        </span><span><span class="hljs-function"><span class="hljs-keyword">void</span></span></span><span> </span><span><span class="hljs-title">Update</span></span><span>() {
+            </span><span><span class="hljs-keyword">if</span></span><span> (path == </span><span><span class="hljs-literal">null</span></span><span> || currentPathIndex &gt;= path.Count) </span><span><span class="hljs-keyword">return</span></span><span>;
+    
+            </span><span><span class="hljs-comment">// 移动到下一个路径点</span></span><span>
+            Vector3 goal = path[currentPathIndex];
+            Vector3 dir = (goal - transform.position).normalized;
+            rb2d.velocity = </span><span><span class="hljs-keyword">new</span></span><span> Vector2(dir.x, dir.y) * moveSpeed;
+    
+            </span><span><span class="hljs-comment">// 到达当前点后切换下一个</span></span><span>
+            </span><span><span class="hljs-keyword">if</span></span><span> (Vector3.Distance(transform.position, goal) &lt; </span><span><span class="hljs-number">0.1f</span></span><span>) {
+                currentPathIndex++;
+            }
+        }
+    
+        </span><span><span class="hljs-function"><span class="hljs-keyword">void</span></span></span><span> </span><span><span class="hljs-title">OnCollisionEnter2D</span></span><span>(</span><span><span class="hljs-params">Collision2D col</span></span><span>) {
+            RTSUnit other = col.collider.GetComponent&lt;RTSUnit&gt;();
+            </span><span><span class="hljs-keyword">if</span></span><span> (other == </span><span><span class="hljs-literal">null</span></span><span> || other == </span><span><span class="hljs-keyword">this</span></span><span>) </span><span><span class="hljs-keyword">return</span></span><span>;
+            </span><span><span class="hljs-keyword">if</span></span><span> (!other.isAlly) {
+                </span><span><span class="hljs-comment">// 敌方阻挡：重新寻路（示意调用）</span></span><span>
+                SetDestination(path[path.Count - </span><span><span class="hljs-number">1</span></span><span>]);
+            } </span><span><span class="hljs-keyword">else</span></span><span> {
+                </span><span><span class="hljs-comment">// 友军碰撞</span></span><span>
+                </span><span><span class="hljs-keyword">if</span></span><span> (other.canBePushed) {
+                    </span><span><span class="hljs-comment">// 推挤友军：将其向侧面推开</span></span><span>
+                    Vector2 pushDir = (other.transform.position - transform.position).normalized;
+                    other.rb2d.AddForce(pushDir * moveSpeed * </span><span><span class="hljs-number">5f</span></span><span>);
+                } </span><span><span class="hljs-keyword">else</span></span><span> {
+                    </span><span><span class="hljs-comment">// 不可推：重新寻路</span></span><span>
+                    SetDestination(path[path.Count - </span><span><span class="hljs-number">1</span></span><span>]);
+                }
+            }
+        }
+    
+        </span><span><span class="hljs-function"><span class="hljs-keyword">void</span></span></span><span> </span><span><span class="hljs-title">OnCollisionStay2D</span></span><span>(</span><span><span class="hljs-params">Collision2D col</span></span><span>) {
+            </span><span><span class="hljs-comment">// 对向让路：如果两单位速度相反，朝右侧偏移（示意）</span></span><span>
+            RTSUnit other = col.collider.GetComponent&lt;RTSUnit&gt;();
+            </span><span><span class="hljs-keyword">if</span></span><span> (other != </span><span><span class="hljs-literal">null</span></span><span> &amp;&amp; other.isAlly) {
+                Vector2 v1 = rb2d.velocity.normalized;
+                Vector2 v2 = other.rb2d.velocity.normalized;
+                </span><span><span class="hljs-keyword">if</span></span><span> (Vector2.Dot(v1, v2) &lt; </span><span><span class="hljs-number">-0.5f</span></span><span>) {  </span><span><span class="hljs-comment">// 大致相向</span></span><span>
+                    </span><span><span class="hljs-comment">// 双方向各自右侧偏移一点</span></span><span>
+                    rb2d.velocity = Rotate90DegreesRight(v1) * moveSpeed;
+                    other.rb2d.velocity = Rotate90DegreesRight(v2) * moveSpeed;
+                }
+            }
+        }
+    
+        </span><span><span class="hljs-comment">// 计算向右侧偏移的向量</span></span><span>
+        </span><span><span class="hljs-function"><span class="hljs-keyword">private</span></span></span><span> Vector2 </span><span><span class="hljs-title">Rotate90DegreesRight</span></span><span>(</span><span><span class="hljs-params">Vector2 v</span></span><span>) {
+            </span><span><span class="hljs-keyword">return</span></span><span> </span><span><span class="hljs-keyword">new</span></span><span> Vector2(v.y, -v.x);
+        }
+    }
+    
+    </span><span><span class="hljs-comment">// 组管理器示例：选中多单位时计算目标偏移</span></span><span>
+    </span><span><span class="hljs-keyword">public</span></span><span> </span><span><span class="hljs-keyword">class</span></span><span> </span><span><span class="hljs-title">RTSGroup</span></span><span> : </span><span><span class="hljs-title">MonoBehaviour</span></span><span> {
+        </span><span><span class="hljs-keyword">public</span></span><span> List&lt;RTSUnit&gt; units = </span><span><span class="hljs-keyword">new</span></span><span> List&lt;RTSUnit&gt;();
+    
+        </span><span><span class="hljs-function"><span class="hljs-keyword">public</span></span></span><span> </span><span><span class="hljs-keyword">void</span></span><span> </span><span><span class="hljs-title">MoveGroup</span></span><span>(</span><span><span class="hljs-params">Vector3 target</span></span><span>) {
+            </span><span><span class="hljs-comment">// 计算群中心</span></span><span>
+            Vector3 center = Vector3.zero;
+            </span><span><span class="hljs-keyword">foreach</span></span><span> (</span><span><span class="hljs-keyword">var</span></span><span> u </span><span><span class="hljs-keyword">in</span></span><span> units) center += u.transform.position;
+            center /= units.Count;
+    
+            </span><span><span class="hljs-comment">// 给每个单位设定目标 = 点击点 + (单位位置 - 群中心)</span></span><span>
+            </span><span><span class="hljs-keyword">foreach</span></span><span> (</span><span><span class="hljs-keyword">var</span></span><span> u </span><span><span class="hljs-keyword">in</span></span><span> units) {
+                Vector3 offset = u.transform.position - center;
+                Vector3 dest = target + offset;
+                u.SetDestination(dest);
+            }
+        }
+    }
+    </span></span></code></div></div></pre>
+    <p data-start="10224" data-end="10385" class="">以上代码演示了单位接收目标后如何在 NavMesh
+        上移动，并在碰撞检测中进行推挤或重寻路处理。实际项目中还需添加避障逻辑、到达判断、碰撞过滤（按层级区分单位/墙体等）及更鲁棒的碰撞响应。此外，可以根据需要将 <code data-start="10329"
+            data-end="10338">RTSUnit</code> 的移动从直接设置速度改为使用 NavMeshAgent 或自定义插值，以实现平滑转弯和旋转。</p>
+    <p data-start="10387" data-end="10609" class="">通过上述设计与脚本实现，在 Unity 6 以下版本的 2D
+        环境中可以构建一个类似《星际争霸2》风格的群体寻路系统，满足大规模单位同步移动、碰撞避让与队形保持等需求​<span
+            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                href="https://www.gamedeveloper.com/programming/group-pathfinding-movement-in-rts-style-games#:~:text=A%20more%20natural%20looking%20solution,a%20more%20generic%20solve%20here"
+                target="_blank" rel="noopener"
+                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                        style="opacity: 1; transform: none;"><span
+                            class="max-w-full grow truncate overflow-hidden text-center">gamedeveloper.com</span></span></span></a></span>​<span
+            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                href="https://gamedev.stackexchange.com/questions/191954/how-can-i-create-the-arriving-engaging-in-combat-movement-like-in-starcraft-2#:~:text=SC2%20units%20are%20allowed%20to,are%20some%20of%20the%20basics"
+                target="_blank" rel="noopener"
+                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                        style="opacity: 1; transform: none;"><span
+                            class="max-w-full grow truncate overflow-hidden text-center">gamedev.stackexchange.com</span></span></span></a></span>​<span
+            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                href="https://arongranberg.com/astar/documentation/3_8_7_d3d926f/calling-pathfinding.php#:~:text=the%20path%20in%20a%20queue,a%20coroutine%20using%20%2011"
+                target="_blank" rel="noopener"
+                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                        style="opacity: 1; transform: none;"><span
+                            class="max-w-full grow truncate overflow-hidden text-center">arongranberg.com</span></span></span></a></span>。
+    </p>
+    <p data-start="10611" data-end="10991" class=""><strong data-start="10611" data-end="10620">参考资料：</strong>
+        相关算法与实践可参考 SC2 公开的 AI 行为（避障、推挤规则）​<span
+            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                href="https://gamedev.stackexchange.com/questions/191954/how-can-i-create-the-arriving-engaging-in-combat-movement-like-in-starcraft-2#:~:text=,with%20their%20intended%20course%20correction"
+                target="_blank" rel="noopener"
+                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                        style="opacity: 1; transform: none;"><span
+                            class="max-w-full grow truncate overflow-hidden text-center">gamedev.stackexchange.com</span></span></span></a></span>​<span
+            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                href="https://gamedev.stackexchange.com/questions/191954/how-can-i-create-the-arriving-engaging-in-combat-movement-like-in-starcraft-2#:~:text=,mentioned%20during%20the%20Q%26A"
+                target="_blank" rel="noopener"
+                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                        style="opacity: 1; transform: none;"><span
+                            class="max-w-full grow truncate overflow-hidden text-center">gamedev.stackexchange.com</span></span></span></a></span>、群组路径规划文章​<span
+            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                href="https://www.gamedeveloper.com/programming/group-pathfinding-movement-in-rts-style-games#:~:text=What%20we%20came%20up%20with,felt%20pretty%20clever%2C%20and%20works"
+                target="_blank" rel="noopener"
+                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                        style="opacity: 1; transform: none;"><span
+                            class="max-w-full grow truncate overflow-hidden text-center">gamedeveloper.com</span></span></span></a></span>​<span
+            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                href="https://www.gamedeveloper.com/programming/group-pathfinding-movement-in-rts-style-games#:~:text=The%20general%20solution%20to%20this,their%20offset%20from%20the%20destination"
+                target="_blank" rel="noopener"
+                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                        style="opacity: 1; transform: none;"><span
+                            class="max-w-full grow truncate overflow-hidden text-center">gamedeveloper.com</span></span></span></a></span>以及
+        Unity 官方 NavMesh 文档​<span
+            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                href="https://docs.unity3d.com/Packages/com.unity.ai.navigation@2.0/manual/CreateNavMesh.html#:~:text=1,window%20is%20open%20and%20visible"
+                target="_blank" rel="noopener"
+                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                        style="opacity: 1; transform: none;"><span
+                            class="max-w-full grow truncate overflow-hidden text-center">docs.unity3d.com</span></span></span></a></span>​<span
+            class="ms-1 inline-flex max-w-full items-center relative top-[-0.094rem] animate-[show_150ms_ease-in]"><a
+                href="https://docs.unity3d.com/530/Documentation/Manual/nav-AdvancedSettings.html#:~:text=1,voxel%20size%20will%20not%20change"
+                target="_blank" rel="noopener"
+                class="flex h-4.5 overflow-hidden rounded-xl px-2 text-[0.5625em] font-medium text-token-text-secondary! bg-[#F4F4F4]! dark:bg-[#303030]! transition-colors duration-150 ease-in-out"><span
+                    class="relative start-0 bottom-0 flex h-full w-full items-center"><span
+                        class="flex h-4 w-full items-center justify-between overflow-hidden"
+                        style="opacity: 1; transform: none;"><span
+                            class="max-w-full grow truncate overflow-hidden text-center">docs.unity3d.com</span></span></span></a></span>。上述方案结合了开源与学术界对大型群体寻路的研究与优化思路。
+    </p>
+</div>
