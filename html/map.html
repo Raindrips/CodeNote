@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Metroidvania Map Canvas Demo</title>
+<style>
+  canvas {
+    background-color: #111;
+    border: 1px solid #444;
+  }
+  #zoom {
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+<canvas id="mapCanvas" width="800" height="600"></canvas>
+<input type="range" id="zoom" min="0.5" max="2" step="0.1" value="1">
+
+<script>
+const canvas = document.getElementById('mapCanvas');
+const ctx = canvas.getContext('2d');
+const zoomSlider = document.getElementById('zoom');
+
+let zoom = 1.0;
+zoomSlider.addEventListener('input', () => {
+  zoom = parseFloat(zoomSlider.value);
+  render();
+});
+
+// Mock config data
+const config = {
+  blocks: [
+    { id: 'A1', x: 0, y: 0, w: 4, h: 3, hasWalls: [true,true,false,true], isSave: false },
+    { id: 'A2', x: 4, y: 0, w: 2, h: 5, hasWalls: [false,true,true,false], isSave: true }
+  ],
+  colors: ['#FF0000', '#00FF00', '#0000FF'],
+  defaultStateColors: {
+    unexplored: '#444444',
+    explored: '#CCCCCC'
+  }
+};
+
+const blockSize = 32; // each unit = 32px
+const explored = new Set(['A1']); // manually mark explored blocks
+
+function render() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.save();
+  ctx.scale(zoom, zoom);
+
+  for (const b of config.blocks) {
+    const x = b.x * blockSize;
+    const y = b.y * blockSize;
+    const w = b.w * blockSize;
+    const h = b.h * blockSize;
+
+    // Determine color
+    let fill = config.defaultStateColors.unexplored;
+    if (explored.has(b.id)) fill = config.defaultStateColors.explored;
+    if (b.isSave) fill = config.colors[0];
+
+    ctx.fillStyle = fill;
+    ctx.fillRect(x, y, w, h);
+
+    // Draw walls (solid lines)
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    if (b.hasWalls[0]) ctx.moveTo(x, y), ctx.lineTo(x + w, y);     // top
+    if (b.hasWalls[1]) ctx.moveTo(x + w, y), ctx.lineTo(x + w, y + h); // right
+    if (b.hasWalls[2]) ctx.moveTo(x + w, y + h), ctx.lineTo(x, y + h); // bottom
+    if (b.hasWalls[3]) ctx.moveTo(x, y + h), ctx.lineTo(x, y);     // left
+    ctx.stroke();
+
+    // Dashed border to right neighbor (simulate virtual line)
+    ctx.setLineDash([5, 5]);
+    ctx.strokeStyle = '#888';
+    ctx.beginPath();
+    ctx.moveTo(x + w, y);
+    ctx.lineTo(x + w, y + h);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  ctx.restore();
+}
+
+render();
+</script>
+</body>
+</html>
