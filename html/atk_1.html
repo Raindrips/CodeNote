@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏等级数值计算器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .formula-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #007bff;
+        }
+        .formula-title {
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        .formula {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            background: #e9ecef;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        tr:hover {
+            background-color: #e3f2fd;
+        }
+        .highlight {
+            background-color: #fff3cd !important;
+            font-weight: bold;
+        }
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        label {
+            font-weight: bold;
+            color: #333;
+        }
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100px;
+        }
+        button {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            min-width: 150px;
+        }
+        .stat-title {
+            font-weight: bold;
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 游戏等级数值计算器</h1>
+        
+        <div class="formula-section">
+            <div class="formula-title">📐 Excel公式 (假设A列为等级，从A2开始)</div>
+            <div class="formula">主角攻击力: =100*POWER(4,(A2-1)/49)</div>
+            <div class="formula">怪物血量: =400*POWER(4,(A2-1)/49)</div>
+            <div class="formula">攻击次数: =4</div>
+            <div style="margin-top: 15px; font-size: 12px; color: #666;">
+                💡 说明：所有等级的主角都需要4次攻击击败对应等级的怪物
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>初始攻击力</label>
+                <input type="number" id="baseAttack" value="100" min="1">
+            </div>
+            <div class="input-group">
+                <label>最大等级</label>
+                <input type="number" id="maxLevel" value="50" min="1" max="100">
+            </div>
+            <div class="input-group">
+                <label>满级倍数</label>
+                <input type="number" id="multiplier" value="4" min="1" step="0.1">
+            </div>
+            <button onclick="updateTable()">更新数据</button>
+        </div>
+
+        <div class="stats" id="statsContainer">
+            <div class="stat-card">
+                <div class="stat-title">1级攻击力</div>
+                <div class="stat-value" id="level1Attack">100</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">满级攻击力</div>
+                <div class="stat-value" id="level50Attack">400</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">攻击倍数</div>
+                <div class="stat-value" id="attackMultiplier">4.00x</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">攻击次数</div>
+                <div class="stat-value">4次</div>
+            </div>
+        </div>
+
+        <table id="levelTable">
+            <thead>
+                <tr>
+                    <th>等级</th>
+                    <th>主角攻击力</th>
+                    <th>怪物血量</th>
+                    <th>攻击次数</th>
+                    <th>攻击倍数</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function calculateAttack(level, baseAttack, maxLevel, multiplier) {
+            return baseAttack * Math.pow(multiplier, (level - 1) / (maxLevel - 1));
+        }
+
+        function calculateHP(level, baseAttack, maxLevel, multiplier) {
+            return calculateAttack(level, baseAttack, maxLevel, multiplier) * 4;
+        }
+
+        function updateTable() {
+            const baseAttack = parseFloat(document.getElementById('baseAttack').value);
+            const maxLevel = parseInt(document.getElementById('maxLevel').value);
+            const multiplier = parseFloat(document.getElementById('multiplier').value);
+            
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+            
+            // 更新统计信息
+            const level1Attack = calculateAttack(1, baseAttack, maxLevel, multiplier);
+            const levelMaxAttack = calculateAttack(maxLevel, baseAttack, maxLevel, multiplier);
+            
+            document.getElementById('level1Attack').textContent = Math.round(level1Attack);
+            document.getElementById('level50Attack').textContent = Math.round(levelMaxAttack);
+            document.getElementById('attackMultiplier').textContent = (levelMaxAttack / level1Attack).toFixed(2) + 'x';
+            
+            // 生成表格数据
+            for (let level = 1; level <= maxLevel; level++) {
+                const attack = calculateAttack(level, baseAttack, maxLevel, multiplier);
+                const hp = calculateHP(level, baseAttack, maxLevel, multiplier);
+                const attackTimes = 4;
+                const attackMultiplierValue = attack / level1Attack;
+                
+                const row = document.createElement('tr');
+                if (level === 1 || level === maxLevel) {
+                    row.className = 'highlight';
+                }
+                
+                row.innerHTML = `
+                    <td>${level}</td>
+                    <td>${Math.round(attack)}</td>
+                    <td>${Math.round(hp)}</td>
+                    <td>${attackTimes}</td>
+                    <td>${attackMultiplierValue.toFixed(2)}x</td>
+                `;
+                
+                tableBody.appendChild(row);
+            }
+        }
+        
+        // 初始化表格
+        updateTable();
+        
+        // 监听输入变化
+        document.getElementById('baseAttack').addEventListener('input', updateTable);
+        document.getElementById('maxLevel').addEventListener('input', updateTable);
+        document.getElementById('multiplier').addEventListener('input', updateTable);
+    </script>
+</body>
+</html>

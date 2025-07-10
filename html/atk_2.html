@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>防御力游戏数值计算器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .formula-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #007bff;
+        }
+        .formula-title {
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        .formula {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            background: #e9ecef;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 5px 0;
+            word-break: break-all;
+        }
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        label {
+            font-weight: bold;
+            color: #333;
+            font-size: 12px;
+        }
+        input, select {
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 80px;
+            font-size: 12px;
+        }
+        button {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        .tables-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .table-section {
+            flex: 1;
+            min-width: 300px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 4px;
+            text-align: center;
+        }
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .same-level {
+            background-color: #fff3cd !important;
+            font-weight: bold;
+        }
+        .advantage {
+            background-color: #d4edda !important;
+        }
+        .disadvantage {
+            background-color: #f8d7da !important;
+        }
+        .section-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+        .stat-title {
+            font-weight: bold;
+            color: #666;
+            font-size: 10px;
+            margin-bottom: 3px;
+        }
+        .stat-value {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
+        .explanation {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196F3;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛡️ 防御力游戏数值计算器</h1>
+        
+        <div class="explanation">
+            <strong>🎯 设计目标：</strong><br>
+            • 同等级对战：4次攻击击败<br>
+            • 每高1级：少打1次（最少1次）<br>
+            • 每低1级：多打1次（最多7次）<br>
+            • 实际伤害 = max(攻击力 - 防御力, 1)
+        </div>
+        
+        <div class="formula-section">
+            <div class="formula-title">📐 Excel公式设计</div>
+            <div class="formula">攻击力 = 基础攻击 * (1 + 成长率)^(等级-1)</div>
+            <div class="formula">防御力 = 攻击力 * 0.75</div>
+            <div class="formula">血量 = (攻击力 - 防御力) * 4</div>
+            <div class="formula">实际伤害 = MAX(攻击力 - 目标防御力, 1)</div>
+            <div class="formula">攻击次数 = CEILING(目标血量 / 实际伤害)</div>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>基础攻击</label>
+                <input type="number" id="baseAttack" value="100" min="1">
+            </div>
+            <div class="input-group">
+                <label>成长率</label>
+                <input type="number" id="growthRate" value="0.2" min="0" max="1" step="0.01">
+            </div>
+            <div class="input-group">
+                <label>最大等级</label>
+                <input type="number" id="maxLevel" value="20" min="5" max="50">
+            </div>
+            <div class="input-group">
+                <label>查看等级</label>
+                <select id="viewLevel">
+                    <option value="10">10级</option>
+                </select>
+            </div>
+            <button onclick="updateAll()">更新数据</button>
+        </div>
+
+        <div class="stats-grid" id="statsContainer"></div>
+
+        <div class="tables-container">
+            <div class="table-section">
+                <div class="section-title">📊 等级属性表</div>
+                <table id="attributeTable">
+                    <thead>
+                        <tr>
+                            <th>等级</th>
+                            <th>攻击力</th>
+                            <th>防御力</th>
+                            <th>血量</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attributeBody"></tbody>
+                </table>
+            </div>
+            
+            <div class="table-section">
+                <div class="section-title">⚔️ 战斗模拟表 (攻击者视角)</div>
+                <table id="battleTable">
+                    <thead>
+                        <tr>
+                            <th>目标等级</th>
+                            <th>等级差</th>
+                            <th>实际伤害</th>
+                            <th>攻击次数</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="battleBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculateStats(level, baseAttack, growthRate) {
+            const attack = Math.round(baseAttack * Math.pow(1 + growthRate, level - 1));
+            const defense = Math.round(attack * 0.75);
+            const hp = (attack - defense) * 4;
+            return { attack, defense, hp };
+        }
+
+        function calculateDamage(attackerAttack, targetDefense) {
+            return Math.max(attackerAttack - targetDefense, 1);
+        }
+
+        function calculateAttackCount(targetHp, damage) {
+            return Math.ceil(targetHp / damage);
+        }
+
+        function updateAll() {
+            const baseAttack = parseInt(document.getElementById('baseAttack').value);
+            const growthRate = parseFloat(document.getElementById('growthRate').value);
+            const maxLevel = parseInt(document.getElementById('maxLevel').value);
+            const viewLevel = parseInt(document.getElementById('viewLevel').value);
+            
+            updateViewLevelOptions(maxLevel);
+            updateAttributeTable(baseAttack, growthRate, maxLevel);
+            updateBattleTable(baseAttack, growthRate, viewLevel, maxLevel);
+            updateStats(baseAttack, growthRate, viewLevel);
+        }
+
+        function updateViewLevelOptions(maxLevel) {
+            const select = document.getElementById('viewLevel');
+            const currentValue = select.value;
+            select.innerHTML = '';
+            
+            for (let i = 1; i <= maxLevel; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i + '级';
+                select.appendChild(option);
+            }
+            
+            if (currentValue && currentValue <= maxLevel) {
+                select.value = currentValue;
+            } else {
+                select.value = Math.min(10, maxLevel);
+            }
+        }
+
+        function updateAttributeTable(baseAttack, growthRate, maxLevel) {
+            const tbody = document.getElementById('attributeBody');
+            tbody.innerHTML = '';
+            
+            for (let level = 1; level <= maxLevel; level++) {
+                const stats = calculateStats(level, baseAttack, growthRate);
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${level}</td>
+                    <td>${stats.attack}</td>
+                    <td>${stats.defense}</td>
+                    <td>${stats.hp}</td>
+                `;
+                
+                tbody.appendChild(row);
+            }
+        }
+
+        function updateBattleTable(baseAttack, growthRate, attackerLevel, maxLevel) {
+            const tbody = document.getElementById('battleBody');
+            tbody.innerHTML = '';
+            
+            const attackerStats = calculateStats(attackerLevel, baseAttack, growthRate);
+            
+            for (let targetLevel = 1; targetLevel <= maxLevel; targetLevel++) {
+                const targetStats = calculateStats(targetLevel, baseAttack, growthRate);
+                const levelDiff = attackerLevel - targetLevel;
+                const damage = calculateDamage(attackerStats.attack, targetStats.defense);
+                const attackCount = calculateAttackCount(targetStats.hp, damage);
+                
+                const row = document.createElement('tr');
+                
+                let status = '';
+                let className = '';
+                if (levelDiff === 0) {
+                    status = '同级';
+                    className = 'same-level';
+                } else if (levelDiff > 0) {
+                    status = `高${levelDiff}级`;
+                    className = 'advantage';
+                } else {
+                    status = `低${Math.abs(levelDiff)}级`;
+                    className = 'disadvantage';
+                }
+                
+                row.className = className;
+                row.innerHTML = `
+                    <td>${targetLevel}</td>
+                    <td>${levelDiff > 0 ? '+' : ''}${levelDiff}</td>
+                    <td>${damage}</td>
+                    <td>${attackCount}</td>
+                    <td>${status}</td>
+                `;
+                
+                tbody.appendChild(row);
+            }
+        }
+
+        function updateStats(baseAttack, growthRate, viewLevel) {
+            const stats = calculateStats(viewLevel, baseAttack, growthRate);
+            const container = document.getElementById('statsContainer');
+            
+            // 计算同级对战数据
+            const sameLevelDamage = calculateDamage(stats.attack, stats.defense);
+            const sameLevelAttacks = calculateAttackCount(stats.hp, sameLevelDamage);
+            
+            container.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-title">${viewLevel}级攻击力</div>
+                    <div class="stat-value">${stats.attack}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">${viewLevel}级防御力</div>
+                    <div class="stat-value">${stats.defense}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">${viewLevel}级血量</div>
+                    <div class="stat-value">${stats.hp}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">同级实际伤害</div>
+                    <div class="stat-value">${sameLevelDamage}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">同级攻击次数</div>
+                    <div class="stat-value">${sameLevelAttacks}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">防御减伤率</div>
+                    <div class="stat-value">${((stats.defense / stats.attack) * 100).toFixed(1)}%</div>
+                </div>
+            `;
+        }
+
+        // 初始化
+        updateAll();
+        
+        // 监听输入变化
+        document.getElementById('baseAttack').addEventListener('input', updateAll);
+        document.getElementById('growthRate').addEventListener('input', updateAll);
+        document.getElementById('maxLevel').addEventListener('input', updateAll);
+        document.getElementById('viewLevel').addEventListener('change', updateAll);
+    </script>
+</body>
+</html>
