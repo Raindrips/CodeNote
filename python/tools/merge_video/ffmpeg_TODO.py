@@ -1,4 +1,5 @@
 import subprocess
+import sys
 
 from tool import get_all_file_path
 
@@ -15,7 +16,8 @@ def merge_videos(input_files, output_file):
     subprocess.run(command, shell=True)
 
 if __name__ == "__main__":
-    input_list=get_all_file_path("D:\\Downloads\\car_1")
+    input_path= sys.argv[0]
+    input_list=get_all_file_path(input_path)
     # print(input_list)
     # input_files = ["video1.mp4", "video2.mp4"]  # 输入视频文件列表
     output_file = "merged_video.mp4"  # 输出合并后的视频文件名
