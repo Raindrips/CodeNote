@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>24点小游戏 - 趣味数学</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>24点小游戏</h1>
+            <div class="score-container">
+                <span>得分：</span>
+                <span id="score">0</span>
+            </div>
+        </header>
+
+        <div class="game-area">
+            <div class="cards-container">
+                <div class="card" id="card1"></div>
+                <div class="card" id="card2"></div>
+                <div class="card" id="card3"></div>
+                <div class="card" id="card4"></div>
+            </div>
+
+            <div class="operation-area">
+                <div class="answer-input">
+                    <input type="text" id="answer" placeholder="请输入算式，例如：(3+4)*2-1=24">
+                    <div class="operator-buttons">
+                        <button class="op-btn" data-op="(">(</button>
+                        <button class="op-btn" data-op=")">)</button>
+                        <button class="op-btn" data-op="+">+</button>
+                        <button class="op-btn" data-op="-">-</button>
+                        <button class="op-btn" data-op="*">×</button>
+                        <button class="op-btn" data-op="/">÷</button>
+                        <button class="op-btn" data-op="=">=</button>
+                        <button class="op-btn" data-op="24">24</button>
+                    </div>
+                    <div class="action-buttons">
+                        <button id="check-btn">检查答案</button>
+                        <button id="new-game-btn">新游戏</button>
+                        <button id="show-solution-btn">查看解法</button>
+                    </div>
+                </div>
+                
+                <div class="result-display">
+                    <p id="result-message"></p>
+                    <div id="solution-display"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="custom-input-area">
+            <h2>自定义24点</h2>
+            <div class="custom-input-options">
+                <div class="custom-number-input">
+                    <label>输入四个数字：</label>
+                    <input type="number" class="custom-number" min="1" max="13" value="1">
+                    <input type="number" class="custom-number" min="1" max="13" value="2">
+                    <input type="number" class="custom-number" min="1" max="13" value="3">
+                    <input type="number" class="custom-number" min="1" max="13" value="4">
+                    <button id="custom-calculate-btn">计算24点</button>
+                </div>
+                
+                <div class="custom-card-selection">
+                    <label>选择四张牌：</label>
+                    <div class="card-selection-container">
+                        <select class="card-select" id="suit1">
+                            <option value="hearts">红桃</option>
+                            <option value="diamonds">方块</option>
+                            <option value="clubs">梅花</option>
+                            <option value="spades">黑桃</option>
+                        </select>
+                        <select class="card-select" id="value1">
+                            <option value="1">A</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">J</option>
+                            <option value="12">Q</option>
+                            <option value="13">K</option>
+                        </select>
+                        
+                        <select class="card-select" id="suit2">
+                            <option value="hearts">红桃</option>
+                            <option value="diamonds">方块</option>
+                            <option value="clubs">梅花</option>
+                            <option value="spades">黑桃</option>
+                        </select>
+                        <select class="card-select" id="value2">
+                            <option value="1">A</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">J</option>
+                            <option value="12">Q</option>
+                            <option value="13">K</option>
+                        </select>
+                        
+                        <select class="card-select" id="suit3">
+                            <option value="hearts">红桃</option>
+                            <option value="diamonds">方块</option>
+                            <option value="clubs">梅花</option>
+                            <option value="spades">黑桃</option>
+                        </select>
+                        <select class="card-select" id="value3">
+                            <option value="1">A</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">J</option>
+                            <option value="12">Q</option>
+                            <option value="13">K</option>
+                        </select>
+                        
+                        <select class="card-select" id="suit4">
+                            <option value="hearts">红桃</option>
+                            <option value="diamonds">方块</option>
+                            <option value="clubs">梅花</option>
+                            <option value="spades">黑桃</option>
+                        </select>
+                        <select class="card-select" id="value4">
+                            <option value="1">A</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">J</option>
+                            <option value="12">Q</option>
+                            <option value="13">K</option>
+                        </select>
+                        
+                        <button id="custom-cards-btn">使用这些牌</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="custom-solution-display"></div>
+        </div>
+
+        <div class="instructions">
+            <h2>游戏规则</h2>
+            <p>使用四张牌的点数，通过加(+)、减(-)、乘(*)、除(/)四种运算，使最终结果等于24。</p>
+            <p>A代表1，J代表11，Q代表12，K代表13。</p>
+            <p>每个数字必须且只能使用一次。</p>
+            <p>例如：如果四张牌是 3, 4, 5, 6，一个可能的答案是：(5-3)*(6+4)=24</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>趣味24点 - 提升数学思维的小游戏 🎮</p>
+    </footer>
+
+    <script src="js/game.js"></script>
+</body>
+</html>
