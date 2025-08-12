@@ -1,5 +1,6 @@
 (() => {
     /**
+     * 创建一个二维数组
      * Creates a multi-dimensional array filled with zeros based on the given dimensions.
      *
      * @param dimensions A rest parameter representing the lengths of each dimension.
@@ -18,7 +19,7 @@
         const currentDimLength = dimensions[0];
         const remainingDimensions = dimensions.slice(1);
 
-        const array = [];
+        const array: T[] = [];
         for (let i = 0; i < currentDimLength; i++) {
             array.push(
                 createMultiDimensionalArray(fill, ...remainingDimensions),
