@@ -20,19 +20,26 @@ def merge_videos(file_list, output_file):
         print(f'已读取{i}个视频,共{len_file}个视频')
     
     print('开始合并')
-    # 合并视频
-    final_clip = concatenate_videoclips(clips)
-    print('输出中...')
-    # 输出合并后的视频文件
-    final_clip.write_videofile(output_file,8)
+    try:
+   
+        # 合并视频
+        final_clip = concatenate_videoclips(clips)
+        print('输出中...')
+        # 输出合并后的视频文件
+        final_clip.write_videofile(output_file,24)
+    except:
+        print('error')
+    
 
 
 if __name__ == "__main__":
-    input_list = get_all_file_path("D:\\Downloads\\car_1")
-    # print(input_list)
+    input_list= sys.argv[1]
+    print(sys.argv)
     # input_files = ["video1.mp4", "video2.mp4"]  # 输入视频文件列表
-    output_file = ".\\merged_video.mp4"  # 输出合并后的视频文件名
-    list_sp=split_array(input_list,10)
+    input_files=get_all_file_path(input_list)
+    print('文件列表',input_files)
+    # output_file = ".\\merged_video.mp4"  # 输出合并后的视频文件名
+    list_sp=split_array(input_files,20)
     for(i,list) in enumerate(list_sp):
         print(f'开始合并{i}个视频')
-        merge_videos(list, f".\\merged_video{i}.mp4")
+        merge_videos(list, f".\\build\\video_{i}.mp4")
