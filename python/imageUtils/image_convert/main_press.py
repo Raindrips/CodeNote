@@ -4,7 +4,8 @@ import sys
 import re
 import subprocess
 
-pngquad="./pngquant/pngquant.exe"
+pngquad = "./pngquant/pngquant.exe"
+
 
 def process_image(im, scale):
     """
@@ -24,12 +25,13 @@ def press_image(source_file, out_file):
     result = subprocess.run(
         [
             pngquad,
-            "--strip",     
+            "--strip",
             "--quality",
-            "60-80",
+            "50-100",
             "--speed",
-            "4",
+            "1",
             "--force",
+            # "--verbose",
             "--skip-if-larger",
             source_file,
             "-o",
