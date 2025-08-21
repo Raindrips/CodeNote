@@ -1,7 +1,7 @@
 import { CanvasRenderingContext2D, createCanvas, loadImage } from 'canvas';
 
 export const Canvas_Width = 1080;
-export const Canvas_Height = 450;
+export const Canvas_Height = 725;
 
 const angleMax: number = 170;
 const r: number = 15;
@@ -59,7 +59,7 @@ export function showLineByArc(
             index++;
         }
     }
-    g.lineWidth = 1.5;
+    g.lineWidth = 5;
 
     g.strokeStyle = 'rgba(255,255,255,255)';
     g.stroke();
