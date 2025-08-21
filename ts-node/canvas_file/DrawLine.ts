@@ -31,7 +31,7 @@ function toVec2(arr: [number, number][]) {
 }
 
 async function main() {
-    const data = await readFile('./line_121_2.txt');
+    const data = await readFile('./line124.txt');
     const posArr = dataParse(data);
 
   
@@ -40,7 +40,7 @@ async function main() {
         const g = canvas.getContext('2d');
         const arr = posArr[i];
         const pos = toVec2(arr);
-        showLineByVec(g, pos);
+        showLineByArc(g, pos);
         
         //@ts-ignore
         fs.writeFileSync(`build/${i+1}.png`, canvas.toBuffer('image/png'));
