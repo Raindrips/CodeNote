@@ -4,7 +4,7 @@ import sys
 import re
 import subprocess
 
-pngquad = "./app/pngquant/pngquant.exe"
+pngquant = "./app/pngquant/pngquant.exe"
 jpegoptim = "./app/jpegoptim/jpegoptim.exe"
 
 
@@ -34,7 +34,7 @@ def press_image_png(source_file: str, out_file: str, quality: int):
     # pngquant --strip --quality 0-80 --speed 1 test.png -o ./out/test.png
     result = subprocess.run(
         [
-            pngquad,
+            pngquant,
             "--strip",
             "--quality",
             f"0-{quality}",
@@ -49,6 +49,7 @@ def press_image_png(source_file: str, out_file: str, quality: int):
         ],
         capture_output=True,
         text=True,
+        creationflags=subprocess.CREATE_NO_WINDOW
     )
     if result.stderr:
         print(f"png:{result.stderr}", end="")
@@ -69,6 +70,7 @@ def press_image_jpg(source_file: str, output_dir: str, quality: int):
         ],
         capture_output=True,
         text=True,
+        creationflags=subprocess.CREATE_NO_WINDOW
     )
 
     if result.stderr:

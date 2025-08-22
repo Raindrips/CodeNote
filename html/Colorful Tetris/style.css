@@ -1,0 +1,266 @@
+/* Colorful Tetris Game Styling */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+:root {
+    --bg-color: #121212;
+    --text-color: #ffffff;
+    --primary-color: #8c52ff;
+    --secondary-color: #00b4d8;
+    --accent-color: #ff5470;
+    --board-bg: #111111;
+    --board-border: #333333;
+    --button-hover: #ff9e00;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Press Start 2P', cursive, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: linear-gradient(45deg, #121212 25%, #1a1a1a 25%, #1a1a1a 50%, #121212 50%, #121212 75%, #1a1a1a 75%, #1a1a1a 100%);
+    background-size: 20px 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.game-header {
+    text-align: center;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.game-header h1 {
+    font-size: 2.5rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px var(--primary-color),
+                 0 0 20px var(--primary-color),
+                 0 0 30px var(--primary-color);
+    background: linear-gradient(to right, #ff5470, #8c52ff, #00b4d8, #ff9e00);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: rainbow 8s linear infinite;
+}
+
+@keyframes rainbow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.game-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.game-info {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 200px;
+}
+
+.score-container {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 15px;
+    border-radius: 10px;
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 0 10px var(--primary-color);
+}
+
+.score-container h2, .score-container h3 {
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+.score-container #score {
+    color: var(--accent-color);
+    font-size: 1.2rem;
+}
+
+.score-container #level {
+    color: var(--secondary-color);
+}
+
+.score-container #lines {
+    color: var(--button-hover);
+}
+
+.next-piece-container {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 15px;
+    border-radius: 10px;
+    border: 2px solid var(--secondary-color);
+    box-shadow: 0 0 10px var(--secondary-color);
+}
+
+.next-piece-container h3 {
+    margin-bottom: 10px;
+    font-size: 1rem;
+    text-align: center;
+}
+
+#next-piece {
+    display: block;
+    margin: 0 auto;
+    background-color: var(--board-bg);
+    border: 2px solid var(--board-border);
+    border-radius: 5px;
+}
+
+.controls-info {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 15px;
+    border-radius: 10px;
+    border: 2px solid var(--accent-color);
+    box-shadow: 0 0 10px var(--accent-color);
+}
+
+.controls-info h3 {
+    margin-bottom: 10px;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.controls-info p {
+    font-size: 0.7rem;
+    margin-bottom: 8px;
+    color: #cccccc;
+}
+
+.game-board-container {
+    position: relative;
+}
+
+#game-board {
+    display: block;
+    background-color: var(--board-bg);
+    border: 4px solid var(--board-border);
+    border-radius: 5px;
+    box-shadow: 0 0 20px rgba(140, 82, 255, 0.5);
+}
+
+.game-footer {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+button {
+    font-family: 'Press Start 2P', cursive, sans-serif;
+    padding: 12px 20px;
+    font-size: 0.8rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-color);
+}
+
+#start-button {
+    background-color: var(--primary-color);
+    box-shadow: 0 4px 0 darken(var(--primary-color), 10%);
+}
+
+#pause-button {
+    background-color: var(--secondary-color);
+    box-shadow: 0 4px 0 darken(var(--secondary-color), 10%);
+}
+
+#restart-button {
+    background-color: var(--accent-color);
+    box-shadow: 0 4px 0 darken(var(--accent-color), 10%);
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3);
+    background-color: var(--button-hover);
+}
+
+button:active {
+    transform: translateY(2px);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .game-container {
+        flex-direction: column-reverse;
+        align-items: center;
+    }
+    
+    .game-info {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    #game-board {
+        width: 270px;
+        height: 540px;
+    }
+    
+    .game-header h1 {
+        font-size: 2rem;
+    }
+}
+
+/* Game over overlay animation */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Tetris piece colors with glow effects */
+.cyan {
+    box-shadow: 0 0 10px cyan;
+}
+
+.blue {
+    box-shadow: 0 0 10px blue;
+}
+
+.orange {
+    box-shadow: 0 0 10px orange;
+}
+
+.yellow {
+    box-shadow: 0 0 10px yellow;
+}
+
+.green {
+    box-shadow: 0 0 10px green;
+}
+
+.purple {
+    box-shadow: 0 0 10px purple;
+}
+
+.red {
+    box-shadow: 0 0 10px red;
+}

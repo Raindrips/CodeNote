@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>睡眠与健康 - 睡了么</title>
+    <style>
+        /* 基础样式 */
+        :root {
+            --primary-color: #1a237e; /* 深蓝色 */
+            --secondary-color: #7986cb; /* 柔和的紫色 */
+            --accent-color: #ffc107; /* 温暖的黄色 */
+            --background-color: #f5f5f5; /* 柔和的灰色 */
+            --text-color: #333333; /* 深灰色文本 */
+            --light-text: #ffffff; /* 白色文本 */
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+        }
+        
+        a {
+            text-decoration: none;
+            color: var(--primary-color);
+            transition: color 0.3s ease;
+        }
+        
+        a:hover {
+            color: var(--secondary-color);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* 头部样式 */
+        header {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 20px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .logo a {
+            color: var(--light-text);
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-menu li {
+            margin-left: 20px;
+        }
+        
+        .nav-menu a {
+            color: var(--light-text);
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        
+        .nav-menu a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--light-text);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        /* 页面标题区域 */
+        .page-title {
+            background-color: var(--secondary-color);
+            color: var(--light-text);
+            padding: 60px 0;
+            text-align: center;
+        }
+        
+        .page-title h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .page-title p {
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* 面包屑导航 */
+        .breadcrumb {
+            background-color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .breadcrumb ul {
+            list-style: none;
+            display: flex;
+        }
+        
+        .breadcrumb li {
+            margin-right: 10px;
+        }
+        
+        .breadcrumb li:after {
+            content: '>';
+            margin-left: 10px;
+            color: #999;
+        }
+        
+        .breadcrumb li:last-child:after {
+            content: '';
+        }
+        
+        .breadcrumb a {
+            color: #666;
+        }
+        
+        .breadcrumb .current {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        /* 内容区域 */
+        .content-area {
+            padding: 60px 0;
+        }
+        
+        .content-container {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 40px;
+        }
+        
+        .main-content {
+            background-color: white;
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .main-content h2 {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .main-content h3 {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            margin: 30px 0 15px;
+        }
+        
+        .main-content p {
+            margin-bottom: 20px;
+            color: #555;
+        }
+        
+        .main-content ul, .main-content ol {
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+        
+        .main-content li {
+            margin-bottom: 10px;
+            color: #555;
+        }
+        
+        .main-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .main-content blockquote {
+            border-left: 4px solid var(--secondary-color);
+            padding: 15px 20px;
+            background-color: #f9f9f9;
+            margin: 20px 0;
+            font-style: italic;
+            color: #666;
+        }
+        
+        /* 健康关系卡片 */
+        .health-section {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .health-section:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .health-section h3 {
+            display: flex;
+            align-items: center;
+        }
+        
+        .health-icon {
+            font-size: 1.8rem;
+            margin-right: 15px;
+            color: var(--secondary-color);
+        }
+        
+        .health-section ul {
+            margin-top: 15px;
+        }
+        
+        /* 研究引用 */
+        .research-quote {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .research-quote p {
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+        
+        .research-quote cite {
+            display: block;
+            font-size: 0.9rem;
+            color: #666;
+            text-align: right;
+        }
+        
+        /* 侧边栏 */
+        .sidebar {
+            align-self: start;
+        }
+        
+        .sidebar-widget {
+            background-color: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .sidebar-widget h3 {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .sidebar-links {
+            list-style: none;
+        }
+        
+        .sidebar-links li {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .sidebar-links li:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .sidebar-links a {
+            display: block;
+            color: #555;
+            transition: color 0.3s ease;
+        }
+        
+        .sidebar-links a:hover {
+            color: var(--primary-color);
+        }
+        
+        .sidebar-links .active {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        /* 睡眠测试提示 */
+        .test-promo {
+            background-color: #e8eaf6;
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 30px;
+            text-align: center;
+            border: 1px solid #c5cae9;
+        }
+        
+        .test-promo h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .test-promo p {
+            margin-bottom: 20px;
+        }
+        
+        .test-button {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .test-button:hover {
+            background-color: var(--secondary-color);
+            color: var(--light-text);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 页脚样式 */
+        footer {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 60px 0 20px;
+        }
+        
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50px;
+            height: 2px;
+            background-color: var(--accent-color);
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: #b0bec5;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--light-text);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            color: #b0bec5;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .logo {
+                margin-bottom: 15px;
+            }
+            
+            .nav-menu {
+                flex-direction: column;
+                width: 100%;
+                display: none;
+            }
+            
+            .nav-menu.active {
+                display: flex;
+            }
+            
+            .nav-menu li {
+                margin: 10px 0;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+                position: absolute;
+                top: 20px;
+                right: 20px;
+            }
+            
+            .content-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                order: -1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部导航 -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <a href="index.html">睡了么</a>
+            </div>
+            <button class="mobile-menu-btn">☰</button>
+            <ul class="nav-menu">
+                <li><a href="sleep-knowledge.html">睡眠知识</a></li>
+                <li><a href="sleep-disorders.html">睡眠障碍</a></li>
+                <li><a href="improve-sleep.html">改善睡眠</a></li>
+                <li><a href="sleep-health.html" class="active">睡眠与健康</a></li>
+                <li><a href="sleep-test.html">睡眠测试</a></li>
+                <li><a href="about.html">关于我们</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- 页面标题 -->
+    <section class="page-title">
+        <div class="container">
+            <h1>睡眠与健康</h1>
+            <p>探索睡眠质量对身体和心理健康的重要影响</p>
+        </div>
+    </section>
+
+    <!-- 面包屑导航 -->
+    <div class="breadcrumb">
+        <div class="container">
+            <ul>
+                <li><a href="index.html">首页</a></li>
+                <li class="current">睡眠与健康</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 内容区域 -->
+    <section class="content-area">
+        <div class="container content-container">
+            <main class="main-content">
+                <h2>睡眠质量与健康的关系</h2>
+                <p>睡眠质量与健康状况密切相关，科学研究表明良好的睡眠对身体和心理健康都有重要影响。本文探讨了睡眠与各方面健康关系的科学研究成果。</p>
+                
+                <div class="health-section">
+                    <h3><span class="health-icon">❤️</span>睡眠与心血管健康</h3>
+                    <p>充足的优质睡眠对心血管系统健康至关重要。研究表明，睡眠不足会增加高血压、冠心病和中风的风险。长期睡眠不足（每晚少于7小时）的人患心脏病的风险增加约48%。</p>
+                    
+                    <p>睡眠呼吸暂停会导致夜间血氧水平下降，增加心血管疾病风险。相反，规律的睡眠有助于维持健康的血压水平和心率。</p>
+                    
+                    <div class="research-quote">
+                        <p>"研究表明，长期睡眠不足的人患心脏病的风险增加约48%，患中风的风险增加约15%。"</p>
+                        <cite>— 美国心脏协会研究报告，2023</cite>
+                    </div>
+                </div>
+                
+                <div class="health-section">
+                    <h3><span class="health-icon">🍎</span>睡眠与代谢健康</h3>
+                    <p>睡眠与代谢系统健康密切相关。睡眠不足会影响胰岛素敏感性，增加2型糖尿病风险。根据Mayo Clinic的研究，睡眠不足会导致不健康的腹部脂肪堆积。</p>
+                    
+                    <p>睡眠不足会影响调节食欲的激素（瘦素和饥饿素），导致食欲增加和体重增加。睡眠质量差会干扰葡萄糖代谢，即使在健康人群中也是如此。</p>
+                    
+                    <div class="research-quote">
+                        <p>"我们的研究结果表明，即使在年轻、健康、相对苗条的受试者中，睡眠时间缩短也与热量摄入增加、体重轻微增加以及腹部脂肪堆积显著增加有关。"</p>
+                        <cite>— Alice Sheets，Mayo Clinic研究员，2022</cite>
+                    </div>
+                </div>
+                
+                <div class="health-section">
+                    <h3><span class="health-icon">🛡️</span>睡眠与免疫系统</h3>
+                    <p>良好的睡眠对维持强健的免疫系统至关重要。深度睡眠期间，身体会产生和释放细胞因子，这些蛋白质在对抗感染和炎症方面发挥重要作用。</p>
+                    
+                    <p>睡眠不足会减少抗体的产生，降低疫苗的有效性。研究表明，睡眠不足的人更容易感染普通感冒和其他病毒。长期睡眠问题与慢性炎症相关，可能增加多种疾病的风险。</p>
+                    
+                    <ul>
+                        <li>充足的睡眠有助于增强免疫系统功能</li>
+                        <li>睡眠不足会减弱身体对感染的抵抗力</li>
+                        <li>良好的睡眠有助于加速伤口愈合</li>
+                        <li>睡眠质量差会增加炎症标志物水平</li>
+                    </ul>
+                </div>
+                
+                <div class="health-section">
+                    <h3><span class="health-icon">🧠</span>睡眠与大脑健康</h3>
+                    <p>睡眠对大脑功能和认知能力有显著影响。睡眠期间，大脑会清除有害物质，包括与阿尔茨海默病相关的β-淀粉样蛋白。睡眠对记忆巩固至关重要，特别是REM睡眠阶段。</p>
+                    
+                    <p>睡眠不足会影响注意力、决策能力和创造力。长期睡眠问题与认知功能下降和痴呆风险增加相关。2017年诺贝尔生理学与医学奖授予了研究生物钟机制的科学家，强调了睡眠-觉醒周期对健康的重要性。</p>
+                    
+                    <div class="research-quote">
+                        <p>"科学研究发现睡眠不足会出现记忆力明显下降，伴随神经元细胞营养不良、萎缩，乃至凋亡，与心脑血管病的发生直接相关。"</p>
+                        <cite>— 北京大学医学部研究报告，2020</cite>
+                    </div>
+                </div>
+                
+                <div class="health-section">
+                    <h3><span class="health-icon">😊</span>睡眠与心理健康</h3>
+                    <p>睡眠与心理健康之间存在双向关系。睡眠不足会增加焦虑、抑郁和其他心理健康问题的风险。美国心理学会的研究表明，睡眠不足会破坏情绪调节，降低积极性，增加焦虑症状。</p>
+                    
+                    <p>睡眠障碍是许多精神疾病的常见症状，包括抑郁症、双相情感障碍和创伤后应激障碍。改善睡眠质量可以作为治疗某些心理健康问题的辅助手段。</p>
+                    
+                    <ul>
+                        <li>良好的睡眠有助于情绪稳定和压力管理</li>
+                        <li>睡眠不足会增加焦虑和抑郁风险</li>
+                        <li>睡眠质量与心理韧性密切相关</li>
+                        <li>改善睡眠可以作为心理健康干预的一部分</li>
+                    </ul>
+                </div>
+                
+                <div class="test-promo">
+                    <h3>了解您的睡眠状况</h3>
+                    <p>通过我们的睡眠质量评估测试，了解您的睡眠问题，获取个性化的改善建议。</p>
+                    <a href="sleep-test.html" class="test-button">开始测试</a>
+                </div>
+            </main>
+            
+            <aside class="sidebar">
+                <div class="sidebar-widget">
+                    <h3>睡眠与健康导航</h3>
+                    <ul class="sidebar-links">
+                        <li><a href="#" class="active">睡眠与健康概述</a></li>
+                        <li><a href="sleep-cardiovascular.html">睡眠与心血管健康</a></li>
+                        <li><a href="sleep-metabolism.html">睡眠与代谢健康</a></li>
+                        <li><a href="sleep-immune.html">睡眠与免疫系统</a></li>
+                        <li><a href="sleep-brain.html">睡眠与大脑健康</a></li>
+                        <li><a href="sleep-mental.html">睡眠与心理健康</a></li>
+                    </ul>
+                </div>
+                
+                <div class="sidebar-widget">
+                    <h3>相关内容</h3>
+                    <ul class="sidebar-links">
+                        <li><a href="sleep-knowledge.html">睡眠基础知识</a></li>
+                        <li><a href="sleep-disorders.html">常见睡眠障碍</a></li>
+                        <li><a href="improve-sleep.html">改善睡眠质量</a></li>
+                        <li><a href="sleep-test.html">测试您的睡眠质量</a></li>
+                    </ul>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-section">
+                    <h3>睡了么</h3>
+                    <p>您的睡眠健康指南，提供科学的睡眠知识和实用的改善方法。</p>
+                </div>
+                <div class="footer-section">
+                    <h3>快速链接</h3>
+                    <ul class="footer-links">
+                        <li><a href="sleep-knowledge.html">睡眠知识</a></li>
+                        <li><a href="sleep-disorders.html">睡眠障碍</a></li>
+                        <li><a href="improve-sleep.html">改善睡眠</a></li>
+                        <li><a href="sleep-health.html">睡眠与健康</a></li>
+                        <li><a href="sleep-test.html">睡眠测试</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>联系我们</h3>
+                    <ul class="footer-links">
+                        <li><a href="about.html">关于我们</a></li>
+                        <li><a href="mailto:contact@shuile.me">contact@shuile.me</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 睡了么 | 所有权利保留
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 移动端菜单切换
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+            document.querySelector('.nav-menu').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

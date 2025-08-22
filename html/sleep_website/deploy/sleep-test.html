@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>睡眠测试 - 睡了么</title>
+    <style>
+        /* 基础样式 */
+        :root {
+            --primary-color: #1a237e; /* 深蓝色 */
+            --secondary-color: #7986cb; /* 柔和的紫色 */
+            --accent-color: #ffc107; /* 温暖的黄色 */
+            --background-color: #f5f5f5; /* 柔和的灰色 */
+            --text-color: #333333; /* 深灰色文本 */
+            --light-text: #ffffff; /* 白色文本 */
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+        }
+        
+        a {
+            text-decoration: none;
+            color: var(--primary-color);
+            transition: color 0.3s ease;
+        }
+        
+        a:hover {
+            color: var(--secondary-color);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* 头部样式 */
+        header {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 20px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .logo a {
+            color: var(--light-text);
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-menu li {
+            margin-left: 20px;
+        }
+        
+        .nav-menu a {
+            color: var(--light-text);
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        
+        .nav-menu a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--light-text);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        /* 页面标题区域 */
+        .page-title {
+            background-color: var(--secondary-color);
+            color: var(--light-text);
+            padding: 60px 0;
+            text-align: center;
+        }
+        
+        .page-title h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .page-title p {
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* 面包屑导航 */
+        .breadcrumb {
+            background-color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .breadcrumb ul {
+            list-style: none;
+            display: flex;
+        }
+        
+        .breadcrumb li {
+            margin-right: 10px;
+        }
+        
+        .breadcrumb li:after {
+            content: '>';
+            margin-left: 10px;
+            color: #999;
+        }
+        
+        .breadcrumb li:last-child:after {
+            content: '';
+        }
+        
+        .breadcrumb a {
+            color: #666;
+        }
+        
+        .breadcrumb .current {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        /* 内容区域 */
+        .content-area {
+            padding: 60px 0;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .test-intro {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .test-intro h2 {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .test-intro p {
+            color: #555;
+            max-width: 600px;
+            margin: 0 auto 20px;
+        }
+        
+        /* 测试表单 */
+        .test-form {
+            display: none;
+        }
+        
+        .test-form.active {
+            display: block;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+        }
+        
+        .test-section h3 {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .question-item {
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px dashed #f0f0f0;
+        }
+        
+        .question-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .question-text {
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: #444;
+        }
+        
+        .options-list {
+            list-style: none;
+        }
+        
+        .option-item {
+            margin-bottom: 10px;
+        }
+        
+        .option-item label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .option-item input {
+            margin-right: 10px;
+        }
+        
+        /* 进度指示器 */
+        .progress-container {
+            margin: 40px 0;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: var(--secondary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        /* 按钮 */
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .test-button {
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 1rem;
+        }
+        
+        .start-button, .next-button, .submit-button {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+        }
+        
+        .start-button:hover, .next-button:hover, .submit-button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .prev-button {
+            background-color: #e0e0e0;
+            color: #555;
+        }
+        
+        .prev-button:hover {
+            background-color: #d0d0d0;
+        }
+        
+        .start-button {
+            margin: 0 auto;
+            display: block;
+        }
+        
+        /* 结果页面 */
+        .test-results {
+            display: none;
+        }
+        
+        .results-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .results-header h3 {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .score-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .score-label {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+        
+        .score-good {
+            background-color: #c8e6c9;
+            color: #2e7d32;
+        }
+        
+        .score-moderate {
+            background-color: #fff9c4;
+            color: #f57f17;
+        }
+        
+        .score-poor {
+            background-color: #ffcdd2;
+            color: #c62828;
+        }
+        
+        .results-section {
+            margin-bottom: 30px;
+        }
+        
+        .results-section h4 {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .recommendation-list {
+            list-style: none;
+        }
+        
+        .recommendation-list li {
+            margin-bottom: 15px;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .recommendation-list li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .action-button {
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .retry-button {
+            background-color: #e0e0e0;
+            color: #555;
+        }
+        
+        .improve-button {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+        }
+        
+        .retry-button:hover, .improve-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 页脚样式 */
+        footer {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 60px 0 20px;
+        }
+        
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50px;
+            height: 2px;
+            background-color: var(--accent-color);
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: #b0bec5;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--light-text);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            color: #b0bec5;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .logo {
+                margin-bottom: 15px;
+            }
+            
+            .nav-menu {
+                flex-direction: column;
+                width: 100%;
+                display: none;
+            }
+            
+            .nav-menu.active {
+                display: flex;
+            }
+            
+            .nav-menu li {
+                margin: 10px 0;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+                position: absolute;
+                top: 20px;
+                right: 20px;
+            }
+            
+            .test-container {
+                padding: 20px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .test-button {
+                width: 100%;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部导航 -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <a href="index.html">睡了么</a>
+            </div>
+            <button class="mobile-menu-btn">☰</button>
+            <ul class="nav-menu">
+                <li><a href="sleep-knowledge.html">睡眠知识</a></li>
+                <li><a href="sleep-disorders.html">睡眠障碍</a></li>
+                <li><a href="improve-sleep.html">改善睡眠</a></li>
+                <li><a href="sleep-health.html">睡眠与健康</a></li>
+                <li><a href="sleep-test.html" class="active">睡眠测试</a></li>
+                <li><a href="about.html">关于我们</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- 页面标题 -->
+    <section class="page-title">
+        <div class="container">
+            <h1>睡眠质量测试</h1>
+            <p>了解您的睡眠状况，获取个性化的改善建议</p>
+        </div>
+    </section>
+
+    <!-- 面包屑导航 -->
+    <div class="breadcrumb">
+        <div class="container">
+            <ul>
+                <li><a href="index.html">首页</a></li>
+                <li class="current">睡眠测试</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 内容区域 -->
+    <section class="content-area">
+        <div class="container">
+            <div class="test-container">
+                <!-- 测试介绍 -->
+                <div class="test-intro" id="test-intro">
+                    <h2>评估您的睡眠质量</h2>
+                    <p>这个测试基于科学研究，旨在帮助您了解自己的睡眠质量和可能存在的睡眠问题。完成测试后，您将获得个性化的睡眠评估和改善建议。</p>
+                    <p>测试大约需要3-5分钟完成，请尽可能真实地回答每个问题。</p>
+                    <button class="test-button start-button" id="start-test">开始测试</button>
+                </div>
+                
+                <!-- 测试表单 -->
+                <div class="test-form" id="test-form">
+                    <!-- 第一部分：睡眠习惯 -->
+                    <div class="test-section" id="section-1">
+                        <h3>第一部分：睡眠习惯</h3>
+                        
+                        <div class="question-item">
+                            <div class="question-text">1. 您通常几点上床睡觉？</div>
+                            <ul class="options-list">
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q1" value="3">
+                                        21:00-22:00
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q1" value="2">
+                                        22:00-23:00
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q1" value="1">
+                                        23:00-24:00
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q1" value="0">
+                                        24:00以后
+                                    </label>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="question-item">
+                            <div class="question-text">2. 您平均每晚睡多少小时？</div>
+                            <ul class="options-list">
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q2" value="3">
+                                        7-8小时
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q2" value="2">
+                                        6-7小时
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q2" value="1">
+                                        5-6小时
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q2" value="0">
+                                        少于5小时
+                                    </label>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="question-item">
+                            <div class="question-text">3. 您的睡眠时间是否规律（工作日和周末的睡眠时间差异不超过1小时）？</div>
+                            <ul class="options-list">
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q3" value="3">
+                                        非常规律
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q3" value="2">
+                                        比较规律
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q3" value="1">
+                                        不太规律
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q3" value="0">
+                                        完全不规律
+                                    </label>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- 第二部分：睡眠质量 -->
+                    <div class="test-section" id="section-2" style="display: none;">
+                        <h3>第二部分：睡眠质量</h3>
+                        
+                        <div class="question-item">
+                            <div class="question-text">4. 您入睡通常需要多长时间？</div>
+                            <ul class="options-list">
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q4" value="3">
+                                        少于15分钟
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q4" value="2">
+                                        15-30分钟
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q4" value="1">
+                                        30-60分钟
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q4" value="0">
+                                        超过60分钟
+                                    </label>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="question-item">
+                            <div class="question-text">5. 您夜间醒来的频率如何？</div>
+                            <ul class="options-list">
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q5" value="3">
+                                        很少或从不醒来
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q5" value="2">
+                                        偶尔醒来（每周1-2次）
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q5" value="1">
+                                        经常醒来（每周3-5次）
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q5" value="0">
+                                        几乎每晚都多次醒来
+                                    </label>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="question-item">
+                            <div class="question-text">6. 您醒来后感觉如何？</div>
+                            <ul class="options-list">
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q6" value="3">
+                                        精力充沛，神清气爽
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q6" value="2">
+                                        比较有精神
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q6" value="1">
+                                        有些疲惫
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q6" value="0">
+                                        非常疲惫，难以起床
+                                    </label>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- 第三部分：睡眠环境和习惯 -->
+                    <div class="test-section" id="section-3" style="display: none;">
+                        <h3>第三部分：睡眠环境和习惯</h3>
+                        
+                        <div class="question-item">
+                            <div class="question-text">7. 您的卧室环境如何？</div>
+                            <ul class="options-list">
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q7" value="3">
+                                        安静、黑暗、凉爽
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q7" value="2">
+                                        基本安静和黑暗
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q7" value="1">
+                                        有些噪音或光线
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q7" value="0">
+                                        嘈杂、明亮或温度不适
+                                    </label>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="question-item">
+                            <div class="question-text">8. 您睡前使用电子设备（手机、平板、电脑）的情况如何？</div>
+                            <ul class="options-list">
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q8" value="3">
+                                        睡前1小时以上不使用
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q8" value="2">
+                                        睡前30分钟不使用
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q8" value="1">
+                                        使用到睡前
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q8" value="0">
+                                        睡觉时仍使用或放在床边
+                                    </label>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="question-item">
+                            <div class="question-text">9. 您睡前摄入咖啡因（咖啡、茶、巧克力等）或酒精的情况如何？</div>
+                            <ul class="options-list">
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q9" value="3">
+                                        睡前6小时以上不摄入
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q9" value="2">
+                                        睡前4-6小时不摄入
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q9" value="1">
+                                        睡前2-4小时摄入
+                                    </label>
+                                </li>
+                                <li class="option-item">
+                                    <label>
+                                        <input type="radio" name="q9" value="0">
+                                        睡前2小时内摄入
+                                    </label>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- 进度指示器 -->
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                        <div class="progress-text" id="progress-text">第1部分，共3部分</div>
+                    </div>
+                    
+                    <!-- 按钮组 -->
+                    <div class="button-group">
+                        <button class="test-button prev-button" id="prev-button" style="display: none;">上一步</button>
+                        <button class="test-button next-button" id="next-button">下一步</button>
+                        <button class="test-button submit-button" id="submit-button" style="display: none;">提交测试</button>
+                    </div>
+                </div>
+                
+                <!-- 测试结果 -->
+                <div class="test-results" id="test-results">
+                    <div class="results-header">
+                        <h3>您的睡眠质量评估结果</h3>
+                        <p>基于您的回答，我们对您的睡眠质量进行了评估</p>
+                    </div>
+                    
+                    <div class="score-display" id="score-display">0</div>
+                    <div style="text-align: center;">
+                        <span class="score-label" id="score-label">评分中...</span>
+                    </div>
+                    
+                    <div class="results-section">
+                        <h4>睡眠质量分析</h4>
+                        <p id="analysis-text">分析中...</p>
+                    </div>
+                    
+                    <div class="results-section">
+                        <h4>改善建议</h4>
+                        <ul class="recommendation-list" id="recommendations">
+                            <li>加载建议中...</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <a href="#" class="action-button retry-button" id="retry-button">重新测试</a>
+                        <a href="improve-sleep.html" class="action-button improve-button">查看改善方法</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-section">
+                    <h3>睡了么</h3>
+                    <p>您的睡眠健康指南，提供科学的睡眠知识和实用的改善方法。</p>
+                </div>
+                <div class="footer-section">
+                    <h3>快速链接</h3>
+                    <ul class="footer-links">
+                        <li><a href="sleep-knowledge.html">睡眠知识</a></li>
+                        <li><a href="sleep-disorders.html">睡眠障碍</a></li>
+                        <li><a href="improve-sleep.html">改善睡眠</a></li>
+                        <li><a href="sleep-health.html">睡眠与健康</a></li>
+                        <li><a href="sleep-test.html">睡眠测试</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>联系我们</h3>
+                    <ul class="footer-links">
+                        <li><a href="about.html">关于我们</a></li>
+                        <li><a href="mailto:contact@shuile.me">contact@shuile.me</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 睡了么 | 所有权利保留
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 移动端菜单切换
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+            document.querySelector('.nav-menu').classList.toggle('active');
+        });
+        
+        // 测试逻辑
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取元素
+            const testIntro = document.getElementById('test-intro');
+            const testForm = document.getElementById('test-form');
+            const testResults = document.getElementById('test-results');
+            const startButton = document.getElementById('start-test');
+            const prevButton = document.getElementById('prev-button');
+            const nextButton = document.getElementById('next-button');
+            const submitButton = document.getElementById('submit-button');
+            const retryButton = document.getElementById('retry-button');
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            
+            // 测试部分
+            const sections = [
+                document.getElementById('section-1'),
+                document.getElementById('section-2'),
+                document.getElementById('section-3')
+            ];
+            
+            let currentSection = 0;
+            
+            // 开始测试
+            startButton.addEventListener('click', function() {
+                testIntro.style.display = 'none';
+                testForm.style.display = 'block';
+                updateProgress();
+            });
+            
+            // 上一步
+            prevButton.addEventListener('click', function() {
+                if (currentSection > 0) {
+                    sections[currentSection].style.display = 'none';
+                    currentSection--;
+                    sections[currentSection].style.display = 'block';
+                    
+                    if (currentSection === 0) {
+                        prevButton.style.display = 'none';
+                    }
+                    
+                    nextButton.style.display = 'block';
+                    submitButton.style.display = 'none';
+                    
+                    updateProgress();
+                }
+            });
+            
+            // 下一步
+            nextButton.addEventListener('click', function() {
+                // 检查当前部分是否已回答所有问题
+                const currentQuestions = sections[currentSection].querySelectorAll('.question-item');
+                let allAnswered = true;
+                
+                currentQuestions.forEach(function(question) {
+                    const questionName = question.querySelector('input').name;
+                    const answered = document.querySelector(`input[name="${questionName}"]:checked`);
+                    
+                    if (!answered) {
+                        allAnswered = false;
+                        question.style.backgroundColor = '#fff9c4'; // 高亮未回答的问题
+                        setTimeout(() => {
+                            question.style.backgroundColor = 'transparent';
+                        }, 1000);
+                    }
+                });
+                
+                if (!allAnswered) {
+                    alert('请回答所有问题后再继续');
+                    return;
+                }
+                
+                if (currentSection < sections.length - 1) {
+                    sections[currentSection].style.display = 'none';
+                    currentSection++;
+                    sections[currentSection].style.display = 'block';
+                    
+                    prevButton.style.display = 'block';
+                    
+                    if (currentSection === sections.length - 1) {
+                        nextButton.style.display = 'none';
+                        submitButton.style.display = 'block';
+                    }
+                    
+                    updateProgress();
+                }
+            });
+            
+            // 提交测试
+            submitButton.addEventListener('click', function() {
+                // 检查最后部分是否已回答所有问题
+                const currentQuestions = sections[currentSection].querySelectorAll('.question-item');
+                let allAnswered = true;
+                
+                currentQuestions.forEach(function(question) {
+                    const questionName = question.querySelector('input').name;
+                    const answered = document.querySelector(`input[name="${questionName}"]:checked`);
+                    
+                    if (!answered) {
+                        allAnswered = false;
+                        question.style.backgroundColor = '#fff9c4';
+                        setTimeout(() => {
+                            question.style.backgroundColor = 'transparent';
+                        }, 1000);
+                    }
+                });
+                
+                if (!allAnswered) {
+                    alert('请回答所有问题后再提交');
+                    return;
+                }
+                
+                // 计算得分
+                let totalScore = 0;
+                for (let i = 1; i <= 9; i++) {
+                    const selectedOption = document.querySelector(`input[name="q${i}"]:checked`);
+                    if (selectedOption) {
+                        totalScore += parseInt(selectedOption.value);
+                    }
+                }
+                
+                // 显示结果
+                testForm.style.display = 'none';
+                testResults.style.display = 'block';
+                
+                // 设置分数
+                const scoreDisplay = document.getElementById('score-display');
+                const scoreLabel = document.getElementById('score-label');
+                const analysisText = document.getElementById('analysis-text');
+                const recommendations = document.getElementById('recommendations');
+                
+                // 动画显示分数
+                let currentScore = 0;
+                const targetScore = totalScore;
+                const duration = 1000; // 1秒
+                const interval = 20; // 每20毫秒更新一次
+                const steps = duration / interval;
+                const increment = targetScore / steps;
+                
+                const timer = setInterval(() => {
+                    currentScore += increment;
+                    if (currentScore >= targetScore) {
+                        currentScore = targetScore;
+                        clearInterval(timer);
+                    }
+                    scoreDisplay.textContent = Math.round(currentScore);
+                }, interval);
+                
+                // 设置评分标签和分析文本
+                let scoreCategory, analysisContent, recommendationItems;
+                
+                if (totalScore >= 21) {
+                    scoreCategory = '优质睡眠';
+                    scoreLabel.className = 'score-label score-good';
+                    analysisContent = '恭喜！您的睡眠质量非常好。您有规律的睡眠习惯，睡眠环境良好，很少遇到睡眠问题。良好的睡眠有助于维持身体健康和心理健康。';
+                    recommendationItems = [
+                        '继续保持您的良好睡眠习惯',
+                        '定期进行身体活动，有助于维持睡眠质量',
+                        '保持规律的作息时间，包括周末',
+                        '定期检查您的睡眠环境，确保它始终适合优质睡眠'
+                    ];
+                } else if (totalScore >= 12) {
+                    scoreCategory = '一般睡眠';
+                    scoreLabel.className = 'score-label score-moderate';
+                    analysisContent = '您的睡眠质量一般。您可能在某些方面有良好的睡眠习惯，但在其他方面可能需要改进。通过一些简单的改变，您可以显著提高睡眠质量。';
+                    recommendationItems = [
+                        '建立更规律的睡眠时间表，包括周末',
+                        '睡前限制使用电子设备，减少蓝光暴露',
+                        '创造更适合睡眠的卧室环境：安静、黑暗、凉爽',
+                        '睡前避免摄入咖啡因和酒精',
+                        '尝试睡前放松技巧，如深呼吸或渐进性肌肉放松'
+                    ];
+                } else {
+                    scoreCategory = '较差睡眠';
+                    scoreLabel.className = 'score-label score-poor';
+                    analysisContent = '您的睡眠质量较差。您可能经常遇到入睡困难、夜间醒来或醒后疲惫等问题。改善睡眠习惯和环境可以帮助您获得更好的睡眠。如果问题持续，建议咨询医疗专业人士。';
+                    recommendationItems = [
+                        '严格遵守规律的睡眠时间表，即使在周末也保持一致',
+                        '创建睡前放松仪式，帮助身体准备睡眠',
+                        '优化您的睡眠环境：使用遮光窗帘、耳塞或白噪音机器',
+                        '睡前至少1小时不使用电子设备',
+                        '限制咖啡因摄入，尤其是下午和晚上',
+                        '增加日间身体活动，但避免睡前剧烈运动',
+                        '如果问题持续，考虑咨询睡眠专家或医生'
+                    ];
+                }
+                
+                scoreLabel.textContent = scoreCategory;
+                analysisText.textContent = analysisContent;
+                
+                // 清空并添加建议
+                recommendations.innerHTML = '';
+                recommendationItems.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    recommendations.appendChild(li);
+                });
+            });
+            
+            // 重新测试
+            retryButton.addEventListener('click', function() {
+                // 重置表单
+                document.querySelectorAll('input[type="radio"]').forEach(input => {
+                    input.checked = false;
+                });
+                
+                // 重置界面
+                testResults.style.display = 'none';
+                sections.forEach((section, index) => {
+                    if (index === 0) {
+                        section.style.display = 'block';
+                    } else {
+                        section.style.display = 'none';
+                    }
+                });
+                
+                currentSection = 0;
+                prevButton.style.display = 'none';
+                nextButton.style.display = 'block';
+                submitButton.style.display = 'none';
+                testForm.style.display = 'block';
+                
+                updateProgress();
+            });
+            
+            // 更新进度
+            function updateProgress() {
+                const progress = ((currentSection + 1) / sections.length) * 100;
+                progressFill.style.width = `${progress}%`;
+                progressText.textContent = `第${currentSection + 1}部分，共${sections.length}部分`;
+            }
+        });
+    </script>
+</body>
+</html>
