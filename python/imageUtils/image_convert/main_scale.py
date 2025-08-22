@@ -1,4 +1,3 @@
-
 from PIL import Image
 import os
 import sys
@@ -51,7 +50,7 @@ def start_processing(source_dir, output_dir, scale):
                     print(f"Error processing {source_file}: {e}")
 
 
-if __name__ == "__main__":
+def main():
     # 验证命令行参数
     if len(sys.argv) != 4:
         print("Usage: python main.py <source_dir> <output_dir> <scale_factor>")
@@ -71,3 +70,5 @@ if __name__ == "__main__":
     start_processing(source_dir, output_dir, scale)
 
 
+if __name__ == "__main__":
+    main()

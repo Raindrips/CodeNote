@@ -8,12 +8,12 @@ pngquad = "./app/pngquant/pngquant.exe"
 jpegoptim = "./app/jpegoptim/jpegoptim.exe"
 
 
-def get_image_format(file_path) -> str | None:
+def get_image_format(file_path, log=lambda msg: None) -> str | None:
     try:
         with Image.open(file_path) as img:
             return img.format
     except Exception as e:
-        print(f"无法识别文件格式: {e}")
+        log(f"无法识别文件格式: {e}")
         return None
 
 
@@ -30,7 +30,7 @@ def process_image(im, scale):
     return im.resize((new_width, new_height), Image.LANCZOS)
 
 
-def press_image_png(source_file: str, out_file: str, quality: int):
+def press_image_png(source_file: str, out_file: str, quality: int, log=lambda msg: None):
     # pngquant --strip --quality 0-80 --speed 1 test.png -o ./out/test.png
     result = subprocess.run(
         [
@@ -51,12 +51,12 @@ def press_image_png(source_file: str, out_file: str, quality: int):
         text=True,
     )
     if result.stderr:
-        print(f"png:{result.stderr}", end="")
+        log(f"png:{result.stderr}")
     if result.stdout:
-        print(f"png:{result.stdout}", end="")
+        log(f"png:{result.stdout}")
 
 
-def press_image_jpg(source_file: str, output_dir: str, quality: int):
+def press_image_jpg(source_file: str, output_dir: str, quality: int, log=lambda msg: None):
     # 使用jpegoptim压缩JPEG图片
     result = subprocess.run(
         [
@@ -72,12 +72,12 @@ def press_image_jpg(source_file: str, output_dir: str, quality: int):
     )
 
     if result.stderr:
-        print(f"jpg:{result.stderr}", end="")
+        log(f"jpg:{result.stderr}")
     if result.stdout:
-        print(f"{result.stdout}", end="")
+        log(f"{result.stdout}")
 
 
-def start_press(source_dir, output_dir, quality):
+def start_press(source_dir, output_dir, quality, log: callable | None = None):
     """_summary_
 
     Args:
@@ -90,6 +90,8 @@ def start_press(source_dir, output_dir, quality):
     regex = re.compile(regex_pattern, re.IGNORECASE)
 
     # 递归遍历源文件夹
+    if log is None:
+        log = lambda msg: None
     for root, dirs, files in os.walk(source_dir):
         # 计算相对路径并创建对应的输出目录
         rel_path = os.path.relpath(root, source_dir)
@@ -102,14 +104,14 @@ def start_press(source_dir, output_dir, quality):
                 source_file: str = os.path.join(root, file)
                 target_file: str = os.path.join(target_dir, file)
 
-                file_type = get_image_format(source_file)
+                file_type = get_image_format(source_file, log)
                 # 根据文件后缀判断调用哪个压缩函数
                 if file_type.upper().endswith("JPEG") or file_type.upper().endswith(
                     "JPG"
                 ):
-                    press_image_jpg(source_file, target_dir, quality)
+                    press_image_jpg(source_file, target_dir, quality, log)
                 elif file_type.upper().endswith("PNG"):
-                    press_image_png(source_file, target_file, quality)
+                    press_image_png(source_file, target_file, quality, log)
 
 
 def main():
