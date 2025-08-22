@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI组件模板库</title>
+    
+    <!-- CSS文件 -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <!-- Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-brand">
+                <h1>UI组件模板库</h1>
+            </div>
+            <div class="navbar-menu">
+                <a href="#buttons" class="navbar-item">按钮</a>
+                <a href="#forms" class="navbar-item">表单</a>
+                <a href="#modals" class="navbar-item">模态框</a>
+                <a href="#tabs" class="navbar-item">选项卡</a>
+                <a href="#accordion" class="navbar-item">手风琴</a>
+                <a href="#carousel" class="navbar-item">轮播图</a>
+                <a href="#tables" class="navbar-item">表格</a>
+                <a href="#charts" class="navbar-item">图表</a>
+                <a href="#notifications" class="navbar-item">通知</a>
+            </div>
+            <div class="navbar-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <main class="main-content">
+        <div class="container">
+            <!-- 页面标题 -->
+            <section class="hero">
+                <h1>UI组件模板库</h1>
+                <p>包含各种常用UI组件的纯HTML+CSS+JS模板，每个组件都有独特的样式和脚本示例</p>
+                <div class="hero-actions">
+                    <button id="showNotificationDemo" class="btn btn-primary">
+                        <i class="fas fa-bell"></i> 显示通知示例
+                    </button>
+                    <button id="showModalDemo" class="btn btn-secondary">
+                        <i class="fas fa-window-maximize"></i> 打开模态框
+                    </button>
+                </div>
+            </section>
+
+            <!-- 按钮组件 -->
+            <section id="buttons" class="component-section">
+                <h2><i class="fas fa-mouse-pointer"></i> 按钮组件</h2>
+                <div class="component-demo">
+                    <h4>基础按钮</h4>
+                    <button class="btn btn-primary">主要按钮</button>
+                    <button class="btn btn-secondary">次要按钮</button>
+                    <button class="btn btn-success">成功按钮</button>
+                    <button class="btn btn-warning">警告按钮</button>
+                    <button class="btn btn-danger">危险按钮</button>
+                    <button class="btn btn-info">信息按钮</button>
+                    <button class="btn btn-light">浅色按钮</button>
+                    <button class="btn btn-dark">深色按钮</button>
+                </div>
+                <div class="component-demo">
+                    <h4>轮廓按钮</h4>
+                    <button class="btn btn-outline-primary">主要轮廓</button>
+                    <button class="btn btn-outline-secondary">次要轮廓</button>
+                    <button class="btn btn-outline-success">成功轮廓</button>
+                    <button class="btn btn-outline-danger">危险轮廓</button>
+                </div>
+                <div class="component-demo">
+                    <h4>按钮尺寸</h4>
+                    <button class="btn btn-primary btn-sm">小按钮</button>
+                    <button class="btn btn-primary">默认按钮</button>
+                    <button class="btn btn-primary btn-lg">大按钮</button>
+                </div>
+                <div class="component-demo">
+                    <h4>图标按钮</h4>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-download"></i> 下载
+                    </button>
+                    <button class="btn btn-success">
+                        <i class="fas fa-check"></i> 确认
+                    </button>
+                    <button class="btn btn-danger">
+                        <i class="fas fa-trash"></i> 删除
+                    </button>
+                </div>
+            </section>
+
+            <!-- 表单组件 -->
+            <section id="forms" class="component-section">
+                <h2><i class="fas fa-edit"></i> 表单组件</h2>
+                <div class="component-demo">
+                    <form class="form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="username" class="form-label">用户名</label>
+                                <input type="text" id="username" class="form-input" placeholder="请输入用户名" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email" class="form-label">邮箱</label>
+                                <input type="email" id="email" class="form-input" placeholder="请输入邮箱" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="password" class="form-label">密码</label>
+                            <input type="password" id="password" class="form-input" placeholder="请输入密码" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="country" class="form-label">国家</label>
+                                <select id="country" class="form-select">
+                                    <option value="">请选择国家</option>
+                                    <option value="cn">中国</option>
+                                    <option value="us">美国</option>
+                                    <option value="jp">日本</option>
+                                    <option value="uk">英国</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="age" class="form-label">年龄</label>
+                                <input type="number" id="age" class="form-input" placeholder="请输入年龄" min="1" max="120">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="bio" class="form-label">个人简介</label>
+                            <textarea id="bio" class="form-textarea" rows="4" placeholder="请输入个人简介"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <input type="checkbox" class="form-checkbox">
+                                我同意服务条款和隐私政策
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">性别</label>
+                            <div class="form-radio-group">
+                                <label class="form-radio">
+                                    <input type="radio" name="gender" value="male">
+                                    <span>男</span>
+                                </label>
+                                <label class="form-radio">
+                                    <input type="radio" name="gender" value="female">
+                                    <span>女</span>
+                                </label>
+                                <label class="form-radio">
+                                    <input type="radio" name="gender" value="other">
+                                    <span>其他</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> 提交
+                            </button>
+                            <button type="reset" class="btn btn-secondary">
+                                <i class="fas fa-undo"></i> 重置
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- 模态框组件 -->
+            <section id="modals" class="component-section">
+                <h2><i class="fas fa-window-maximize"></i> 模态框组件</h2>
+                <div class="component-demo">
+                    <button id="openModal" class="btn btn-primary">
+                        <i class="fas fa-external-link-alt"></i> 打开基础模态框
+                    </button>
+                    <button id="openConfirmModal" class="btn btn-warning">
+                        <i class="fas fa-question-circle"></i> 确认对话框
+                    </button>
+                    <button id="openAlertModal" class="btn btn-info">
+                        <i class="fas fa-info-circle"></i> 警告对话框
+                    </button>
+                    <button id="openPromptModal" class="btn btn-success">
+                        <i class="fas fa-keyboard"></i> 输入对话框
+                    </button>
+                </div>
+            </section>
+
+            <!-- 选项卡组件 -->
+            <section id="tabs" class="component-section">
+                <h2><i class="fas fa-folder-open"></i> 选项卡组件</h2>
+                <div class="component-demo">
+                    <h4>水平选项卡</h4>
+                    <div class="tabs">
+                        <div class="tab-nav">
+                            <button class="tab-btn active" data-tab="tab1">
+                                <i class="fas fa-home"></i> 首页
+                            </button>
+                            <button class="tab-btn" data-tab="tab2">
+                                <i class="fas fa-user"></i> 用户
+                            </button>
+                            <button class="tab-btn" data-tab="tab3">
+                                <i class="fas fa-cog"></i> 设置
+                            </button>
+                            <button class="tab-btn" data-tab="tab4">
+                                <i class="fas fa-chart-bar"></i> 统计
+                            </button>
+                        </div>
+                        <div class="tab-content">
+                            <div id="tab1" class="tab-pane active">
+                                <h3>首页内容</h3>
+                                <p>欢迎来到首页！这里显示系统的主要信息和快捷操作。</p>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5>快速统计</h5>
+                                        <p>今日访问量：1,234 | 新用户：56 | 订单数：89</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="tab2" class="tab-pane">
+                                <h3>用户管理</h3>
+                                <p>在这里可以管理系统用户，包括添加、编辑和删除用户。</p>
+                                <button class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus"></i> 添加用户
+                                </button>
+                            </div>
+                            <div id="tab3" class="tab-pane">
+                                <h3>系统设置</h3>
+                                <p>配置系统的各项参数和选项。</p>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <input type="checkbox" class="form-checkbox" checked>
+                                        启用邮件通知
+                                    </label>
+                                </div>
+                            </div>
+                            <div id="tab4" class="tab-pane">
+                                <h3>数据统计</h3>
+                                <p>查看系统的各项数据统计和分析报告。</p>
+                                <div id="tabChart" class="chart" style="height: 200px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 手风琴组件 -->
+            <section id="accordion" class="component-section">
+                <h2><i class="fas fa-list"></i> 手风琴组件</h2>
+                <div class="component-demo">
+                    <div class="accordion" data-allow-multiple>
+                        <div class="accordion-item active">
+                            <div class="accordion-header">
+                                <button class="accordion-btn active">
+                                    <span><i class="fas fa-question-circle"></i> 什么是UI组件库？</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="accordion-content active">
+                                <div class="accordion-body">
+                                    <p>UI组件库是一套预先设计和开发的用户界面组件集合，包含按钮、表单、导航等常用元素。它可以帮助开发者快速构建一致性的用户界面，提高开发效率。</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <div class="accordion-header">
+                                <button class="accordion-btn">
+                                    <span><i class="fas fa-code"></i> 如何使用这些组件？</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="accordion-body">
+                                    <p>使用这些组件非常简单：</p>
+                                    <ol>
+                                        <li>复制相应的HTML结构</li>
+                                        <li>引入对应的CSS样式文件</li>
+                                        <li>加载JavaScript功能文件</li>
+                                        <li>根据需要自定义样式和行为</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <div class="accordion-header">
+                                <button class="accordion-btn">
+                                    <span><i class="fas fa-palette"></i> 可以自定义样式吗？</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="accordion-body">
+                                    <p>当然可以！所有组件都支持自定义样式：</p>
+                                    <ul>
+                                        <li>修改CSS变量来改变主题色彩</li>
+                                        <li>覆盖默认样式类</li>
+                                        <li>添加自定义CSS类</li>
+                                        <li>使用CSS预处理器进行深度定制</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <div class="accordion-header">
+                                <button class="accordion-btn">
+                                    <span><i class="fas fa-mobile-alt"></i> 支持响应式设计吗？</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="accordion-body">
+                                    <p>是的，所有组件都采用响应式设计，能够在不同设备上良好显示：</p>
+                                    <ul>
+                                        <li>桌面端（1200px+）</li>
+                                        <li>平板端（768px-1199px）</li>
+                                        <li>手机端（<768px）</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 轮播图组件 -->
+            <section id="carousel" class="component-section">
+                <h2><i class="fas fa-images"></i> 轮播图组件</h2>
+                <div class="component-demo">
+                    <div class="carousel" data-autoplay data-interval="3000" style="height: 300px;">
+                        <div class="carousel-slides">
+                            <div class="carousel-slide active">
+                                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white;">
+                                    <div class="text-center">
+                                        <h3>第一张幻灯片</h3>
+                                        <p>这是第一张幻灯片的内容描述</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="carousel-slide">
+                                <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white;">
+                                    <div class="text-center">
+                                        <h3>第二张幻灯片</h3>
+                                        <p>这是第二张幻灯片的内容描述</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="carousel-slide">
+                                <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white;">
+                                    <div class="text-center">
+                                        <h3>第三张幻灯片</h3>
+                                        <p>这是第三张幻灯片的内容描述</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="carousel-prev">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="carousel-next">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <div class="carousel-indicators">
+                            <button class="carousel-indicator active" data-slide="0"></button>
+                            <button class="carousel-indicator" data-slide="1"></button>
+                            <button class="carousel-indicator" data-slide="2"></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 表格组件 -->
+            <section id="tables" class="component-section">
+                <h2><i class="fas fa-table"></i> 表格组件</h2>
+                <div class="component-demo">
+                    <h4>基础表格</h4>
+                    <table class="table table-striped table-hover table-sortable">
+                        <thead>
+                            <tr>
+                                <th data-sortable data-sort-type="string">姓名</th>
+                                <th data-sortable data-sort-type="number">年龄</th>
+                                <th data-sortable data-sort-type="string">城市</th>
+                                <th data-sortable data-sort-type="string">职业</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>张三</td>
+                                <td>25</td>
+                                <td>北京</td>
+                                <td>前端工程师</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary">编辑</button>
+                                    <button class="btn btn-sm btn-danger">删除</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>李四</td>
+                                <td>30</td>
+                                <td>上海</td>
+                                <td>UI设计师</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary">编辑</button>
+                                    <button class="btn btn-sm btn-danger">删除</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>王五</td>
+                                <td>28</td>
+                                <td>广州</td>
+                                <td>产品经理</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary">编辑</button>
+                                    <button class="btn btn-sm btn-danger">删除</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>赵六</td>
+                                <td>32</td>
+                                <td>深圳</td>
+                                <td>后端工程师</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary">编辑</button>
+                                    <button class="btn btn-sm btn-danger">删除</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>钱七</td>
+                                <td>26</td>
+                                <td>杭州</td>
+                                <td>数据分析师</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary">编辑</button>
+                                    <button class="btn btn-sm btn-danger">删除</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 图表组件 -->
+            <section id="charts" class="component-section">
+                <h2><i class="fas fa-chart-bar"></i> 图表组件</h2>
+                <div class="component-demo">
+                    <div class="chart-grid">
+                        <div class="chart-container">
+                            <h4 class="chart-title">销售数据 - 折线图</h4>
+                            <div id="lineChart" class="chart"></div>
+                            <div class="chart-controls">
+                                <button class="btn btn-sm btn-primary" onclick="updateLineChart()">更新数据</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <h4 class="chart-title">产品销量 - 柱状图</h4>
+                            <div id="barChart" class="chart"></div>
+                            <div class="chart-controls">
+                                <button class="btn btn-sm btn-success" onclick="updateBarChart()">刷新</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <h4 class="chart-title">市场份额 - 饼图</h4>
+                            <div id="pieChart" class="chart"></div>
+                        </div>
+                        <div class="chart-container">
+                            <h4 class="chart-title">用户分布 - 环形图</h4>
+                            <div id="doughnutChart" class="chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 通知组件 -->
+            <section id="notifications" class="component-section">
+                <h2><i class="fas fa-bell"></i> 通知组件</h2>
+                <div class="component-demo">
+                    <h4>通知类型</h4>
+                    <div class="notification-demo-buttons">
+                        <button class="btn btn-success" onclick="showSuccessNotification()">
+                            <i class="fas fa-check"></i> 成功通知
+                        </button>
+                        <button class="btn btn-warning" onclick="showWarningNotification()">
+                            <i class="fas fa-exclamation-triangle"></i> 警告通知
+                        </button>
+                        <button class="btn btn-danger" onclick="showErrorNotification()">
+                            <i class="fas fa-times"></i> 错误通知
+                        </button>
+                        <button class="btn btn-info" onclick="showInfoNotification()">
+                            <i class="fas fa-info"></i> 信息通知
+                        </button>
+                    </div>
+                    <div class="notification-demo-buttons">
+                        <button class="btn btn-primary" onclick="showProgressNotification()">
+                            <i class="fas fa-spinner"></i> 进度通知
+                        </button>
+                        <button class="btn btn-secondary" onclick="NotificationUtils.clearAll()">
+                            <i class="fas fa-trash"></i> 清除所有
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- 模态框HTML -->
+    <div id="exampleModal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3><i class="fas fa-window-maximize"></i> 示例模态框</h3>
+                <button id="closeModal" class="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>这是一个示例模态框的内容。您可以在这里放置任何内容，包括表单、图片、视频等。</p>
+                <div class="form-group">
+                    <label for="modalInput" class="form-label">输入内容：</label>
+                    <input type="text" id="modalInput" class="form-input" placeholder="请输入内容">
+                </div>
+                <div class="form-group">
+                    <label for="modalSelect" class="form-label">选择选项：</label>
+                    <select id="modalSelect" class="form-select">
+                        <option value="">请选择</option>
+                        <option value="option1">选项1</option>
+                        <option value="option2">选项2</option>
+                        <option value="option3">选项3</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="modalCancel" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> 取消
+                </button>
+                <button id="modalConfirm" class="btn btn-primary">
+                    <i class="fas fa-check"></i> 确认
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript文件 -->
+    <script src="js/utils/helpers.js"></script>
+    <script src="js/components/button.js"></script>
+    <script src="js/components/navbar.js"></script>
+    <script src="js/components/modal.js"></script>
+    <script src="js/components/tabs.js"></script>
+    <script src="js/components/accordion.js"></script>
+    <script src="js/components/carousel.js"></script>
+    <script src="js/components/table.js"></script>
+    <script src="js/components/chart.js"></script>
+    <script src="js/components/notification.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 创建示例图表
+            createSampleCharts();
+            
+            // 绑定演示按钮事件
+            bindDemoEvents();
+        });
+
+        // 创建示例图表
+        function createSampleCharts() {
+            // 折线图
+            const lineChart = ChartUtils.createLineChart(
+                document.getElementById('lineChart'),
+                {
+                    labels: ChartUtils.generateMonthLabels(6),
+                    datasets: [{
+                        label: '销售额',
+                        data: [120, 190, 300, 500, 200, 300],
+                        borderColor: '#007bff'
+                    }]
+                }
+            );
+
+            // 柱状图
+            const barChart = ChartUtils.createBarChart(
+                document.getElementById('barChart'),
+                {
+                    labels: ['产品A', '产品B', '产品C', '产品D'],
+                    datasets: [{
+                        label: '销量',
+                        data: [65, 59, 80, 81],
+                        backgroundColor: '#28a745'
+                    }]
+                }
+            );
+
+            // 饼图
+            const pieChart = ChartUtils.createPieChart(
+                document.getElementById('pieChart'),
+                {
+                    labels: ['Chrome', 'Firefox', 'Safari', 'Edge'],
+                    datasets: [{
+                        data: [45, 25, 20, 10]
+                    }]
+                }
+            );
+
+            // 环形图
+            const doughnutChart = ChartUtils.createDoughnutChart(
+                document.getElementById('doughnutChart'),
+                {
+                    labels: ['北京', '上海', '广州', '深圳'],
+                    datasets: [{
+                        data: [30, 25, 25, 20]
+                    }]
+                }
+            );
+
+            // 选项卡中的图表
+            const tabChart = ChartUtils.createLineChart(
+                document.getElementById('tabChart'),
+                {
+                    labels: ChartUtils.generateWeekLabels(),
+                    datasets: [{
+                        label: '访问量',
+                        data: [120, 150, 180, 200, 160, 140, 190],
+                        borderColor: '#ffc107'
+                    }]
+                },
+                { height: 200 }
+            );
+
+            // 保存图表实例到全局
+            window.sampleCharts = {
+                lineChart,
+                barChart,
+                pieChart,
+                doughnutChart,
+                tabChart
+            };
+        }
+
+        // 绑定演示按钮事件
+        function bindDemoEvents() {
+            // 模态框演示按钮
+            document.getElementById('showModalDemo').addEventListener('click', function() {
+                openModal('exampleModal');
+            });
+
+            document.getElementById('openConfirmModal').addEventListener('click', async function() {
+                const result = await ModalUtils.confirm({
+                    title: '确认操作',
+                    message: '您确定要执行此操作吗？此操作不可撤销。',
+                    confirmText: '确认',
+                    cancelText: '取消'
+                });
+                
+                if (result) {
+                    NotificationUtils.success('操作已确认');
+                } else {
+                    NotificationUtils.info('操作已取消');
+                }
+            });
+
+            document.getElementById('openAlertModal').addEventListener('click', async function() {
+                await ModalUtils.alert({
+                    title: '提示信息',
+                    message: '这是一个警告对话框示例。',
+                    buttonText: '我知道了'
+                });
+            });
+
+            document.getElementById('openPromptModal').addEventListener('click', async function() {
+                const result = await ModalUtils.prompt({
+                    title: '输入信息',
+                    message: '请输入您的姓名：',
+                    placeholder: '请输入姓名',
+                    confirmText: '确认',
+                    cancelText: '取消'
+                });
+                
+                if (result) {
+                    NotificationUtils.success(`您好，${result}！`);
+                } else {
+                    NotificationUtils.info('输入已取消');
+                }
+            });
+
+            // 通知演示按钮
+            document.getElementById('showNotificationDemo').addEventListener('click', function() {
+                showSuccessNotification();
+            });
+        }
+
+        // 通知演示函数
+        function showSuccessNotification() {
+            NotificationUtils.success('操作成功！', {
+                title: '成功',
+                duration: 3000
+            });
+        }
+
+        function showWarningNotification() {
+            NotificationUtils.warning('请注意检查输入内容！', {
+                title: '警告',
+                duration: 4000
+            });
+        }
+
+        function showErrorNotification() {
+            NotificationUtils.error('操作失败，请重试！', {
+                title: '错误',
+                duration: 5000
+            });
+        }
+
+        function showInfoNotification() {
+            NotificationUtils.info('这是一条信息提示。', {
+                title: '信息',
+                duration: 3000
+            });
+        }
+
+        function showProgressNotification() {
+            const progress = NotificationUtils.progress('正在处理...', {
+                title: '进度',
+                initialProgress: 0
+            });
+
+            let currentProgress = 0;
+            const interval = setInterval(() => {
+                currentProgress += 10;
+                progress.update(currentProgress, `处理中... ${currentProgress}%`);
+                
+                if (currentProgress >= 100) {
+                    clearInterval(interval);
+                    progress.complete('处理完成！');
+                }
+            }, 200);
+        }
+
+        // 图表更新函数
+        function updateLineChart() {
+            if (window.sampleCharts && window.sampleCharts.lineChart) {
+                const newData = ChartUtils.generateRandomData(6, 100, 600);
+                window.sampleCharts.lineChart.update({
+                    datasets: [{
+                        label: '销售额',
+                        data: newData,
+                        borderColor: '#007bff'
+                    }]
+                });
+                NotificationUtils.success('折线图数据已更新');
+            }
+        }
+
+        function updateBarChart() {
+            if (window.sampleCharts && window.sampleCharts.barChart) {
+                const newData = ChartUtils.generateRandomData(4, 50, 100);
+                window.sampleCharts.barChart.update({
+                    datasets: [{
+                        label: '销量',
+                        data: newData,
+                        backgroundColor: '#28a745'
+                    }]
+                });
+                NotificationUtils.success('柱状图数据已刷新');
+            }
+        }
+    </script>
+</body>
+</html>
+
