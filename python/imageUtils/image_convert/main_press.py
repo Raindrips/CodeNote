@@ -4,7 +4,17 @@ import sys
 import re
 import subprocess
 
-pngquad = "./pngquant/pngquant.exe"
+pngquad = "./app/pngquant/pngquant.exe"
+jpegoptim = "./app/jpegoptim/jpegoptim.exe"
+
+
+def get_image_format(file_path) -> str | None:
+    try:
+        with Image.open(file_path) as img:
+            return img.format
+    except Exception as e:
+        print(f"无法识别文件格式: {e}")
+        return None
 
 
 def process_image(im, scale):
@@ -20,14 +30,14 @@ def process_image(im, scale):
     return im.resize((new_width, new_height), Image.LANCZOS)
 
 
-def press_image(source_file, out_file):
+def press_image_png(source_file: str, out_file: str, quality: int):
     # pngquant --strip --quality 0-80 --speed 1 test.png -o ./out/test.png
     result = subprocess.run(
         [
             pngquad,
             "--strip",
             "--quality",
-            "50-100",
+            f"0-{quality}",
             "--speed",
             "1",
             "--force",
@@ -40,11 +50,34 @@ def press_image(source_file, out_file):
         capture_output=True,
         text=True,
     )
-    print(f"{result.stderr}", end="")
-    print(f"{result.stdout}", end="")
+    if result.stderr:
+        print(f"png:{result.stderr}", end="")
+    if result.stdout:
+        print(f"png:{result.stdout}", end="")
 
 
-def start_press(source_dir, output_dir):
+def press_image_jpg(source_file: str, output_dir: str, quality: int):
+    # 使用jpegoptim压缩JPEG图片
+    result = subprocess.run(
+        [
+            jpegoptim,
+            "-d",
+            output_dir,
+            source_file,
+            "-o",
+            f"--max={quality}",
+        ],
+        capture_output=True,
+        text=True,
+    )
+
+    if result.stderr:
+        print(f"jpg:{result.stderr}", end="")
+    if result.stdout:
+        print(f"{result.stdout}", end="")
+
+
+def start_press(source_dir, output_dir, quality):
     """_summary_
 
     Args:
@@ -53,7 +86,7 @@ def start_press(source_dir, output_dir):
         scale (float): 缩放比
     """
     # 默认正则表达式，用于匹配常见图片扩展名
-    regex_pattern = r".*\.(png)$"
+    regex_pattern = r".*\.(png|jpg)$"
     regex = re.compile(regex_pattern, re.IGNORECASE)
 
     # 递归遍历源文件夹
@@ -66,19 +99,32 @@ def start_press(source_dir, output_dir):
         # 处理每个文件
         for file in files:
             if regex.search(file):
-                source_file = os.path.join(root, file)
-                target_file = os.path.join(target_dir, file)
-                press_image(source_file, target_file)
+                source_file: str = os.path.join(root, file)
+                target_file: str = os.path.join(target_dir, file)
+
+                file_type = get_image_format(source_file)
+                # 根据文件后缀判断调用哪个压缩函数
+                if file_type.upper().endswith("JPEG") or file_type.upper().endswith(
+                    "JPG"
+                ):
+                    press_image_jpg(source_file, target_dir, quality)
+                elif file_type.upper().endswith("PNG"):
+                    press_image_png(source_file, target_file, quality)
 
 
-if __name__ == "__main__":
+def main():
     # 验证命令行参数
-    if len(sys.argv) != 3:
-        print("Usage: python main.py <source_dir> <output_dir>")
+    if len(sys.argv) < 3:
+        print("Usage: python main.py <source_dir> <output_dir> <quality=90>")
         sys.exit(1)
 
     # 解析命令行参数
     source_dir = sys.argv[1]
     output_dir = sys.argv[2]
+    quality = sys.argv[3] if len(sys.argv) > 3 else 90
 
-    start_press(source_dir, output_dir)
+    start_press(source_dir, output_dir, quality)
+
+
+if __name__ == "__main__":
+    main()

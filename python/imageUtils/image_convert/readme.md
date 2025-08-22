@@ -12,3 +12,6 @@ pip install pillow
 python convert.py img.webp jpg ./output/
 ```
 
+## app打包
+
+
