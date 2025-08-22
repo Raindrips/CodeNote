@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>睡眠障碍 - 睡了么</title>
+    <style>
+        /* 基础样式 */
+        :root {
+            --primary-color: #1a237e; /* 深蓝色 */
+            --secondary-color: #7986cb; /* 柔和的紫色 */
+            --accent-color: #ffc107; /* 温暖的黄色 */
+            --background-color: #f5f5f5; /* 柔和的灰色 */
+            --text-color: #333333; /* 深灰色文本 */
+            --light-text: #ffffff; /* 白色文本 */
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+        }
+        
+        a {
+            text-decoration: none;
+            color: var(--primary-color);
+            transition: color 0.3s ease;
+        }
+        
+        a:hover {
+            color: var(--secondary-color);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* 头部样式 */
+        header {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 20px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .logo a {
+            color: var(--light-text);
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-menu li {
+            margin-left: 20px;
+        }
+        
+        .nav-menu a {
+            color: var(--light-text);
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        
+        .nav-menu a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--light-text);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        /* 页面标题区域 */
+        .page-title {
+            background-color: var(--secondary-color);
+            color: var(--light-text);
+            padding: 60px 0;
+            text-align: center;
+        }
+        
+        .page-title h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .page-title p {
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* 面包屑导航 */
+        .breadcrumb {
+            background-color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .breadcrumb ul {
+            list-style: none;
+            display: flex;
+        }
+        
+        .breadcrumb li {
+            margin-right: 10px;
+        }
+        
+        .breadcrumb li:after {
+            content: '>';
+            margin-left: 10px;
+            color: #999;
+        }
+        
+        .breadcrumb li:last-child:after {
+            content: '';
+        }
+        
+        .breadcrumb a {
+            color: #666;
+        }
+        
+        .breadcrumb .current {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        /* 内容区域 */
+        .content-area {
+            padding: 60px 0;
+        }
+        
+        .content-container {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 40px;
+        }
+        
+        .main-content {
+            background-color: white;
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .main-content h2 {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .main-content h3 {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            margin: 30px 0 15px;
+        }
+        
+        .main-content p {
+            margin-bottom: 20px;
+            color: #555;
+        }
+        
+        .main-content ul, .main-content ol {
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+        
+        .main-content li {
+            margin-bottom: 10px;
+            color: #555;
+        }
+        
+        .main-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .main-content blockquote {
+            border-left: 4px solid var(--secondary-color);
+            padding: 15px 20px;
+            background-color: #f9f9f9;
+            margin: 20px 0;
+            font-style: italic;
+            color: #666;
+        }
+        
+        /* 睡眠障碍卡片 */
+        .disorders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .disorder-card {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .disorder-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .disorder-card h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .disorder-card p {
+            margin-bottom: 15px;
+        }
+        
+        .disorder-card .read-more {
+            display: inline-flex;
+            align-items: center;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+        
+        .disorder-card .read-more span {
+            margin-left: 5px;
+            transition: margin-left 0.3s ease;
+        }
+        
+        .disorder-card .read-more:hover span {
+            margin-left: 10px;
+        }
+        
+        /* 侧边栏 */
+        .sidebar {
+            align-self: start;
+        }
+        
+        .sidebar-widget {
+            background-color: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .sidebar-widget h3 {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .sidebar-links {
+            list-style: none;
+        }
+        
+        .sidebar-links li {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .sidebar-links li:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .sidebar-links a {
+            display: block;
+            color: #555;
+            transition: color 0.3s ease;
+        }
+        
+        .sidebar-links a:hover {
+            color: var(--primary-color);
+        }
+        
+        .sidebar-links .active {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        /* 帮助卡片 */
+        .help-card {
+            background-color: #e8eaf6;
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 30px;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .help-card h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+        
+        .help-card p {
+            margin-bottom: 15px;
+        }
+        
+        .help-card ul {
+            margin-bottom: 0;
+        }
+        
+        /* 页脚样式 */
+        footer {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 60px 0 20px;
+        }
+        
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50px;
+            height: 2px;
+            background-color: var(--accent-color);
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: #b0bec5;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--light-text);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            color: #b0bec5;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .logo {
+                margin-bottom: 15px;
+            }
+            
+            .nav-menu {
+                flex-direction: column;
+                width: 100%;
+                display: none;
+            }
+            
+            .nav-menu.active {
+                display: flex;
+            }
+            
+            .nav-menu li {
+                margin: 10px 0;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+                position: absolute;
+                top: 20px;
+                right: 20px;
+            }
+            
+            .content-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                order: -1;
+            }
+            
+            .disorders-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部导航 -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <a href="index.html">睡了么</a>
+            </div>
+            <button class="mobile-menu-btn">☰</button>
+            <ul class="nav-menu">
+                <li><a href="sleep-knowledge.html">睡眠知识</a></li>
+                <li><a href="sleep-disorders.html" class="active">睡眠障碍</a></li>
+                <li><a href="improve-sleep.html">改善睡眠</a></li>
+                <li><a href="sleep-health.html">睡眠与健康</a></li>
+                <li><a href="sleep-test.html">睡眠测试</a></li>
+                <li><a href="about.html">关于我们</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- 页面标题 -->
+    <section class="page-title">
+        <div class="container">
+            <h1>睡眠障碍</h1>
+            <p>了解常见睡眠问题的症状、原因和治疗方法</p>
+        </div>
+    </section>
+
+    <!-- 面包屑导航 -->
+    <div class="breadcrumb">
+        <div class="container">
+            <ul>
+                <li><a href="index.html">首页</a></li>
+                <li class="current">睡眠障碍</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 内容区域 -->
+    <section class="content-area">
+        <div class="container content-container">
+            <main class="main-content">
+                <h2>常见睡眠障碍</h2>
+                <p>睡眠障碍是指影响睡眠质量、时间或行为的各种问题。这些问题可能会导致白天嗜睡、疲劳和情绪波动，严重影响生活质量和健康状况。了解常见的睡眠障碍类型、症状和治疗方法，有助于及时识别问题并寻求适当的帮助。</p>
+                
+                <div class="disorders-grid">
+                    <div class="disorder-card">
+                        <h3>失眠症</h3>
+                        <p>失眠是最常见的睡眠障碍，表现为难以入睡、难以保持睡眠、早醒或睡眠质量差。</p>
+                        <a href="insomnia.html" class="read-more">了解详情 <span>→</span></a>
+                    </div>
+                    
+                    <div class="disorder-card">
+                        <h3>睡眠呼吸暂停</h3>
+                        <p>睡眠呼吸暂停是指睡眠期间呼吸反复中断，导致睡眠质量下降和氧气供应不足。</p>
+                        <a href="sleep-apnea.html" class="read-more">了解详情 <span>→</span></a>
+                    </div>
+                    
+                    <div class="disorder-card">
+                        <h3>不宁腿综合征</h3>
+                        <p>不宁腿综合征是一种神经系统疾病，表现为腿部不适和移动腿部的强烈冲动。</p>
+                        <a href="restless-legs.html" class="read-more">了解详情 <span>→</span></a>
+                    </div>
+                    
+                    <div class="disorder-card">
+                        <h3>发作性睡病</h3>
+                        <p>发作性睡病是一种神经系统疾病，导致过度嗜睡和突然的睡眠发作。</p>
+                        <a href="narcolepsy.html" class="read-more">了解详情 <span>→</span></a>
+                    </div>
+                    
+                    <div class="disorder-card">
+                        <h3>睡眠相位障碍</h3>
+                        <p>睡眠相位障碍是指生物钟与期望的睡眠-觉醒时间不同步，如延迟睡眠相位障碍。</p>
+                        <a href="sleep-phase-disorders.html" class="read-more">了解详情 <span>→</span></a>
+                    </div>
+                    
+                    <div class="disorder-card">
+                        <h3>异态睡眠</h3>
+                        <p>异态睡眠包括在睡眠中出现的异常行为，如梦魇、夜惊、梦游等。</p>
+                        <a href="parasomnias.html" class="read-more">了解详情 <span>→</span></a>
+                    </div>
+                </div>
+                
+                <div class="help-card">
+                    <h3>何时寻求专业帮助</h3>
+                    <p>如果您经常出现以下情况，应考虑咨询医疗专业人士：</p>
+                    <ul>
+                        <li>尽管采取自我改善措施，仍然持续失眠</li>
+                        <li>白天过度嗜睡影响日常功能</li>
+                        <li>睡眠中出现呼吸暂停或窒息感</li>
+                        <li>睡眠问题伴随其他健康问题</li>
+                        <li>需要长期依赖安眠药物</li>
+                    </ul>
+                </div>
+            </main>
+            
+            <aside class="sidebar">
+                <div class="sidebar-widget">
+                    <h3>睡眠障碍导航</h3>
+                    <ul class="sidebar-links">
+                        <li><a href="insomnia.html">失眠症</a></li>
+                        <li><a href="sleep-apnea.html">睡眠呼吸暂停</a></li>
+                        <li><a href="restless-legs.html">不宁腿综合征</a></li>
+                        <li><a href="narcolepsy.html">发作性睡病</a></li>
+                        <li><a href="sleep-phase-disorders.html">睡眠相位障碍</a></li>
+                        <li><a href="parasomnias.html">异态睡眠</a></li>
+                    </ul>
+                </div>
+                
+                <div class="sidebar-widget">
+                    <h3>相关内容</h3>
+                    <ul class="sidebar-links">
+                        <li><a href="sleep-knowledge.html">睡眠基础知识</a></li>
+                        <li><a href="improve-sleep.html">如何改善睡眠质量</a></li>
+                        <li><a href="sleep-test.html">测试您的睡眠质量</a></li>
+                    </ul>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-section">
+                    <h3>睡了么</h3>
+                    <p>您的睡眠健康指南，提供科学的睡眠知识和实用的改善方法。</p>
+                </div>
+                <div class="footer-section">
+                    <h3>快速链接</h3>
+                    <ul class="footer-links">
+                        <li><a href="sleep-knowledge.html">睡眠知识</a></li>
+                        <li><a href="sleep-disorders.html">睡眠障碍</a></li>
+                        <li><a href="improve-sleep.html">改善睡眠</a></li>
+                        <li><a href="sleep-health.html">睡眠与健康</a></li>
+                        <li><a href="sleep-test.html">睡眠测试</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>联系我们</h3>
+                    <ul class="footer-links">
+                        <li><a href="about.html">关于我们</a></li>
+                        <li><a href="mailto:contact@shuile.me">contact@shuile.me</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 睡了么 | 所有权利保留
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 移动端菜单切换
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+            document.querySelector('.nav-menu').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

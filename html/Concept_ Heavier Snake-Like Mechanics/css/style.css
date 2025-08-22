@@ -1,0 +1,133 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.game-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    max-width: 800px;
+    width: 100%;
+}
+
+.game-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.game-header h1 {
+    color: #333;
+    margin-right: 20px;
+}
+
+.score-container, .mass-container {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 5px 15px 5px 0;
+}
+
+#gameCanvas {
+    background-color: #222;
+    border-radius: 5px;
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 600px;
+    height: 400px;
+}
+
+.game-controls {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.game-controls p {
+    margin: 5px 0;
+    color: #555;
+}
+
+button {
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    margin: 10px 5px;
+    padding: 10px 20px;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+#restartButton {
+    background-color: #f44336;
+}
+
+#restartButton:hover {
+    background-color: #d32f2f;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+}
+
+.modal-content h2 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+#playAgainButton {
+    margin-top: 15px;
+}
+
+@media (max-width: 600px) {
+    .game-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .game-header h1 {
+        margin-bottom: 10px;
+    }
+    
+    #gameCanvas {
+        height: 300px;
+    }
+}

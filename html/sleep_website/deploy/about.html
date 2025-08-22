@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于我们 - 睡了么</title>
+    <style>
+        /* 基础样式 */
+        :root {
+            --primary-color: #1a237e; /* 深蓝色 */
+            --secondary-color: #7986cb; /* 柔和的紫色 */
+            --accent-color: #ffc107; /* 温暖的黄色 */
+            --background-color: #f5f5f5; /* 柔和的灰色 */
+            --text-color: #333333; /* 深灰色文本 */
+            --light-text: #ffffff; /* 白色文本 */
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+        }
+        
+        a {
+            text-decoration: none;
+            color: var(--primary-color);
+            transition: color 0.3s ease;
+        }
+        
+        a:hover {
+            color: var(--secondary-color);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* 头部样式 */
+        header {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 20px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .logo a {
+            color: var(--light-text);
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-menu li {
+            margin-left: 20px;
+        }
+        
+        .nav-menu a {
+            color: var(--light-text);
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        
+        .nav-menu a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--light-text);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        /* 页面标题区域 */
+        .page-title {
+            background-color: var(--secondary-color);
+            color: var(--light-text);
+            padding: 60px 0;
+            text-align: center;
+        }
+        
+        .page-title h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .page-title p {
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* 面包屑导航 */
+        .breadcrumb {
+            background-color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .breadcrumb ul {
+            list-style: none;
+            display: flex;
+        }
+        
+        .breadcrumb li {
+            margin-right: 10px;
+        }
+        
+        .breadcrumb li:after {
+            content: '>';
+            margin-left: 10px;
+            color: #999;
+        }
+        
+        .breadcrumb li:last-child:after {
+            content: '';
+        }
+        
+        .breadcrumb a {
+            color: #666;
+        }
+        
+        .breadcrumb .current {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        /* 内容区域 */
+        .content-area {
+            padding: 60px 0;
+        }
+        
+        .about-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .about-section {
+            margin-bottom: 40px;
+        }
+        
+        .about-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .about-section h2 {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .about-section h3 {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            margin: 30px 0 15px;
+        }
+        
+        .about-section p {
+            margin-bottom: 20px;
+            color: #555;
+        }
+        
+        .about-section ul {
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+        
+        .about-section li {
+            margin-bottom: 10px;
+            color: #555;
+        }
+        
+        /* 团队成员 */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .team-member {
+            text-align: center;
+        }
+        
+        .member-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            background-color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--primary-color);
+        }
+        
+        .member-name {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .member-title {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .member-bio {
+            font-size: 0.95rem;
+            color: #555;
+        }
+        
+        /* 联系表单 */
+        .contact-form {
+            margin-top: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #444;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+        }
+        
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .submit-button {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .submit-button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 联系信息 */
+        .contact-info {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .contact-icon {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-right: 15px;
+            min-width: 30px;
+            text-align: center;
+        }
+        
+        .contact-text {
+            color: #555;
+        }
+        
+        /* 页脚样式 */
+        footer {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 60px 0 20px;
+        }
+        
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50px;
+            height: 2px;
+            background-color: var(--accent-color);
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: #b0bec5;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--light-text);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            color: #b0bec5;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .logo {
+                margin-bottom: 15px;
+            }
+            
+            .nav-menu {
+                flex-direction: column;
+                width: 100%;
+                display: none;
+            }
+            
+            .nav-menu.active {
+                display: flex;
+            }
+            
+            .nav-menu li {
+                margin: 10px 0;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+                position: absolute;
+                top: 20px;
+                right: 20px;
+            }
+            
+            .about-container {
+                padding: 20px;
+            }
+            
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部导航 -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <a href="index.html">睡了么</a>
+            </div>
+            <button class="mobile-menu-btn">☰</button>
+            <ul class="nav-menu">
+                <li><a href="sleep-knowledge.html">睡眠知识</a></li>
+                <li><a href="sleep-disorders.html">睡眠障碍</a></li>
+                <li><a href="improve-sleep.html">改善睡眠</a></li>
+                <li><a href="sleep-health.html">睡眠与健康</a></li>
+                <li><a href="sleep-test.html">睡眠测试</a></li>
+                <li><a href="about.html" class="active">关于我们</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- 页面标题 -->
+    <section class="page-title">
+        <div class="container">
+            <h1>关于我们</h1>
+            <p>了解"睡了么"团队和我们的使命</p>
+        </div>
+    </section>
+
+    <!-- 面包屑导航 -->
+    <div class="breadcrumb">
+        <div class="container">
+            <ul>
+                <li><a href="index.html">首页</a></li>
+                <li class="current">关于我们</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 内容区域 -->
+    <section class="content-area">
+        <div class="container">
+            <div class="about-container">
+                <div class="about-section">
+                    <h2>我们的使命</h2>
+                    <p>"睡了么"致力于通过提供科学、实用的睡眠健康知识，帮助人们改善睡眠质量，提升生活品质。在当今快节奏的社会中，睡眠问题日益普遍，却常常被忽视。我们希望提高公众对睡眠健康重要性的认识，并提供有效的解决方案。</p>
+                    <p>我们的目标是：</p>
+                    <ul>
+                        <li>传播科学的睡眠健康知识，消除睡眠相关的误解</li>
+                        <li>帮助人们识别和理解常见的睡眠问题</li>
+                        <li>提供实用、可行的改善睡眠质量的方法</li>
+                        <li>建立一个支持睡眠健康的社区</li>
+                    </ul>
+                </div>
+                
+                <div class="about-section">
+                    <h2>我们的团队</h2>
+                    <p>"睡了么"团队由睡眠健康领域的专业人士组成，包括睡眠医学专家、心理健康顾问和健康教育工作者。我们致力于将复杂的睡眠科学转化为易于理解和应用的知识。</p>
+                    
+                    <div class="team-grid">
+                        <div class="team-member">
+                            <div class="member-avatar">张</div>
+                            <div class="member-name">张睿</div>
+                            <div class="member-title">睡眠医学专家</div>
+                            <p class="member-bio">北京医科大学睡眠医学博士，拥有15年临床经验，专注于睡眠障碍诊断和治疗。</p>
+                        </div>
+                        
+                        <div class="team-member">
+                            <div class="member-avatar">李</div>
+                            <div class="member-name">李梦</div>
+                            <div class="member-title">心理健康顾问</div>
+                            <p class="member-bio">注册心理咨询师，专注于睡眠相关心理问题的咨询和治疗，帮助人们建立健康的睡眠心理。</p>
+                        </div>
+                        
+                        <div class="team-member">
+                            <div class="member-avatar">王</div>
+                            <div class="member-name">王安</div>
+                            <div class="member-title">健康教育专家</div>
+                            <p class="member-bio">公共卫生硕士，致力于睡眠健康教育和推广，擅长将专业知识转化为实用建议。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="about-section">
+                    <h2>我们的理念</h2>
+                    <p>在"睡了么"，我们坚信：</p>
+                    <ul>
+                        <li><strong>科学为本</strong>：所有内容均基于最新的科学研究和医学证据</li>
+                        <li><strong>实用至上</strong>：提供的建议和方法必须易于理解和实施</li>
+                        <li><strong>个性化指导</strong>：认识到每个人的睡眠需求和问题各不相同</li>
+                        <li><strong>全面关怀</strong>：关注睡眠与身体健康、心理健康和生活质量的整体关系</li>
+                    </ul>
+                    <p>我们不仅关注如何改善睡眠，还致力于帮助人们理解为什么良好的睡眠对健康如此重要，以及如何将健康的睡眠习惯融入日常生活。</p>
+                </div>
+                
+                <div class="about-section">
+                    <h2>联系我们</h2>
+                    <p>我们非常重视您的反馈和建议。如果您有任何问题、意见或合作意向，请随时与我们联系。</p>
+                    
+                    <div class="contact-form">
+                        <form id="contact-form">
+                            <div class="form-group">
+                                <label for="name">姓名</label>
+                                <input type="text" id="name" class="form-control" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email">电子邮箱</label>
+                                <input type="email" id="email" class="form-control" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="subject">主题</label>
+                                <input type="text" id="subject" class="form-control" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="message">留言内容</label>
+                                <textarea id="message" class="form-control" required></textarea>
+                            </div>
+                            
+                            <button type="submit" class="submit-button">发送留言</button>
+                        </form>
+                    </div>
+                    
+                    <div class="contact-info">
+                        <h3>其他联系方式</h3>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">✉️</div>
+                            <div class="contact-text">contact@shuile.me</div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">📱</div>
+                            <div class="contact-text">400-888-9999</div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">🏢</div>
+                            <div class="contact-text">北京市海淀区中关村南大街5号</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-section">
+                    <h3>睡了么</h3>
+                    <p>您的睡眠健康指南，提供科学的睡眠知识和实用的改善方法。</p>
+                </div>
+                <div class="footer-section">
+                    <h3>快速链接</h3>
+                    <ul class="footer-links">
+                        <li><a href="sleep-knowledge.html">睡眠知识</a></li>
+                        <li><a href="sleep-disorders.html">睡眠障碍</a></li>
+                        <li><a href="improve-sleep.html">改善睡眠</a></li>
+                        <li><a href="sleep-health.html">睡眠与健康</a></li>
+                        <li><a href="sleep-test.html">睡眠测试</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>联系我们</h3>
+                    <ul class="footer-links">
+                        <li><a href="about.html">关于我们</a></li>
+                        <li><a href="mailto:contact@shuile.me">contact@shuile.me</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 睡了么 | 所有权利保留
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 移动端菜单切换
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+            document.querySelector('.nav-menu').classList.toggle('active');
+        });
+        
+        // 联系表单提交
+        document.getElementById('contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 获取表单数据
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+            
+            // 这里可以添加表单验证逻辑
+            
+            // 模拟表单提交
+            alert('感谢您的留言！我们会尽快回复您。');
+            
+            // 清空表单
+            this.reset();
+        });
+    </script>
+</body>
+</html>

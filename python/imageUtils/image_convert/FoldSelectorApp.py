@@ -7,7 +7,7 @@ from main_scale import start_processing
 class FolderSelectorApp:
     input = ""
     output = ""
-    scale = None
+    scale = tk.DoubleVar(value=0.7)
 
     def __init__(self, root):
         self.root = root
@@ -49,7 +49,6 @@ class FolderSelectorApp:
 
         ttk.Label(frame, text="缩放比：").pack(pady=(10, 0))
 
-        self.scale = tk.DoubleVar(value=0.7)
         scale_entry = ttk.Entry(frame, textvariable=self.scale, width=10)
         scale_entry.pack(pady=(0, 10))
         scale_entry.bind("<FocusOut>", lambda event: self.update_scale(scale_entry))

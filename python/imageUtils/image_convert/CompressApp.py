@@ -1,20 +1,31 @@
-import math
+import os, sys
 import threading
 import tkinter as tk
 from tkinter import ttk, filedialog
 
-import main_press
+from main_press import start_press
 
 
 class CompressApp:
     input = ""
     output = ""
+    quality: tk.IntVar
 
     def __init__(self, root):
-
+        self.quality = tk.IntVar(value=80)
         self.init_UI(root)
+        # self.load_icon()
+
+    def load_icon(self):
+        try:
+            base = getattr(sys, "_MEIPASS", os.path.abspath("."))
+            self.root.iconbitmap(os.path.join(base, "app_press.ico"))
+        except Exception as e:
+            print(e)
+            return
 
     def init_UI(self, root):
+
         self.root = root
         self.root.title("图片压缩工具")
         self.root.geometry("480x360")
@@ -54,7 +65,6 @@ class CompressApp:
 
         ttk.Label(frame, text="压缩后质量： (1-100)").pack(pady=(10, 0))
 
-        self.quality = tk.IntVar(value=80)
         input_entry = ttk.Entry(frame, textvariable=self.quality, width=10)
         input_entry.pack(pady=(0, 10))
         input_entry.bind("<FocusOut>", lambda event: self._update_quality(input_entry))
@@ -105,7 +115,7 @@ class CompressApp:
 
         try:
             self.root.after(0, lambda: self._set_status("正在压缩中"))
-            main_press.start_press(self.input, self.output, quality)
+            start_press(self.input, self.output, quality)
             self.root.after(0, lambda: self._set_status("处理完成,请检查文件"))
         except Exception as e:
             self.root.after(0, lambda: self._set_status(f"处理失败: {e}"))
