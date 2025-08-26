@@ -3,8 +3,6 @@ import { generateFntContent } from './bmfontSave';
 import { FntData } from './FntData';
 import { readFile, writeFile } from './FileUtils';
 
-
-
 function formatData(fntData: FntData) {
     let maxWidth = 0;
     for (const char of fntData.chars) {
