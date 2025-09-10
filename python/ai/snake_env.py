@@ -17,7 +17,7 @@ class SnakeEnv(gym.Env):
         self.max_steps = max_steps
 
         # 定义动作空间,意思是：有 4 个离散动作 (0,1,2,3)
-        self.action_space = spaces.Discrete(4)
+        self.action_space = spaces.Discrete(3)
         # 定义观测空间,意思是：有 grid_size * grid_size * 3 个连续值
         self.observation_space = spaces.Box(
             low=0, high=1, shape=(grid_size, grid_size, 3), dtype=np.float32
@@ -29,7 +29,7 @@ class SnakeEnv(gym.Env):
         self.direction = 0
         self.food = None
         self.steps = 0
-        self.foodStep = 0
+        self.foodStep = 0.0
 
     # --- Gymnasium API ---
     def reset(self, seed=None, options=None):
@@ -44,10 +44,10 @@ class SnakeEnv(gym.Env):
             self._render_frame()
         return obs, info
 
-    def drawScore(self, score):
+    def drawScore(self, score: float):
         if self.screen:
             font = pygame.font.SysFont("Arial", 20)
-            score_text = font.render(f"Score: {score}", True, (255, 255, 255))
+            score_text = font.render(f"Score: {score:.2f}", True, (255, 255, 255))
             self.screen.blit(score_text, (10, 10))
 
             pygame.display.flip()
@@ -55,7 +55,7 @@ class SnakeEnv(gym.Env):
 
     # 绑定动作
     def step(self, action):
-        reward = 0.0  # 默认每走一步扣0.01分
+        reward = 0.0
         # 防 180 度掉头
         # if action == 0 and self.direction != 2:
         #     reward = -1
@@ -75,8 +75,8 @@ class SnakeEnv(gym.Env):
             or (action == 3 and self.direction == 1)
         )
         if invalid:
-            # 掉头，给惩罚
-            reward -= 10
+            # 掉头,无效输入
+            reward += -0.01
             action = self.direction
         else:
             self.direction = action
@@ -107,12 +107,12 @@ class SnakeEnv(gym.Env):
             or new_head in self.snake
         ):
             terminated = True
-            reward -= 100.0
+            reward += -1000.0
         else:
             self.snake.insert(0, new_head)
             if new_head == self.food:
-                reward += 50.0
-                self.foodStep = 0
+                reward += 1000.0 * (len(self.snake) + 1)
+                self.foodStep = 0.0
                 self._spawn_food()
             else:
                 self.snake.pop()
@@ -122,14 +122,16 @@ class SnakeEnv(gym.Env):
         new_distance = abs(new_head[0] - food[0]) + abs(new_head[1] - food[1])
 
         if new_distance < old_distance:
-            reward += 0.2  # 走近了
+            reward += max(0.1, 1 - new_distance * 0.1)  # 走近了
         else:
-            reward -= 0.1  # 走远了
+            # 走远了,会越扣越多,直到吃到了食物
+            self.foodStep += 1
+            reward += -min(4, self.foodStep * 0.02)
 
         # 计算步数
         self.steps += 1
-        self.foodStep += 1
-        reward -= min(2, float(self.foodStep) * 0.05)
+        reward += 0.001 * len(self.snake)
+
         if not terminated and self.steps >= self.max_steps:
             truncated = True
 
@@ -166,7 +168,11 @@ class SnakeEnv(gym.Env):
     def _get_obs(self):
         state = np.zeros((self.grid_size, self.grid_size, 3), dtype=np.float32)
         for x, y in self.snake:
-            state[y, x, 0] = 1.0
+            state[y, x, 0] = 0.75
+
+        sx, sy = self.snake[0]
+        state[sx, sy, 0] = 1.0
+
         fx, fy = self.food
         state[fy, fx, 1] = 1.0
         return state
