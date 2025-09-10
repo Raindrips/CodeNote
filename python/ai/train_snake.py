@@ -20,6 +20,6 @@ model = DQN(
 # 加载之前训练好的模型
 # model = DQN.load("snake_ai", env=env)
 
-model.learn(total_timesteps=200_000)
+model.learn(total_timesteps=300_000)
 model.save("snake_ai")
 env.close()
