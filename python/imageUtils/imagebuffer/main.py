@@ -1,7 +1,8 @@
 # main.py
 import sys
 import os
-from image_processor import ImageProcessor # 从 file_renamer.py 导入 ImageProcessor 类
+from image_blend import ImageBlend  # 从 file_renamer.py 导入 ImageProcessor 类
+
 
 def main():
     """
@@ -21,7 +22,7 @@ def main():
     print(f"输出图片路径: {output_path}")
 
     try:
-        processor = ImageProcessor(input_path)
+        processor = ImageBlend(input_path)
         width, height = processor.get_dimensions()
         print(f"图片尺寸: {width}x{height}")
 
@@ -33,15 +34,6 @@ def main():
         processor.save_image(output_path)
         print("图片保存成功！")
 
-        # 示例：获取特定索引的坐标（可以在这里展示给用户）
-        # 如果图片像素很多，不建议全部打印
-        if width * height > 0:
-            sample_index = 0
-            if width * height > 100: # 随机取一个中间的索引
-                sample_index = (width * height) // 2
-            x_coord, y_coord = processor.get_coords_from_index(sample_index)
-            print(f"示例: 像素索引 {sample_index} 对应的坐标是 ({x_coord}, {y_coord})。")
-
     except FileNotFoundError as e:
         print(f"错误: {e}")
         print("请检查输入图片路径是否正确。")
@@ -50,6 +42,7 @@ def main():
         print("请检查图片文件是否损坏或格式不支持。")
     # except Exception as e:
     #     print(f"发生未知错误: {e}")
+
 
 if __name__ == "__main__":
     main()
