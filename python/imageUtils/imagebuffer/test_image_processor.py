@@ -2,7 +2,7 @@
 import os
 import shutil
 from PIL import Image
-from image_processor import ImageProcessor # 导入 ImageProcessor 类
+from image_processor import ImageBlend # 导入 ImageProcessor 类
 
 def create_test_image(path: str, size: tuple[int, int], color: tuple[int, int, int]):
     """创建一张纯色的测试图片。"""
@@ -26,7 +26,7 @@ def run_tests():
     print("\n--- 测试用例 1: 基本功能和 RGB 转 Alpha ---")
     create_test_image(input_img_path, (10, 10), (150, 150, 150)) # 灰色图片，预期alpha=150
     try:
-        processor = ImageProcessor(input_img_path)
+        processor = ImageBlend(input_img_path)
         width, height = processor.get_dimensions()
         print(f"获取图片尺寸: {width}x{height}")
         assert width == 10 and height == 10, "尺寸获取错误"
@@ -77,7 +77,7 @@ def run_tests():
     # --- 测试用例 2: 文件不存在 ---
     print("\n--- 测试用例 2: 文件不存在 ---")
     try:
-        ImageProcessor("non_existent_image.png")
+        ImageBlend("non_existent_image.png")
         print("测试失败: 预期抛出 FileNotFoundError，但没有。")
     except FileNotFoundError:
         print("测试通过: 成功捕获 FileNotFoundError。")
@@ -91,7 +91,7 @@ def run_tests():
     with open(invalid_img_path, "w") as f:
         f.write("This is not a valid image file content.")
     try:
-        ImageProcessor(invalid_img_path)
+        ImageBlend(invalid_img_path)
         print("测试失败: 预期抛出 IOError，但没有。")
     except IOError:
         print("测试通过: 成功捕获 IOError (无法识别的图片格式)。")

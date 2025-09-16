@@ -1,7 +1,6 @@
 # main.py
 import sys
-import os
-from image_blend import ImageBlend  # 从 file_renamer.py 导入 ImageProcessor 类
+from image_blur import ImageBlur
 
 
 def main():
@@ -22,14 +21,11 @@ def main():
     print(f"输出图片路径: {output_path}")
 
     try:
-        processor = ImageBlend(input_path)
+        processor = ImageBlur(input_path)
         width, height = processor.get_dimensions()
         print(f"图片尺寸: {width}x{height}")
 
-        print("正在遍历并修改像素 Alpha 值...")
-        processor.apply_alpha_from_rgb_screen()
-        print("像素 Alpha 值修改完成。")
-
+        processor.apply_blur(90, 20, 16)
         print(f"正在保存修改后的图片到 '{output_path}' (PNG格式)...")
         processor.save_image(output_path)
         print("图片保存成功！")
