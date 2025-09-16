@@ -18,7 +18,11 @@ model = DQN(
     exploration_fraction=0.1,
 )
 # 加载之前训练好的模型
-# model = DQN.load("snake_ai", env=env)
+try:
+    m = DQN.load("snake_ai", env=env)
+    model = m
+except:
+    pass
 
 model.learn(total_timesteps=300_000)
 model.save("snake_ai")

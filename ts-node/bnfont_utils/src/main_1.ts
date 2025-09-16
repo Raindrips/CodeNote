@@ -27,7 +27,6 @@ async function main() {
     let bmFont = generateFntContent(fntData);
     console.log(bmFont);
     await writeFile(path, bmFont);
-    console.log('done');
 }
 
 main();
