@@ -5,6 +5,18 @@ import pygame
 import random
 
 
+class Reward:
+    back = 0.0  # 掉头
+    death = -100.0  # 死亡
+    eat_food = 100.0  # 吃食物
+    near_food = 0.0  # 靠近食物
+    keep_food = -0.00  # 远离食物
+    alive = 0.01  # 存活
+
+
+r = Reward()
+
+
 # 动作编码：0=上, 1=右, 2=下, 3=左
 class SnakeEnv(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 10}
@@ -76,7 +88,7 @@ class SnakeEnv(gym.Env):
         )
         if invalid:
             # 掉头,无效输入
-            reward += -0.01
+            reward += r.back
             action = self.direction
         else:
             self.direction = action
@@ -107,11 +119,11 @@ class SnakeEnv(gym.Env):
             or new_head in self.snake
         ):
             terminated = True
-            reward += -1000.0
+            reward += r.death
         else:
             self.snake.insert(0, new_head)
             if new_head == self.food:
-                reward += 1000.0 * (len(self.snake) + 1)
+                reward += r.eat_food * len(self.snake)
                 self.foodStep = 0.0
                 self._spawn_food()
             else:
@@ -122,15 +134,15 @@ class SnakeEnv(gym.Env):
         new_distance = abs(new_head[0] - food[0]) + abs(new_head[1] - food[1])
 
         if new_distance < old_distance:
-            reward += max(0.1, 1 - new_distance * 0.1)  # 走近了
+            reward += r.near_food  # 走近了
         else:
             # 走远了,会越扣越多,直到吃到了食物
             self.foodStep += 1
-            reward += -min(4, self.foodStep * 0.02)
+            reward += r.keep_food
 
         # 计算步数
         self.steps += 1
-        reward += 0.001 * len(self.snake)
+        reward += r.alive
 
         if not terminated and self.steps >= self.max_steps:
             truncated = True
