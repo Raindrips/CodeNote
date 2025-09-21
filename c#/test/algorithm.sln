@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36401.2
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "algorithm", "algorithm\algorithm.csproj", "{9A97B090-E097-4E0A-B0B3-896D38867B1B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "socket", "socket\socket.csproj", "{7C7E27C8-F839-4BC6-844E-23ADFE62A3F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeetCode", "LeetCode\LeetCode.csproj", "{BE3FAF48-4576-4698-BEA1-918CA14BD537}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9A97B090-E097-4E0A-B0B3-896D38867B1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A97B090-E097-4E0A-B0B3-896D38867B1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A97B090-E097-4E0A-B0B3-896D38867B1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A97B090-E097-4E0A-B0B3-896D38867B1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C7E27C8-F839-4BC6-844E-23ADFE62A3F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C7E27C8-F839-4BC6-844E-23ADFE62A3F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C7E27C8-F839-4BC6-844E-23ADFE62A3F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C7E27C8-F839-4BC6-844E-23ADFE62A3F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE3FAF48-4576-4698-BEA1-918CA14BD537}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE3FAF48-4576-4698-BEA1-918CA14BD537}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE3FAF48-4576-4698-BEA1-918CA14BD537}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE3FAF48-4576-4698-BEA1-918CA14BD537}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {040F6F9F-87AC-4F23-833D-F27F17031137}
+	EndGlobalSection
+EndGlobal
