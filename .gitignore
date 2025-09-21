@@ -51,3 +51,36 @@ debug/
 # movie
 *.mp4
 *.avi
+
+
+# Visual Studio 文件夹和文件
+**/.vs/
+**/bin/
+**/obj/
+**/Debug/
+**/Release/
+**/x64/
+**/x86/
+**/AnyCPU/
+**/TemporaryGeneratedFiles/
+**/GeneratedInternalTypeHelperClasses/
+**/InteropAssemblies/
+**/MSBuild/
+**/MSBuild/Current/
+**/MSBuild/Current/Bin/
+**/MSBuild/Current/Bin/MSBuild.exe
+**/MSBuild/Current/Bin/MSBuild.exe.config
+**/MSBuild/Current/Bin/MSBuild.dll
+**/MSBuild/Current/Bin/MSBuild.pdb
+**/MSBuild/Current/Bin/MSBuild.xml
+**/MSBuild/Current/Bin/MSBuild.deps.json
+**/MSBuild/Current/Bin/MSBuild.runtimeconfig.json
+**/MSBuild/Current/Bin/MSBuild.deps.json
+**/MSBuild/Current/Bin/MSBuild.runtimeconfig.json
+**/MSBuild/Current/Bin/MSBuild.deps.json
+**/MSBuild/Current/Bin/MSBuild.runtimeconfig.json
+**/MSBuild/Current/Bin/MSBuild.deps.json
+**/MSBuild/Current/Bin/MSBuild.runtimeconfig.json
+**/MSBuild/Current/Bin/MSBuild.deps.json
+**/MSBuild/Current/Bin/MSBuild.runtimeconfig.json
+**/MSBuild/Current/Bin/MSBuild.de
