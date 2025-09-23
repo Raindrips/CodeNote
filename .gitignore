@@ -41,9 +41,8 @@ bin/
 debug/
 
 # audios
-*.mp3
-*.mp4
-*.ogg
+# *.mp3
+# *.ogg
 *.out
 *.mkv
 *.m4a
