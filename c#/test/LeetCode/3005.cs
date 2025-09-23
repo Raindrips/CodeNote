@@ -22,7 +22,7 @@ namespace _3005
                     hash[nums[i]]++;
                 }
             }
-            
+
             // 统计频率出现的次数
             var sortHash = new SortedDictionary<int, int>();
             foreach (var item in hash)
@@ -43,21 +43,18 @@ namespace _3005
     }
     class Test
     {
-        public static void Fn1(int[] nums)
+        private static void Fn1(int[] nums)
         {
             var solution = new Solution();
             Console.WriteLine(solution.MaxFrequencyElements(nums));
         }
 
-        public static void Main(String[] args)
+        public static void Run()
         {
             Test.Fn1([1, 2, 2, 3, 3, 3, 2]);
             Test.Fn1([1, 2, 3, 4, 5]);
             Test.Fn1([1, 2, 2, 3, 1, 4]);
             Test.Fn1([10, 12, 11, 9, 6, 19, 11]);
-           
-
-
         }
     }
 
