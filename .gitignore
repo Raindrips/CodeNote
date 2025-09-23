@@ -84,3 +84,5 @@ debug/
 **/MSBuild/Current/Bin/MSBuild.deps.json
 **/MSBuild/Current/Bin/MSBuild.runtimeconfig.json
 **/MSBuild/Current/Bin/MSBuild.de
+
+**/*.exe
