@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "socket", "socket\socket.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeetCode", "LeetCode\LeetCode.csproj", "{BE3FAF48-4576-4698-BEA1-918CA14BD537}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventTest", "EventTest\EventTest.csproj", "{9DA7E7D2-7FE9-472C-BE56-18A845DABC3E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameCore", "GameCore\GameCore.csproj", "{4CA85E56-E9A3-43D2-B468-F8F1944C8C28}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{BE3FAF48-4576-4698-BEA1-918CA14BD537}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE3FAF48-4576-4698-BEA1-918CA14BD537}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE3FAF48-4576-4698-BEA1-918CA14BD537}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DA7E7D2-7FE9-472C-BE56-18A845DABC3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DA7E7D2-7FE9-472C-BE56-18A845DABC3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DA7E7D2-7FE9-472C-BE56-18A845DABC3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DA7E7D2-7FE9-472C-BE56-18A845DABC3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CA85E56-E9A3-43D2-B468-F8F1944C8C28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CA85E56-E9A3-43D2-B468-F8F1944C8C28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CA85E56-E9A3-43D2-B468-F8F1944C8C28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CA85E56-E9A3-43D2-B468-F8F1944C8C28}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
