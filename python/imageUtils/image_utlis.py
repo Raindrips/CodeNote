@@ -5,7 +5,7 @@ import re
 
 
 ## 图片宽度调整到250
-def compressFile(infile, outfile):
+def width_file(infile, outfile):
     im = Image.open(infile)
     (x, y) = im.size  # read image size
     x_s = int(250)  # define standard width
@@ -19,16 +19,16 @@ def compressFile(infile, outfile):
     print("adjust size: ", x_s, y_s)
 
 
-def ScaleImage(input_path, output_path, scale):
+def scale_image(input_path, output_path, scale):
     im = Image.open(input_path)
-    (x, y) = im.size  # read image size
-    x_s = int(x * scale)  # define standard width
-    y_s = int(y * scale)  # calc height based on standard width
-    out = im.resize((x_s, y_s))  # resize image with high-quality
+    (x, y) = im.size                      # read image size
+    x_s = int(x * scale)                # define standard width
+    y_s = int(y * scale)                # calc height based on standard width
+    out = im.resize((x_s, y_s))     # resize image with high-quality
     out.save(output_path)
 
 
-def compressImage(input_path, output_path, quality):
+def compress_image(input_path, output_path, quality):
     im = Image.open(input_path)
     im.save(output_path, quality=quality)
 
@@ -79,13 +79,12 @@ def main():
         # 解析命令行参数
         infile = sys.argv[1]
         outfile = sys.argv[2]
-    # compressFile(infile,ou
-    # tfile);
+    # compressFile(infile,outfile);
     filelist = get_all_files(infile)
     relist = check_file_list(filelist)
 
     for file in relist:
-        ScaleImage(infile + file, outfile + file, 0.2)
+        scale_image(infile + file, outfile + file, 0.2)
         # compressImage(infile+file,outfile+file,25)
         pass
 
