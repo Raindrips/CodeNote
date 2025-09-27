@@ -27,6 +27,8 @@ def main():
 
         processor.apply_blur(90, 20, 16)
         print(f"正在保存修改后的图片到 '{output_path}' (PNG格式)...")
+
+        processor.scale_image(0.5)
         processor.save_image(output_path)
         print("图片保存成功！")
 
