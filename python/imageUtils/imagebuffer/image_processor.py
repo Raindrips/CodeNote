@@ -60,7 +60,7 @@ class ImageProcessor:
 
     def save_image(self, output_path: str):
         try:
-            # 使用原始格式保存，如果没有原始格式信息则使用文件扩展名
+            # 使用原始格式保存
             if hasattr(self, "original_format") and self.original_format:
                 format_to_use = self.original_format
             else:
@@ -70,8 +70,8 @@ class ImageProcessor:
 
             # 如果原始格式不支持RGBA，转换为RGB
             if format_to_use in ["JPEG", "JPG"] and self.image.mode == "RGBA":
-                # 创建白色背景
-                background = Image.new("RGB", self.image.size, (255, 255, 255))
+                # 创建黑色背景
+                background = Image.new("RGB", self.image.size, (0, 0, 0))
                 background.paste(
                     self.image, mask=self.image.split()[-1]
                 )  # 使用alpha通道作为mask
