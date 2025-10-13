@@ -42,6 +42,7 @@ namespace _64
             var json = JsonSerializer.Serialize(source);
             return JsonSerializer.Deserialize<T[]>(json);
         }
+
     }
 
     class Test
