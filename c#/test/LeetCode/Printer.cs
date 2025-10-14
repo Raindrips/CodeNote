@@ -31,7 +31,7 @@ namespace LeetCode
                     break;
 
                 default:
-                    Console.WriteLine(ToPrettyString(data, "Root"));
+                    Console.WriteLine(ToPrettyString(data, ""));
                     break;
             }
         }
@@ -54,7 +54,7 @@ namespace LeetCode
             }
         }
 
-   
+
 
         public static string ToPrettyString(object? obj, string name = "Root", int indent = 0, HashSet<object>? visited = null)
         {
