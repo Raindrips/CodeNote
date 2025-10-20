@@ -1,26 +1,29 @@
-namespace MyEvent {
+namespace MyEvent2 {
     type ClassType<T> = new (...args: any[]) => T;
 
-    /**
-     * 事件处理器类型：接收事件实例
-     */
     type EventHandler<T> = (event: T) => void;
 
+    const registerSet = new Set<string>();
     /**
-     * 简单事件装饰器（可选，用于注册类名）
+     *事件装饰器
      */
-    function RegisterEvent<T>(target: any) {}
+    export function RegisterEvent<T>(target: ClassType<T>) {
+        if (registerSet.has(target.name)) {
+            console.warn(`'event [${target.name}] target is repeat'`);
+        }
+        registerSet.add(target.name);
+    }
 
-    class EventManagerV2 {
-        private static _instance: EventManagerV2 = null!;
+    class EventManager {
+        //单例
+        private static _instance: EventManager = null!;
         public static get Instance() {
-            if (EventManagerV2._instance == null) {
-                EventManagerV2._instance = new EventManagerV2();
+            if (EventManager._instance == null) {
+                EventManager._instance = new EventManager();
             }
-            return EventManagerV2._instance;
+            return EventManager._instance;
         }
 
-        // 存储事件类型到处理器集合的映射
         private handlers: Map<string, Map<EventHandler<any>, unknown>> =
             new Map();
 
@@ -92,9 +95,12 @@ namespace MyEvent {
         /**
          * 发送事件。支持两种调用方式：
          * - emit(EventClass, instance)
-         * - emit(EventClass, plainObject) -> 会用 new EventClass() 并 Object.assign
+         * - emit(EventClass, {arg:value})
          */
-        emit<T>(classType: ClassType<T>, payload?: Required<T> | T): void {
+        emit<T>(
+            classType: ClassType<T>,
+            payload?: Required<T> | ClassType<T> | undefined,
+        ): void {
             const key = classType.name;
             const handle = this.handlers.get(key);
             if (!handle || handle.size === 0) return;
@@ -108,14 +114,10 @@ namespace MyEvent {
                     Object.assign(eventObject as any, payload);
                 }
             }
-
-            // 调用处理器（浅拷贝集合以避免在回调中修改集合导致迭代问题）
             Array.from(handle).forEach((h) => {
                 try {
                     const [call, target] = h;
-                    console.log(call, target);
                     if (target) {
-                        // call(eventObject);
                         call.call(target, eventObject);
                     } else {
                         call(eventObject);
@@ -128,18 +130,21 @@ namespace MyEvent {
     }
 
     function test() {
-        class InfoEvent {
-            constructor(public id: number, public message: string) {}
-        }
-
+        //自定义无参事件
+        @RegisterEvent
         class MyEvent {
             constructor() {}
+        }
+        //定义带参事件类型
+        @RegisterEvent
+        class InfoEvent {
+            constructor(public id: number, public message: string) {}
         }
 
         class MyClass {
             a = 10;
             constructor() {
-                EventManagerV2.Instance.on(InfoEvent, this.fn2, this);
+                EventManager.Instance.on(InfoEvent, this.fn2, this);
             }
             fn(e: InfoEvent) {
                 console.log('MyClass fn', e, this.a);
@@ -151,22 +156,48 @@ namespace MyEvent {
         }
 
         const myClass: MyClass | undefined = new MyClass();
-        /// / @ts-ignore
-
-        EventManagerV2.Instance.on(MyEvent, () => console.log('My Event'));
+        const event = EventManager.Instance;
+        event.on(MyEvent, () => console.log('My Event'));
 
         const handle = myClass.fn.bind(myClass);
-        EventManagerV2.Instance.on(InfoEvent, myClass.fn, myClass);
+        event.on(InfoEvent, myClass.fn, myClass);
 
-        EventManagerV2.Instance.off(InfoEvent, myClass.fn);
+        // event.off(InfoEvent, myClass.fn);
 
         const info = new InfoEvent(10, 'hello');
-        EventManagerV2.Instance.emit(MyEvent);
-        EventManagerV2.Instance.emit(InfoEvent, info);
-        EventManagerV2.Instance.emit(InfoEvent, {
+        event.emit(MyEvent);
+        event.emit(InfoEvent, info);
+        event.emit(InfoEvent, {
             id: 0,
             message: 'world',
         });
     }
-    test();
+
+    function test2() {
+        @RegisterEvent
+        class MyEvent {
+            constructor() {}
+        }
+        @RegisterEvent
+        class InfoEvent {
+            constructor(public id: number, public message: string) {}
+        }
+        const event = EventManager.Instance;
+        // 注册事件
+        event.on(MyEvent, () => console.log('My Event'));
+        event.on(InfoEvent, (e: InfoEvent) =>
+            console.log('Info Event ', e.id, e.message),
+        );
+        event.emit(MyEvent);
+        //传递参数
+        event.emit(InfoEvent, new InfoEvent(10, 'hello'));
+        // 自动转换
+        event.emit(InfoEvent, { id: 10, message: 'world' });
+        //类型不对,报错
+        // event.emit(InfoEvent, new MyEvent());
+        //参数不对,报错
+        // event.emit(InfoEvent, { name: 123 });
+    }
+    // test();
+    test2();
 }
