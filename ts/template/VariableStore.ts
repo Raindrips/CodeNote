@@ -15,6 +15,16 @@ class VariableStore implements Iterable<[string, any]> {
         return value;
     }
 
+    tryGet<T>(key: string, defaultValue: T) {
+        const value = this._store.get(key);
+        if (value === undefined) return defaultValue;
+        return value;
+    }
+
+    has(key: string) {
+        return this._store.has(key);
+    }
+
     // 删除变量
     remove(key: string): void {
         this._store.delete(key);
