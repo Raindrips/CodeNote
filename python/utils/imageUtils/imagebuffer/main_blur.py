@@ -10,7 +10,6 @@ Args:
     output_dir (str): 输出目录
 """
 
-
 def file_processing(source_dir, output_dir):
     # 匹配常见图片扩展名
     regex_pattern = r".*\.(jpg|jpeg|png)$"
@@ -55,8 +54,7 @@ def image_process(input_path, output_path):
 
 def main():
     if len(sys.argv) != 3:
-        print("使用方法: python main.py <输入文件夹> <输出文件夹>")
-        print("例如: python main_blur.py input/ output/")
+        print("使用方法: python main_blur.py <输入文件夹> <输出文件夹>")
         sys.exit(1)
 
     input_path = sys.argv[1]
