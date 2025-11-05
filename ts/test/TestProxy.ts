@@ -11,7 +11,7 @@ namespace TestProxy {
             receiver: P,
         ): boolean {
             console.log(`设置属性: "${prop.toString()}" = "${value}"`);
-            console.log('设置前:',target, receiver);
+            console.log('设置前:', target, receiver);
             return Reflect.set(target, prop, value, receiver);
         },
     };
@@ -29,10 +29,9 @@ namespace TestProxy {
     const proxy = new Proxy(target, handler);
 
     // 访问属性
-    console.log(proxy.name); // 输出: Getting property "name" 然后是 Alice
+    // console.log(proxy.name); // 输出: Getting property "name" 然后是 Alice
 
     // 设置属性
-    proxy.age = 31; // 输出: Setting property "age" to "31"
-    proxy.arr[2] = 10;
-    console.log(target);
+    target.age = 31; // 输出: Setting property "age" to "31"
+    target.arr[2] = 10;
 }

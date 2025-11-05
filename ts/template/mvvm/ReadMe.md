@@ -49,3 +49,37 @@
 
 -   监听路径
 -   执行路径回调
+
+## 从 tnt.framework 中学习到的
+
+从 TNT 中学习框架
+
+```typescript
+// 数据劫持
+vm.observe(userData, 'userData');
+
+//cocos组件
+// 自定义绑定监听
+vm.bind(this, this.node.uiOpacity, 'userData.level', (opts) => {
+    return opts.newValue > 3 ? 255 : 126;
+});
+
+// 绑定节点
+vm.node(this, node, {
+    angle: {
+        watchPath: 'userData.level',
+        formatter: (opts) => {
+            return opts.newValue;
+        },
+    },
+});
+
+// 绑定label文字
+vm.label(this, this.levelLabel, 'userData.level');
+
+// 解除数据劫持
+vm.violate('userData');
+
+//解除绑定
+vm.unbind(this.node);
+```
