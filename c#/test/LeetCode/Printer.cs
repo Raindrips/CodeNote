@@ -17,10 +17,12 @@ namespace LeetCode
             switch (data)
             {
                 case Array array:
+                    Console.Write("[");
                     foreach (var item in array)
                     {
-                        Console.WriteLine($"- {item}");
+                        Console.Write($"{item},");
                     }
+                    Console.WriteLine("]");
                     break;
 
                 case IDictionary dict:
@@ -46,7 +48,7 @@ namespace LeetCode
             Console.WriteLine("]");
         }
 
-        public static void PrintDictionary<TKey, TValue>(Dictionary<TKey, TValue> dict)
+        public static void PrintDictionary<TKey, TValue>(IDictionary<TKey, TValue> dict)
         {
             foreach (var kvp in dict)
             {
@@ -73,13 +75,15 @@ namespace LeetCode
             string typeName = t.Name;
 
             // 防止循环引用
-            if (!t.IsValueType && visited.Contains(obj))
+            if (!t.IsValueType&&t.Name!="String")
             {
-                sb.AppendLine($"{indentStr}{name}: <circular reference to {typeName}>");
-                return sb.ToString();
+                if (visited.Contains(obj))
+                {
+                    sb.AppendLine($"{indentStr}{name}: <circular reference to {typeName}>");
+                    return sb.ToString();
+                }
+                visited.Add(obj);
             }
-            if (!t.IsValueType) visited.Add(obj);
-
             // 基本类型
             if (obj is string or ValueType)
             {
