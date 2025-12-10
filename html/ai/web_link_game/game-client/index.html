@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多人在线游戏客户端</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="gameHeader">
+            <h1>多人在线游戏</h1>
+            <div id="connectionStatus" class="status-disconnected">未连接</div>
+            <div id="playerCount">在线玩家: 0</div>
+        </div>
+        
+        <div id="gameArea">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+            <div id="gameUI">
+                <div id="playerInfo">
+                    <h3>玩家信息</h3>
+                    <div id="currentPlayer">
+                        <div class="player-avatar" id="myAvatar">😊</div>
+                        <div class="player-name" id="myName">玩家</div>
+                        <div class="player-position" id="myPosition">位置: (0, 0)</div>
+                    </div>
+                </div>
+                
+                <div id="controls">
+                    <h3>控制说明</h3>
+                    <div class="control-item">
+                        <span class="key">↑</span> 向上移动
+                    </div>
+                    <div class="control-item">
+                        <span class="key">↓</span> 向下移动
+                    </div>
+                    <div class="control-item">
+                        <span class="key">←</span> 向左移动
+                    </div>
+                    <div class="control-item">
+                        <span class="key">→</span> 向右移动
+                    </div>
+                </div>
+                
+                <div id="connectionPanel">
+                    <h3>连接设置</h3>
+                    <input type="text" id="playerNameInput" placeholder="输入玩家名称" maxlength="10">
+                    <input type="text" id="serverUrlInput" placeholder="服务器地址" value="ws://localhost:8080">
+                    <button id="connectBtn">连接服务器</button>
+                    <button id="disconnectBtn" disabled>断开连接</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="gameFooter">
+            <div id="messageLog">
+                <h4>游戏日志</h4>
+                <div id="messages"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="game-renderer.js"></script>
+    <script src="game-network.js"></script>
+    <script src="game-controls.js"></script>
+    <script src="game-main.js"></script>
+</body>
+</html>

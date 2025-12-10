@@ -1,0 +1,20 @@
+{
+  "name": "multiplayer-game-server",
+  "version": "1.0.0",
+  "description": "支持100位用户的多人游戏服务端",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "ws": "^8.14.2",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "keywords": ["websocket", "multiplayer", "game", "server"],
+  "author": "尹云剑",
+  "license": "MIT"
+}

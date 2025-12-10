@@ -3,7 +3,7 @@ import make_bitmap_font
 
 """
 用法示例:
-python make_bitmap_font.py --input ./chars --font-name MyBitmap --font-size 48 --line-height 56 --max-width 1024
+python main.py --input ./chars --font-name MyBitmap --font-size 48 --line-height 56 --max-width 1024
 
 映射文件 mapping.txt (可选) 格式:
 # 注释行以 # 开头
@@ -29,9 +29,9 @@ def arg_main():
         default=32,
         help="font size (meta, not影响图像大小)",
     )
-    p.add_argument(
-        "--line-height", "-l", type=int, default=36, help="lineHeight 写入 .fnt"
-    )
+    # p.add_argument(
+    #     "--line-height", "-l", type=int, default=36, help="lineHeight 写入 .fnt"
+    # )
     p.add_argument(
         "--max-width", "-w", type=int, default=0, help="atlas 最大宽度，0 表示自动"
     )
@@ -47,7 +47,7 @@ def arg_main():
         args.input,
         args.font_name,
         args.font_size,
-        args.line_height,
+        args.font_size,   
         args.max_width,
         args.padding,
         args.mapping if args.mapping else None,

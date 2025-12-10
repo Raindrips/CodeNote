@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多人游戏客户端演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        input, button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status.connected {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .game-area {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .player-list {
+            flex: 1;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 4px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .movement-controls {
+            flex: 2;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .chat-area {
+            flex: 2;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .chat-messages {
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+        }
+        .message {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .message.system {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+        .message.chat {
+            background-color: #f5f5f5;
+        }
+        .message.error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .movement-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .log {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .log-content {
+            height: 150px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .position-display {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #e8f5e8;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>多人游戏客户端演示</h1>
+            <p>WebSocket 连接测试和基础功能演示</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label>服务器地址:</label>
+                <input type="text" id="serverUrl" value="ws://localhost:8080" placeholder="ws://localhost:8080">
+            </div>
+            <div class="control-group">
+                <label>用户名:</label>
+                <input type="text" id="username" placeholder="输入用户名">
+            </div>
+            <div class="control-group">
+                <label>&nbsp;</label>
+                <button id="connectBtn">连接服务器</button>
+            </div>
+            <div class="control-group">
+                <label>&nbsp;</label>
+                <button id="disconnectBtn" disabled>断开连接</button>
+            </div>
+        </div>
+
+        <div id="status" class="status disconnected">未连接</div>
+
+        <div class="game-area">
+            <div class="player-list">
+                <h3>在线玩家</h3>
+                <div id="playersList">暂无玩家</div>
+            </div>
+
+            <div class="movement-controls">
+                <h3>移动控制</h3>
+                <div class="movement-grid">
+                    <div></div>
+                    <button id="moveForward">↑ 前进</button>
+                    <div></div>
+                    <button id="moveLeft">← 左移</button>
+                    <button id="moveStop">停止</button>
+                    <button id="moveRight">右移 →</button>
+                    <div></div>
+                    <button id="moveBackward">↓ 后退</button>
+                    <div></div>
+                </div>
+                <div class="position-display">
+                    <strong>当前位置:</strong><br>
+                    X: <span id="posX">0</span>, 
+                    Y: <span id="posY">0</span>, 
+                    Z: <span id="posZ">0
+                </div>
+            </div>
+
+            <div class="chat-area">
+                <h3>聊天室</h3>
+                <div id="chatMessages" class="chat-messages"></div>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="chatInput" placeholder="输入消息..." style="flex: 1;">
+                    <button id="sendChatBtn">发送</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="log">
+            <h3>连接日志</h3>
+            <div id="logContent" class="log-content">等待连接...</div>
+        </div>
+    </div>
+
+    <script>
+        class GameClient {
+            constructor() {
+                this.ws = null;
+                this.isConnected = false;
+                this.isLoggedIn = false;
+                this.userId = null;
+                this.username = null;
+                this.position = { x: 0, y: 0, z: 0 };
+                this.players = new Map();
+                this.lastActivity = Date.now();
+                
+                this.initializeUI();
+                this.startHeartbeat();
+            }
+
+            initializeUI() {
+                document.getElementById('connectBtn').addEventListener('click', () => this.connect());
+                document.getElementById('disconnectBtn').addEventListener('click', () => this.disconnect());
+                document.getElementById('sendChatBtn').addEventListener('click', () => this.sendChat());
+                document.getElementById('chatInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.sendChat();
+                });
+
+                // 移动控制
+                document.getElementById('moveForward').addEventListener('click', () => this.move(0, 0, 1));
+                document.getElementById('moveBackward').addEventListener('click', () => this.move(0, 0, -1));
+                document.getElementById('moveLeft').addEventListener('click', () => this.move(-1, 0, 0));
+                document.getElementById('moveRight').addEventListener('click', () => this.move(1, 0, 0));
+                document.getElementById('moveStop').addEventListener('click', () => this.move(0, 0, 0));
+            }
+
+            connect() {
+                const serverUrl = document.getElementById('serverUrl').value;
+                const username = document.getElementById('username').value.trim();
+
+                if (!username) {
+                    alert('请输入用户名');
+                    return;
+                }
+
+                this.log(`正在连接到 ${serverUrl}...`);
+                
+                try {
+                    this.ws = new WebSocket(serverUrl);
+                    this.setupWebSocketHandlers(username);
+                } catch (error) {
+                    this.log(`连接失败: ${error.message}`, 'error');
+                }
+            }
+
+            setupWebSocketHandlers(username) {
+                this.ws.onopen = () => {
+                    this.isConnected = true;
+                    this.updateStatus('已连接', 'connected');
+                    this.log('WebSocket 连接成功');
+                    
+                    document.getElementById('connectBtn').disabled = true;
+                    document.getElementById('disconnectBtn').disabled = false;
+                };
+
+                this.ws.onmessage = (event) => {
+                    try {
+                        const message = JSON.parse(event.data);
+                        this.handleMessage(message);
+                    } catch (error) {
+                        this.log(`消息解析错误: ${error.message}`, 'error');
+                    }
+                };
+
+                this.ws.onclose = () => {
+                    this.isConnected = false;
+                    this.isLoggedIn = false;
+                    this.updateStatus('已断开', 'disconnected');
+                    this.log('WebSocket 连接已断开');
+                    
+                    document.getElementById('connectBtn').disabled = false;
+                    document.getElementById('disconnectBtn').disabled = true;
+                    
+                    this.players.clear();
+                    this.updatePlayersList();
+                };
+
+                this.ws.onerror = (error) => {
+                    this.log(`WebSocket 错误: ${error.message || '未知错误'}`, 'error');
+                };
+
+                this.username = username;
+            }
+
+            handleMessage(message) {
+                this.log(`收到消息: ${message.type}`, 'system');
+
+                switch (message.type) {
+                    case 'connected':
+                        this.userId = message.userId;
+                        this.sendLogin();
+                        break;
+                    
+                    case 'login_success':
+                        this.isLoggedIn = true;
+                        this.userId = message.userId;
+                        this.log(`登录成功: ${message.username}`, 'system');
+                        this.addChatMessage('系统', `欢迎 ${message.username} 加入游戏！`);
+                        break;
+                    
+                    case 'user_joined':
+                        this.players.set(message.user.id, message.user);
+                        this.updatePlayersList();
+                        this.addChatMessage('系统', `${message.user.username} 加入了游戏`);
+                        break;
+                    
+                    case 'user_left':
+                        this.players.delete(message.userId);
+                        this.updatePlayersList();
+                        this.addChatMessage('系统', `${message.username} 离开了游戏`);
+                        break;
+                    
+                    case 'user_moved':
+                        const player = this.players.get(message.userId);
+                        if (player) {
+                            player.position = message.position;
+                            if (message.userId === this.userId) {
+                                this.updatePositionDisplay();
+                            }
+                        }
+                        break;
+                    
+                    case 'chat_message':
+                        this.addChatMessage(message.username, message.message);
+                        break;
+                    
+                    case 'error':
+                        this.log(`错误: ${message.message}`, 'error');
+                        alert(`错误: ${message.message}`);
+                        break;
+                    
+                    case 'heartbeat_response':
+                        // 心跳响应，不需要处理
+                        break;
+                    
+                    default:
+                        this.log(`未知消息类型: ${message.type}`);
+                }
+            }
+
+            sendLogin() {
+                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                    this.sendMessage({
+                        type: 'login',
+                        data: { username: this.username }
+                    });
+                }
+            }
+
+            move(deltaX, deltaY, deltaZ) {
+                if (!this.isLoggedIn) {
+                    alert('请先登录');
+                    return;
+                }
+
+                this.position.x += deltaX;
+                this.position.y += deltaY;
+                this.position.z += deltaZ;
+
+                this.sendMessage({
+                    type: 'move',
+                    data: { position: this.position }
+                });
+
+                this.updatePositionDisplay();
+            }
+
+            sendChat() {
+                if (!this.isLoggedIn) {
+                    alert('请先登录');
+                    return;
+                }
+
+                const input = document.getElementById('chatInput');
+                const message = input.value.trim();
+
+                if (!message) {
+                    alert('请输入消息');
+                    return;
+                }
+
+                this.sendMessage({
+                    type: 'chat',
+                    data: { message: message }
+                });
+
+                input.value = '';
+            }
+
+            sendMessage(message) {
+                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                    this.ws.send(JSON.stringify(message));
+                }
+            }
+
+            startHeartbeat() {
+                setInterval(() => {
+                    if (this.isConnected && this.isLoggedIn) {
+                        this.sendMessage({ type: 'heartbeat', data: {} });
+                    }
+                }, 30000); // 30秒心跳
+            }
+
+            updateStatus(text, className) {
+                const status = document.getElementById('status');
+                status.textContent = text;
+                status.className = `status ${className}`;
+            }
+
+            updatePositionDisplay() {
+                document.getElementById('posX').textContent = this.position.x.toFixed(1);
+                document.getElementById('posY').textContent = this.position.y.toFixed(1);
+                document.getElementById('posZ').textContent = this.position.z.toFixed(1);
+            }
+
+            updatePlayersList() {
+                const playersList = document.getElementById('playersList');
+                
+                if (this.players.size === 0) {
+                    playersList.innerHTML = '暂无玩家';
+                    return;
+                }
+
+                let html = '';
+                this.players.forEach(player => {
+                    html += `<div>${player.username} (${player.id.substring(0, 8)}...)</div>`;
+                });
+                
+                playersList.innerHTML = html;
+            }
+
+            addChatMessage(sender, message) {
+                const chatMessages = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message chat';
+                messageDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            log(message, type = 'info') {
+                const logContent = document.getElementById('logContent');
+                const timestamp = new Date().toLocaleTimeString();
+                const logEntry = document.createElement('div');
+                logEntry.className = type;
+                logEntry.textContent = `[${timestamp}] ${message}`;
+                
+                logContent.appendChild(logEntry);
+                logContent.scrollTop = logContent.scrollHeight;
+            }
+
+            disconnect() {
+                if (this.ws) {
+                    this.ws.close();
+                }
+            }
+        }
+
+        // 初始化客户端
+        const client = new GameClient();
+    </script>
+</body>
+</html>

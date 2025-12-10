@@ -1,0 +1,482 @@
+以下是生成的类银河恶魔城地图生成器HTML文件内容:
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>类银河恶魔城地图生成器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 800px;
+            max-width: 100%;
+        }
+
+        .toolbox {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tool-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .tool-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .tool-btn.active {
+            border-color: #333;
+            box-shadow: 0 0 0 2px #666;
+        }
+
+        #brush-0 {
+            background-color: #333;
+        }
+
+        #brush-1 {
+            background-color: #4a90e2;
+        }
+
+        #brush-2 {
+            background-color: #e74c3c;
+        }
+
+        #brush-3 {
+            background-color: #f1c40f;
+        }
+
+        #brush-4 {
+            background-color: #2ecc71;
+        }
+
+        .map-container {
+            position: relative;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        #mapCanvas {
+            border: 1px solid #ddd;
+        }
+
+        .status {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button#clearBtn {
+            background-color: #f44336;
+        }
+
+        button#clearBtn:hover {
+            background-color: #d32f2f;
+        }
+
+        button#randomBtn {
+            background-color: #2196F3;
+        }
+
+        button#randomBtn:hover {
+            background-color: #1976D2;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>类银河恶魔城地图生成器</h1>
+        <div class="controls">
+            <div class="toolbox">
+                <div title="不可通行区域 (0)" class="tool-btn active" id="brush-0"></div>
+                <div title="可通行区域 - 蓝色 (1)" class="tool-btn" id="brush-1"></div>
+                <div title="可通行区域 - 红色 (2)" class="tool-btn" id="brush-2"></div>
+                <div title="可通行区域 - 黄色 (3)" class="tool-btn" id="brush-3"></div>
+                <div title="可通行区域 - 绿色 (4)" class="tool-btn" id="brush-4"></div>
+            </div>
+            <div class="actions">
+                <button id="clearBtn">清空地图</button>
+                <button id="randomBtn">随机生成</button>
+                <button id="saveBtn">保存地图</button>
+            </div>
+        </div>
+        <div class="map-container">
+            <canvas id="mapCanvas"></canvas>
+        </div>
+        <div class="status">
+            <span id="mousePos">位置: (-, -)</span> |
+            <span id="currentTool">当前工具: 不可通行区域 (0)</span>
+        </div>
+    </div>
+
+    <script>
+        // 配置
+        const BLOCK_SIZE = 40;
+        const MAP_WIDTH = 20;  // 方块数量
+        const MAP_HEIGHT = 15; // 方块数量
+        const DEFAULT_BRUSH = 1;
+
+        // 颜色映射
+        const COLOR_MAP = {
+            0: '#333333',  // 不可通行区域 - 深灰色
+            1: '#4a90e2',  // 蓝色区域
+            2: '#e74c3c',  // 红色区域
+            3: '#f1c40f',  // 黄色区域
+            4: '#2ecc71'   // 绿色区域
+        };
+
+        // 初始化地图数据
+        let mapData = Array(MAP_HEIGHT).fill().map(() => Array(MAP_WIDTH).fill(0));
+        let currentBrush = DEFAULT_BRUSH;
+        let isDrawing = false;
+        let canvas, ctx;
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', init);
+
+        function init() {
+            // 获取Canvas元素
+            canvas = document.getElementById('mapCanvas');
+            ctx = canvas.getContext('2d');
+
+            // 设置Canvas尺寸
+            canvas.width = MAP_WIDTH * BLOCK_SIZE;
+            canvas.height = MAP_HEIGHT * BLOCK_SIZE;
+
+            // 创建默认地图
+            createDefaultMap();
+
+            // 渲染地图
+            renderMap();
+
+            // 添加事件监听器
+            setupEventListeners();
+        }
+
+        // 创建默认地图
+        function createDefaultMap() {
+            // 边界设为不可通行
+            for (let y = 0; y < MAP_HEIGHT; y++)
+            {
+                for (let x = 0; x < MAP_WIDTH; x++)
+                {
+                    // 边缘设置为不可通行
+                    if (x === 0 || x === MAP_WIDTH - 1 || y === 0 || y === MAP_HEIGHT - 1)
+                    {
+                        mapData[y][x] = 0;
+                    } else
+                    {
+                        // 内部随机生成一些可通行区域
+                        mapData[y][x] = Math.random() > 0.3 ? 1 : 0;
+                    }
+                }
+            }
+
+            // 添加一些不同颜色的区域作为示例
+            for (let i = 0; i < 5; i++)
+            {
+                const x = Math.floor(Math.random() * (MAP_WIDTH - 4)) + 2;
+                const y = Math.floor(Math.random() * (MAP_HEIGHT - 4)) + 2;
+                const size = Math.floor(Math.random() * 3) + 2;
+                const type = Math.floor(Math.random() * 4) + 1;
+
+                for (let dy = 0; dy < size; dy++)
+                {
+                    for (let dx = 0; dx < size; dx++)
+                    {
+                        if (x + dx < MAP_WIDTH - 1 && y + dy < MAP_HEIGHT - 1)
+                        {
+                            mapData[y + dy][x + dx] = type;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 渲染地图
+        function renderMap() {
+            // 清空画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 绘制每个方块
+            for (let y = 0; y < MAP_HEIGHT; y++)
+            {
+                for (let x = 0; x < MAP_WIDTH; x++)
+                {
+                    const cellValue = mapData[y][x];
+                    const color = COLOR_MAP[cellValue] || COLOR_MAP[0];
+
+                    // 绘制方块
+                    ctx.fillStyle = color;
+                    ctx.fillRect(
+                        x * BLOCK_SIZE,
+                        y * BLOCK_SIZE,
+                        BLOCK_SIZE,
+                        BLOCK_SIZE
+                    );
+
+                    // 绘制边框 - 只在相邻方块不可通行时绘制
+                    drawBorders(x, y);
+                }
+            }
+        }
+
+        // 绘制方块边框
+        function drawBorders(x, y) {
+            const cellValue = mapData[y][x];
+            ctx.strokeStyle = '#222';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+
+            // 检查上方方块
+            if (y === 0 || mapData[y - 1][x] === 0)
+            {
+                ctx.moveTo(x * BLOCK_SIZE, y * BLOCK_SIZE);
+                ctx.lineTo((x + 1) * BLOCK_SIZE, y * BLOCK_SIZE);
+            }
+
+            // 检查右方方块
+            if (x === MAP_WIDTH - 1 || mapData[y][x + 1] === 0)
+            {
+                ctx.moveTo((x + 1) * BLOCK_SIZE, y * BLOCK_SIZE);
+                ctx.lineTo((x + 1) * BLOCK_SIZE, (y + 1) * BLOCK_SIZE);
+            }
+
+            // 检查下方方块
+            if (y === MAP_HEIGHT - 1 || mapData[y + 1][x] === 0)
+            {
+                ctx.moveTo((x + 1) * BLOCK_SIZE, (y + 1) * BLOCK_SIZE);
+                ctx.lineTo(x * BLOCK_SIZE, (y + 1) * BLOCK_SIZE);
+            }
+
+            // 检查左方方块
+            if (x === 0 || mapData[y][x - 1] === 0)
+            {
+                ctx.moveTo(x * BLOCK_SIZE, (y + 1) * BLOCK_SIZE);
+                ctx.lineTo(x * BLOCK_SIZE, y * BLOCK_SIZE);
+            }
+
+            ctx.stroke();
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 工具选择
+            document.querySelectorAll('.tool-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // 移除所有active类
+                    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+                    // 添加active类到当前按钮
+                    btn.classList.add('active');
+                    // 更新当前画笔
+                    currentBrush = parseInt(btn.id.split('-')[1]);
+                    // 更新状态
+                    document.getElementById('currentTool').textContent =
+                        '当前工具: ' + (currentBrush === 0 ? '不可通行区域' :
+                            '可通行区域 - ' + getColorName(currentBrush)) + ' (' + currentBrush + ')';
+                });
+            });
+
+            // 默认激活第一个工具
+            document.getElementById('brush-' + DEFAULT_BRUSH).classList.add('active');
+
+            // 鼠标按下事件
+            canvas.addEventListener('mousedown', startDrawing);
+
+            // 鼠标移动事件
+            canvas.addEventListener('mousemove', handleMouseMove);
+
+            // 鼠标释放事件
+            canvas.addEventListener('mouseup', stopDrawing);
+
+            // 鼠标离开画布事件
+            canvas.addEventListener('mouseout', stopDrawing);
+
+            // 清空按钮
+            document.getElementById('clearBtn').addEventListener('click', clearMap);
+
+            // 随机生成按钮
+            document.getElementById('randomBtn').addEventListener('click', generateRandomMap);
+
+            // 保存按钮
+            document.getElementById('saveBtn').addEventListener('click', saveMap);
+        }
+
+        // 获取颜色名称
+        function getColorName(brushType) {
+            switch (brushType)
+            {
+                case 1: return '蓝色';
+                case 2: return '红色';
+                case 3: return '黄色';
+                case 4: return '绿色';
+                default: return '未知';
+            }
+        }
+
+        // 开始绘制
+        function startDrawing(e) {
+            isDrawing = true;
+            drawAtMousePosition(e);
+        }
+
+        // 停止绘制
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        // 处理鼠标移动
+        function handleMouseMove(e) {
+            // 获取鼠标在Canvas上的位置
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / BLOCK_SIZE);
+            const y = Math.floor((e.clientY - rect.top) / BLOCK_SIZE);
+
+            // 更新状态
+            document.getElementById('mousePos').textContent = '位置: (' + x + ', ' + y + ')';
+
+            // 如果正在绘制，在当前位置绘制
+            if (isDrawing && x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT)
+            {
+                drawAtMousePosition(e);
+            }
+        }
+
+        // 在鼠标位置绘制
+        function drawAtMousePosition(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / BLOCK_SIZE);
+            const y = Math.floor((e.clientY - rect.top) / BLOCK_SIZE);
+
+            // 检查坐标是否有效
+            if (x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT)
+            {
+                // 更新地图数据
+                if (mapData[y][x] !== currentBrush)
+                {
+                    mapData[y][x] = currentBrush;
+                    // 重新渲染地图
+                    renderMap();
+                }
+            }
+        }
+
+        // 清空地图
+        function clearMap() {
+            if (confirm('确定要清空整个地图吗？'))
+            {
+                for (let y = 0; y < MAP_HEIGHT; y++)
+                {
+                    for (let x = 0; x < MAP_WIDTH; x++)
+                    {
+                        mapData[y][x] = 0;
+                    }
+                }
+                renderMap();
+            }
+        }
+
+        // 随机生成地图
+        function generateRandomMap() {
+            for (let y = 0; y < MAP_HEIGHT; y++)
+            {
+                for (let x = 0; x < MAP_WIDTH; x++)
+                {
+                    // 边界保持不可通行
+                    if (x === 0 || x === MAP_WIDTH - 1 || y === 0 || y === MAP_HEIGHT - 1)
+                    {
+                        mapData[y][x] = 0;
+                    } else
+                    {
+                        // 70%概率生成可通行区域
+                        if (Math.random() < 0.7)
+                        {
+                            // 随机选择1-4的可通行类型
+                            mapData[y][x] = Math.floor(Math.random() * 4) + 1;
+                        } else
+                        {
+                            mapData[y][x] = 0;
+                        }
+                    }
+                }
+            }
+            renderMap();
+        }
+
+        // 保存地图
+        function saveMap() {
+            // 创建地图数据字符串
+            let mapStr = '[';
+            for (let y = 0; y < MAP_HEIGHT; y++)
+            {
+                mapStr += ' [' + mapData[y].join(',') + ']' + (y < MAP_HEIGHT - 1 ? ',' : '');
+            }
+            mapStr += ']';
+
+            // 创建一个Blob并下载
+            const blob = new Blob([mapStr], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'galaxy_map_' + new Date().toISOString().slice(0, 10) + '.txt';
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
+    </script>
+</body>
+<p hidden>
+    已生成类银河恶魔城地图生成器HTML文件，包含以下功能：
+    1. 使用Canvas绘制地图，0表示不可通行区域(深灰色)，1-4表示不同颜色的可通行区域
+    2. 自动生成边框，仅在相邻方块为不可通行区域时显示
+    3. 完整的地图编辑功能，支持选择不同工具绘制地图
+    4. 随机生成地图和清空地图功能
+    5. 地图数据导出功能
+</p>
+
+</html>

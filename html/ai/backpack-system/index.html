@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎒 冒险者背包系统</title>
+    
+    <!-- 字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 样式 -->
+    <link rel="stylesheet" href="./css/backpack.css">
+    
+    <!-- 图标 -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎒</text></svg>">
+    
+    <!-- 元信息 -->
+    <meta name="description" content="功能完善的背包系统，支持物品管理、拖拽操作、堆叠功能等">
+    <meta name="keywords" content="背包系统,游戏开发,物品管理,拖拽操作">
+    
+    <!-- 主题色 -->
+    <meta name="theme-color" content="#6363e6">
+    
+    <!-- PWA 支持 -->
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoi5bCR5q2l5L2T5aix5Z6L6Iqx5ZCrIiwic2hvcnRfbmFtZSI6IuaViOeOh++8jOaViOeOh++8jOaViOeOh+S4reW/gyIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMGYxNzJhIiwidGhlbWVfY29sb3IiOiIjNjM2M2U2In0=">
+    
+    <style>
+        /* 加载动画 */
+        .app-loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(99, 99, 230, 0.3);
+            border-top: 4px solid #6363e6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 2rem;
+        }
+        
+        .loading-text {
+            color: #94a3b8;
+            font-size: 1.2rem;
+            font-weight: 300;
+            text-align: center;
+        }
+        
+        .loading-subtext {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .app-loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 加载界面 -->
+    <div class="app-loading" id="app-loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">正在加载背包系统...</div>
+        <div class="loading-subtext">初始化物品数据 • 配置界面 • 准备就绪</div>
+    </div>
+    
+    <!-- 主要内容区域 -->
+    <div id="app"></div>
+    
+    <!-- 错误提示 -->
+    <div id="error-container" style="display: none; position: fixed; top: 20px; right: 20px; background: #ef4444; color: white; padding: 1rem; border-radius: 8px; z-index: 10000;"></div>
+    
+    <!-- 主脚本 -->
+    <script type="module" src="./js/main.js"></script>
+    
+    <!-- 初始化脚本 -->
+    <script>
+        // 全局错误处理
+        window.addEventListener('error', (e) => {
+            console.error('全局错误:', e.error);
+            showError('系统错误: ' + e.message);
+        });
+        
+        window.addEventListener('unhandledrejection', (e) => {
+            console.error('未处理的Promise拒绝:', e.reason);
+            showError('系统错误: ' + e.reason);
+        });
+        
+        function showError(message) {
+            const errorContainer = document.getElementById('error-container');
+            errorContainer.textContent = message;
+            errorContainer.style.display = 'block';
+            
+            setTimeout(() => {
+                errorContainer.style.display = 'none';
+            }, 5000);
+        }
+        
+        // 等待系统初始化完成
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const loading = document.getElementById('app-loading');
+                loading.classList.add('hidden');
+                
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                }, 500);
+            }, 1500);
+        });
+        
+        // 控制台欢迎信息
+        console.log(`
+        🎒 冒险者背包系统 v1.0.0
+        
+        欢迎使用背包系统！
+        
+        📝 可用命令:
+        • window.BackpackSystem - 访问背包系统主实例
+        • addItem(itemId, quantity) - 添加物品
+        • clearBackpack() - 清空背包
+        • saveBackpack() - 保存数据
+        • loadBackpack() - 加载数据
+        • getBackpackStatus() - 获取系统状态
+        
+        🔧 开发者工具:
+        • 拖拽物品进行移动和堆叠
+        • 右键点击物品查看操作菜单
+        • 使用工具栏进行排序和扩展
+        • 快捷工具栏快速添加常用物品
+        
+        💡 提示:
+        • 同类物品会自动堆叠
+        • 拖拽物品可以交换位置
+        • 消耗品可以右键使用
+        • 数据会自动保存到本地存储
+        `);
+    </script>
+</body>
+</html>

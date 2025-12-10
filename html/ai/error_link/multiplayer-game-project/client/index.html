@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多人游戏客户端</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .game-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .game-header {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 15px 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .game-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            margin-bottom: 5px;
+        }
+        
+        .game-status {
+            font-size: 14px;
+            color: #a0d1ff;
+            text-align: center;
+        }
+        
+        .game-canvas {
+            border: 3px solid rgba(255, 255, 255, 0.6);
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.2);
+        }
+        
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 10px 20px;
+            color: #ffffff;
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        .connection-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .connected {
+            background: rgba(34, 197, 94, 0.8);
+            color: #ffffff;
+            border: 1px solid rgba(34, 197, 94, 0.5);
+        }
+        
+        .disconnected {
+            background: rgba(239, 68, 68, 0.8);
+            color: #ffffff;
+            border: 1px solid rgba(239, 68, 68, 0.5);
+        }
+        
+        .player-count {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 8px 16px;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        .loading-text {
+            font-size: 18px;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 20px;
+            }
+            
+            .controls {
+                font-size: 10px;
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">正在连接游戏服务器...</div>
+    </div>
+    
+    <div class="game-container" id="gameContainer" style="display: none;">
+        <div class="game-header">
+            <div class="game-title">多人游戏客户端</div>
+            <div class="game-status" id="gameStatus">使用 WASD 或方向键移动</div>
+        </div>
+        
+        <div class="player-count" id="playerCount">在线玩家: 0</div>
+        
+        <div class="connection-status disconnected" id="connectionStatus">未连接</div>
+        
+        <canvas id="gameCanvas" class="game-canvas" width="1200" height="800"></canvas>
+        
+        <div class="controls">
+            移动: WASD 或方向键 | 当前位置: <span id="positionDisplay">X: 0, Y: 0</span>
+        </div>
+    </div>
+    
+    <script type="module">
+        // 游戏主类
+        class MultiplayerGame {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.players = new Map();
+                this.myPlayerId = null;
+                this.ws = null;
+                this.reconnectTimeout = null;
+                this.animationId = null;
+                
+                // 游戏配置
+                this.config = {
+                    wsUrl: 'ws://localhost:3000',
+                    reconnectInterval: 3000,
+                    maxReconnectAttempts: 5,
+                    avatarSize: 40,
+                    playerSpeed: 3,
+                    colors: {
+                        myPlayer: '#FFD700',
+                        otherPlayer: '#4CAF50',
+                        nameText: '#FFFFFF',
+                        highlight: '#FFD700'
+                    }
+                };
+                
+                // 键盘状态
+                this.keys = {
+                    w: false, a: false, s: false, d: false,
+                    ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false
+                };
+                
+                this.init();
+            }
+            
+            init() {
+                this.setupCanvas();
+                this.setupKeyboardControls();
+                this.connectWebSocket();
+                this.startGameLoop();
+                this.hideLoadingScreen();
+            }
+            
+            setupCanvas() {
+                // 响应式Canvas尺寸
+                const resizeCanvas = () => {
+                    const container = this.canvas.parentElement;
+                    const maxWidth = Math.min(window.innerWidth - 40, 1200);
+                    const maxHeight = Math.min(window.innerHeight - 200, 800);
+                    
+                    this.canvas.width = maxWidth;
+                    this.canvas.height = maxHeight;
+                    this.canvas.style.width = maxWidth + 'px';
+                    this.canvas.style.height = maxHeight + 'px';
+                };
+                
+                resizeCanvas();
+                window.addEventListener('resize', resizeCanvas);
+            }
+            
+            setupKeyboardControls() {
+                document.addEventListener('keydown', (e) => {
+                    if (this.keys.hasOwnProperty(e.key)) {
+                        this.keys[e.key] = true;
+                        e.preventDefault();
+                    }
+                });
+                
+                document.addEventListener('keyup', (e) => {
+                    if (this.keys.hasOwnProperty(e.key)) {
+                        this.keys[e.key] = false;
+                        e.preventDefault();
+                    }
+                });
+            }
+            
+            connectWebSocket() {
+                try {
+                    this.ws = new WebSocket(this.config.wsUrl);
+                    
+                    this.ws.onopen = () => {
+                        console.log('WebSocket连接成功');
+                        this.updateConnectionStatus('connected');
+                        this.sendLoginMessage();
+                    };
+                    
+                    this.ws.onmessage = (event) => {
+                        try {
+                            const data = JSON.parse(event.data);
+                            this.handleServerMessage(data);
+                        } catch (error) {
+                            console.error('消息解析错误:', error);
+                        }
+                    };
+                    
+                    this.ws.onclose = () => {
+                        console.log('WebSocket连接关闭');
+                        this.updateConnectionStatus('disconnected');
+                        this.scheduleReconnect();
+                    };
+                    
+                    this.ws.onerror = (error) => {
+                        console.error('WebSocket错误:', error);
+                        this.updateConnectionStatus('disconnected');
+                    };
+                    
+                } catch (error) {
+                    console.error('WebSocket连接失败:', error);
+                    this.updateConnectionStatus('disconnected');
+                    this.scheduleReconnect();
+                }
+            }
+            
+            sendLoginMessage() {
+                const username = '玩家' + Math.floor(Math.random() * 1000);
+                this.sendMessage('login', { username: username });
+            }
+            
+            handleServerMessage(data) {
+                switch (data.type) {
+                    case 'connected':
+                        console.log('服务器连接成功:', data.message);
+                        break;
+                    case 'login_success':
+                        this.myPlayerId = data.userId;
+                        console.log('登录成功:', data.username);
+                        break;
+                    case 'user_joined':
+                        this.addPlayer(data.user);
+                        break;
+                    case 'user_left':
+                        this.removePlayer(data.userId);
+                        break;
+                    case 'user_moved':
+                        this.updatePlayerPosition(data.userId, data.position);
+                        break;
+                    case 'chat_message':
+                        console.log('聊天消息:', data.username, ':', data.message);
+                        break;
+                    case 'error':
+                        console.error('服务器错误:', data.message);
+                        break;
+                    default:
+                        console.log('未知消息类型:', data.type);
+                }
+            }
+            
+            sendMessage(type, data) {
+                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                    this.ws.send(JSON.stringify({ type, data }));
+                }
+            }
+            
+            scheduleReconnect() {
+                if (this.reconnectTimeout) {
+                    clearTimeout(this.reconnectTimeout);
+                }
+                
+                this.reconnectTimeout = setTimeout(() => {
+                    console.log('尝试重新连接...');
+                    this.connectWebSocket();
+                }, this.config.reconnectInterval);
+            }
+            
+            addPlayer(user) {
+                this.players.set(user.id, {
+                    id: user.id,
+                    username: user.username,
+                    position: user.position || { x: 0, y: 0, z: 0 },
+                    rotation: user.rotation || { x: 0, y: 0, z: 0 },
+                    avatar: this.generateAvatar(user.id)
+                });
+                this.updatePlayerCount();
+            }
+            
+            removePlayer(userId) {
+                this.players.delete(userId);
+                this.updatePlayerCount();
+            }
+            
+            updatePlayerPosition(userId, position) {
+                const player = this.players.get(userId);
+                if (player) {
+                    player.position = position;
+                }
+            }
+            
+            generateAvatar(playerId) {
+                // 生成基于玩家ID的彩色头像
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 80;
+                canvas.height = 80;
+                
+                // 生成颜色
+                const hash = playerId.split('').reduce((a, b) => {
+                    a = ((a << 5) - a) + b.charCodeAt(0);
+                    return a & a;
+                }, 0);
+                
+                const hue = Math.abs(hash) % 360;
+                const color1 = `hsl(${hue}, 70%, 60%)`;
+                const color2 = `hsl(${(hue + 60) % 360}, 70%, 40%)`;
+                
+                // 绘制渐变背景
+                const gradient = ctx.createRadialGradient(40, 40, 0, 40, 40, 40);
+                gradient.addColorStop(0, color1);
+                gradient.addColorStop(1, color2);
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(40, 40, 38, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 添加装饰性图案
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(40, 40, 30, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                // 添加中心图标
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.font = '24px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('👤', 40, 40);
+                
+                return canvas;
+            }
+            
+            updatePlayerCount() {
+                document.getElementById('playerCount').textContent = `在线玩家: ${this.players.size}`;
+            }
+            
+            updateConnectionStatus(status) {
+                const element = document.getElementById('connectionStatus');
+                element.className = `connection-status ${status}`;
+                element.textContent = status === 'connected' ? '已连接' : '未连接';
+            }
+            
+            handleMovement() {
+                if (!this.myPlayerId) return;
+                
+                const myPlayer = this.players.get(this.myPlayerId);
+                if (!myPlayer) return;
+                
+                let dx = 0, dy = 0;
+                
+                // WASD控制
+                if (this.keys.w || this.keys.W) dy -= this.config.playerSpeed;
+                if (this.keys.s || this.keys.S) dy += this.config.playerSpeed;
+                if (this.keys.a || this.keys.A) dx -= this.config.playerSpeed;
+                if (this.keys.d || this.keys.D) dx += this.config.playerSpeed;
+                
+                // 方向键控制
+                if (this.keys.ArrowUp) dy -= this.config.playerSpeed;
+                if (this.keys.ArrowDown) dy += this.config.playerSpeed;
+                if (this.keys.ArrowLeft) dx -= this.config.playerSpeed;
+                if (this.keys.ArrowRight) dx += this.config.playerSpeed;
+                
+                if (dx !== 0 || dy !== 0) {
+                    // 边界检查
+                    const newX = Math.max(this.config.avatarSize/2, Math.min(this.canvas.width - this.config.avatarSize/2, myPlayer.position.x + dx));
+                    const newY = Math.max(this.config.avatarSize/2, Math.min(this.canvas.height - this.config.avatarSize/2, myPlayer.position.y + dy));
+                    
+                    if (newX !== myPlayer.position.x || newY !== myPlayer.position.y) {
+                        myPlayer.position.x = newX;
+                        myPlayer.position.y = newY;
+                        
+                        // 发送位置更新
+                        this.sendMessage('move', { position: myPlayer.position });
+                        
+                        // 更新位置显示
+                        document.getElementById('positionDisplay').textContent = `X: ${Math.round(newX)}, Y: ${Math.round(newY)}`;
+                    }
+                }
+            }
+            
+            render() {
+                // 清空画布
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // 绘制网格背景
+                this.drawGrid();
+                
+                // 绘制所有玩家
+                this.players.forEach((player, playerId) => {
+                    this.drawPlayer(player, playerId === this.myPlayerId);
+                });
+            }
+            
+            drawGrid() {
+                const gridSize = 50;
+                this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                this.ctx.lineWidth = 1;
+                
+                // 垂直线
+                for (let x = 0; x <= this.canvas.width; x += gridSize) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, 0);
+                    this.ctx.lineTo(x, this.canvas.height);
+                    this.ctx.stroke();
+                }
+                
+                // 水平线
+                for (let y = 0; y <= this.canvas.height; y += gridSize) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, y);
+                    this.ctx.lineTo(this.canvas.width, y);
+                    this.ctx.stroke();
+                }
+            }
+            
+            drawPlayer(player, isMyPlayer) {
+                const x = player.position.x;
+                const y = player.position.y;
+                const size = this.config.avatarSize;
+                
+                // 绘制高亮效果（仅当前玩家）
+                if (isMyPlayer) {
+                    this.ctx.save();
+                    this.ctx.shadowColor = this.config.colors.highlight;
+                    this.ctx.shadowBlur = 20;
+                    this.ctx.beginPath();
+                    this.ctx.arc(x, y, size/2 + 5, 0, Math.PI * 2);
+                    this.ctx.fillStyle = this.config.colors.highlight;
+                    this.ctx.fill();
+                    this.ctx.restore();
+                }
+                
+                // 绘制头像
+                if (player.avatar) {
+                    this.ctx.save();
+                    this.ctx.beginPath();
+                    this.ctx.arc(x, y, size/2, 0, Math.PI * 2);
+                    this.ctx.clip();
+                    this.ctx.drawImage(player.avatar, x - size/2, y - size/2, size, size);
+                    this.ctx.restore();
+                } else {
+                    // 备用圆形绘制
+                    this.ctx.fillStyle = isMyPlayer ? this.config.colors.myPlayer : this.config.colors.otherPlayer;
+                    this.ctx.beginPath();
+                    this.ctx.arc(x, y, size/2, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+                
+                // 绘制边框
+                this.ctx.strokeStyle = isMyPlayer ? this.config.colors.highlight : 'rgba(255, 255, 255, 0.5)';
+                this.ctx.lineWidth = isMyPlayer ? 3 : 2;
+                this.ctx.beginPath();
+                this.ctx.arc(x, y, size/2, 0, Math.PI * 2);
+                this.ctx.stroke();
+                
+                // 绘制玩家名字
+                this.ctx.fillStyle = this.config.colors.nameText;
+                this.ctx.font = '12px Arial';
+                this.ctx.textAlign = 'center';
+                this.ctx.textBaseline = 'top';
+                this.ctx.fillText(player.username || '未知玩家', x, y + size/2 + 8);
+            }
+            
+            gameLoop() {
+                this.handleMovement();
+                this.render();
+                this.animationId = requestAnimationFrame(() => this.gameLoop());
+            }
+            
+            startGameLoop() {
+                this.gameLoop();
+            }
+            
+            hideLoadingScreen() {
+                setTimeout(() => {
+                    const loadingScreen = document.getElementById('loadingScreen');
+                    const gameContainer = document.getElementById('gameContainer');
+                    
+                    loadingScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                        gameContainer.style.display = 'flex';
+                    }, 500);
+                }, 2000);
+            }
+            
+            destroy() {
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                }
+                if (this.ws) {
+                    this.ws.close();
+                }
+                if (this.reconnectTimeout) {
+                    clearTimeout(this.reconnectTimeout);
+                }
+            }
+        }
+        
+        // 启动游戏
+        document.addEventListener('DOMContentLoaded', () => {
+            window.game = new MultiplayerGame();
+        });
+        
+        // 页面卸载时清理资源
+        window.addEventListener('beforeunload', () => {
+            if (window.game) {
+                window.game.destroy();
+            }
+        });
+    </script>
+</body>
+</html>

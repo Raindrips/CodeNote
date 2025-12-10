@@ -1,0 +1,749 @@
+/**
+ * 背包系统样式文件
+ * 现代化的游戏背包界面设计
+ */
+
+/* ===== 基础样式 ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #e2e8f0;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* 背景装饰 */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(99, 99, 230, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(6, 6, 212, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* ===== 应用头部 ===== */
+.app-header {
+    text-align: center;
+    padding: 2rem 1rem;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(99, 99, 230, 0.2);
+    margin-bottom: 2rem;
+}
+
+.app-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #6363e6, #0606d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 20px rgba(99, 99, 230, 0.3);
+}
+
+.app-header p {
+    font-size: 1.1rem;
+    color: #94a3b8;
+    font-weight: 300;
+}
+
+/* ===== 控制面板 ===== */
+.control-panel {
+    max-width: 1200px;
+    margin: 0 auto 2rem;
+    padding: 0 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.control-group {
+    background: rgba(30, 41, 59, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(99, 99, 230, 0.2);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(2, 8, 20, 0.4);
+}
+
+.control-group h3 {
+    color: #6363e6;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.control-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.control-btn {
+    background: linear-gradient(135deg, #6363e6, #0606d4);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(99, 99, 230, 0.3);
+}
+
+.control-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 99, 230, 0.4);
+}
+
+.control-btn:active {
+    transform: translateY(0);
+}
+
+/* 表单控件 */
+.quick-add, .gold-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.item-selector, .quantity-input, .gold-input {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(99, 99, 230, 0.3);
+    border-radius: 8px;
+    padding: 0.5rem;
+    color: #e2e8f0;
+    font-size: 0.9rem;
+}
+
+.item-selector:focus, .quantity-input:focus, .gold-input:focus {
+    outline: none;
+    border-color: #6363e6;
+    box-shadow: 0 0 0 3px rgba(99, 99, 230, 0.2);
+}
+
+/* ===== 背包容器 ===== */
+.backpack-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem 2rem;
+}
+
+/* ===== 背包组件 ===== */
+.backpack-component {
+    background: rgba(30, 41, 59, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(99, 99, 230, 0.2);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 12px 40px rgba(2, 8, 20, 0.5);
+    margin-bottom: 2rem;
+}
+
+/* 背包头部 */
+.backpack-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.backpack-title {
+    font-size: 2rem;
+    color: #6363e6;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.backpack-subtitle {
+    color: #64748b;
+    font-size: 1rem;
+}
+
+/* 工具栏 */
+.backpack-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: rgba(15, 23, 42, 0.4);
+    border-radius: 12px;
+    border: 1px solid rgba(99, 99, 230, 0.1);
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.toolbar-label {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.toolbar-select {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(99, 99, 230, 0.3);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    color: #e2e8f0;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.toolbar-button {
+    background: linear-gradient(135deg, #6363e6, #0606d4);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(99, 99, 230, 0.3);
+}
+
+.toolbar-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 99, 230, 0.4);
+}
+
+/* 背包网格 */
+.backpack-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: rgba(15, 23, 42, 0.3);
+    border-radius: 12px;
+    border: 1px solid rgba(99, 99, 230, 0.1);
+}
+
+/* 背包格子 */
+.backpack-slot {
+    aspect-ratio: 1;
+    background: rgba(15, 23, 42, 0.6);
+    border: 2px solid rgba(99, 99, 230, 0.2);
+    border-radius: 12px;
+    position: relative;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.backpack-slot:hover {
+    border-color: #6363e6;
+    box-shadow: 0 0 20px rgba(99, 99, 230, 0.3);
+    transform: translateY(-2px);
+}
+
+.backpack-slot.slot-empty {
+    border-style: dashed;
+    border-color: rgba(99, 99, 230, 0.1);
+}
+
+.backpack-slot.slot-locked {
+    background: rgba(15, 23, 42, 0.8);
+    border-color: rgba(148, 163, 184, 0.2);
+    cursor: not-allowed;
+}
+
+.backpack-slot.slot-locked::after {
+    content: '🔒';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+    opacity: 0.5;
+}
+
+/* 格子编号 */
+.slot-number {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    font-size: 0.7rem;
+    color: #64748b;
+    background: rgba(15, 23, 42, 0.8);
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+/* 拖拽状态 */
+.backpack-slot.slot-hover {
+    border-color: #6363e6;
+    background: rgba(99, 99, 230, 0.1);
+    box-shadow: 0 0 25px rgba(99, 99, 230, 0.4);
+}
+
+.backpack-slot.drop-target-valid {
+    border-color: #22c55e;
+    background: rgba(34, 197, 94, 0.1);
+}
+
+/* ===== 物品组件 ===== */
+.item-component {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    position: relative;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    cursor: grab;
+}
+
+.item-component:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+}
+
+.item-component.dragging {
+    opacity: 0.5;
+    transform: rotate(-5deg) scale(0.9);
+}
+
+/* 物品图标 */
+.item-icon {
+    width: 60%;
+    height: 60%;
+    margin-bottom: 0.25rem;
+    position: relative;
+}
+
+.item-icon-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.item-icon-inner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+    border-radius: 8px;
+}
+
+/* 物品类型标识 */
+.item-type-indicator {
+    font-size: 1.2rem;
+    z-index: 1;
+    position: relative;
+}
+
+/* 物品数量徽章 */
+.item-quantity {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    background: linear-gradient(135deg, #6363e6, #0606d4);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 20px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    z-index: 2;
+}
+
+/* 物品名称 */
+.item-name {
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+}
+
+/* ===== 物品提示框 ===== */
+.item-tooltip {
+    position: absolute;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(99, 99, 230, 0.3);
+    border-radius: 12px;
+    padding: 1rem;
+    min-width: 200px;
+    max-width: 300px;
+    z-index: 1000;
+    box-shadow: 0 8px 32px rgba(2, 8, 20, 0.6);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.item-tooltip.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.tooltip-content {
+    color: #e2e8f0;
+}
+
+.tooltip-header {
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(99, 99, 230, 0.2);
+}
+
+.tooltip-header h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+.rarity-label {
+    font-size: 0.8rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(99, 99, 230, 0.2);
+    color: #6363e6;
+    font-weight: 500;
+}
+
+.tooltip-type {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    margin-bottom: 0.5rem;
+}
+
+.tooltip-description {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: #cbd5e1;
+}
+
+.tooltip-quantity {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(99, 99, 230, 0.1);
+    font-size: 0.8rem;
+    color: #94a3b8;
+}
+
+/* ===== 右键菜单 ===== */
+.item-context-menu {
+    position: absolute;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(99, 99, 230, 0.3);
+    border-radius: 8px;
+    padding: 0.5rem 0;
+    min-width: 120px;
+    z-index: 1001;
+    box-shadow: 0 8px 32px rgba(2, 8, 20, 0.6);
+}
+
+.menu-item {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #e2e8f0;
+    font-size: 0.9rem;
+}
+
+.menu-item:hover {
+    background: rgba(99, 99, 230, 0.1);
+}
+
+.menu-item.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.menu-icon {
+    font-size: 1rem;
+}
+
+/* ===== 统计信息 ===== */
+.backpack-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(15, 23, 42, 0.4);
+    border-radius: 12px;
+    border: 1px solid rgba(99, 99, 230, 0.1);
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background: rgba(15, 23, 42, 0.6);
+    border-radius: 8px;
+    border: 1px solid rgba(99, 99, 230, 0.1);
+}
+
+.stat-label {
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+.stat-value {
+    color: #6363e6;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* ===== 快捷工具栏 ===== */
+.quick-bar {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(99, 99, 230, 0.2);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(2, 8, 20, 0.6);
+}
+
+.quick-item {
+    width: 50px;
+    height: 50px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 2px solid rgba(99, 99, 230, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.quick-item:hover {
+    border-color: #6363e6;
+    background: rgba(99, 99, 230, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(99, 99, 230, 0.3);
+}
+
+.quick-item:active {
+    transform: translateY(0);
+}
+
+/* ===== 通知系统 ===== */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 500;
+    z-index: 10000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.notification-success {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.notification-error {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.notification-info {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.notification-warning {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+/* ===== 拖拽效果 ===== */
+.dragging-active {
+    cursor: grabbing !important;
+}
+
+#drag-ghost {
+    transition: none !important;
+}
+
+/* ===== 响应式设计 ===== */
+@media (max-width: 768px) {
+    .app-header h1 {
+        font-size: 2rem;
+    }
+    
+    .backpack-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.75rem;
+    }
+    
+    .control-panel {
+        grid-template-columns: 1fr;
+    }
+    
+    .backpack-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .toolbar-group {
+        justify-content: center;
+    }
+    
+    .quick-bar {
+        bottom: 1rem;
+        padding: 0.75rem;
+    }
+    
+    .quick-item {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .backpack-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+    }
+    
+    .backpack-component {
+        padding: 1rem;
+    }
+    
+    .control-btn, .toolbar-button {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
+
+/* ===== 动画效果 ===== */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.backpack-component {
+    animation: slideInUp 0.6s ease-out;
+}
+
+.item-component {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.backpack-slot:hover .item-component {
+    animation: pulse 0.6s ease-in-out;
+}
+
+/* ===== 滚动条样式 ===== */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #6363e6, #0606d4);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #7c7cf0, #1a1ae8);
+}
+
+/* ===== 加载动画 ===== */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(99, 99, 230, 0.3);
+    border-radius: 50%;
+    border-top-color: #6363e6;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
