@@ -22,7 +22,7 @@ namespace LeetCode
                     {
                         Console.Write($"{item},");
                     }
-                    Console.WriteLine("]");
+                    Console.WriteLine("\b]");
                     break;
 
                 case IDictionary dict:
