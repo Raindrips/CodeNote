@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>现代聊天室</title>
+    <script>
+      // DO NOT REMOVE THIS SCRIPT
+      // 运行时动态计算 basename
+      (function() {
+        var pathname = window.location.pathname;
+        pathname = pathname.replace(/\/index\.html?$/, '');
+        var basename = pathname || '/';
+        if (basename !== '/' && basename.endsWith('/')) {
+          basename = basename.slice(0, -1);
+        }
+        window.__APP_BASENAME__ = basename;
+
+        // 设置 <base> 标签，让所有相对路径资源正确解析
+        var base = document.createElement('base');
+        // 如果 basename 是 '/'，直接设置为 '/'，否则添加 '/'
+        base.href = basename === '/' ? '/' : basename + '/';
+        document.head.appendChild(base);
+      })();
+    </script>
+    <!-- TailwindCSS Safe CDN -->
+    <script src="https://cdn.tailwindcss.com/3.4.14"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#E0AD63',
+              accent: '#0F7606',
+              neutral: '#109019',
+              dark: {
+                900: '#0a0a0a',
+                800: '#1a1a1a',
+                700: '#2d2d2d',
+                600: '#404040',
+                500: '#525252'
+              }
+            },
+            fontFamily: {
+              'tech': ['Orbitron', 'monospace'],
+              'sans': ['Inter', 'sans-serif']
+            },
+            animation: {
+              'pulse-slow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'fade-in': 'fadeIn 0.3s ease-in-out',
+              'slide-up': 'slideUp 0.3s ease-out',
+              'glow': 'glow 2s ease-in-out infinite alternate'
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' }
+              },
+              slideUp: {
+                '0%': { transform: 'translateY(10px)', opacity: '0' },
+                '100%': { transform: 'translateY(0)', opacity: '1' }
+              },
+              glow: {
+                '0%': { boxShadow: '0 0 5px rgba(224, 173, 99, 0.5)' },
+                '100%': { boxShadow: '0 0 20px rgba(224, 173, 99, 0.8)' }
+              }
+            }
+          },
+        },
+      };
+    </script>
+    
+    <style>
+      body {
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+      }
+      
+      .message-bubble {
+        animation: slideUp 0.3s ease-out;
+      }
+      
+      .chat-container {
+        height: calc(100vh - 200px);
+      }
+      
+      .theme-dark {
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+        color: #ffffff;
+      }
+      
+      .theme-light {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        color: #1f2937;
+      }
+      
+      .message-input:focus {
+        box-shadow: 0 0 0 3px rgba(224, 173, 99, 0.3);
+      }
+      
+      .user-avatar {
+        background: linear-gradient(135deg, #E0AD63, #0F7606);
+      }
+      
+      .online-indicator {
+        animation: pulse 2s infinite;
+      }
+      
+      .chat-messages::-webkit-scrollbar {
+        width: 6px;
+      }
+      
+      .chat-messages::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+      }
+      
+      .chat-messages::-webkit-scrollbar-thumb {
+        background: rgba(224, 173, 99, 0.5);
+        border-radius: 3px;
+      }
+      
+      .chat-messages::-webkit-scrollbar-thumb:hover {
+        background: rgba(224, 173, 99, 0.8);
+      }
+      
+      .emoji-picker {
+        max-height: 200px;
+        overflow-y: auto;
+      }
+      
+      .typing-indicator {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      
+      .typing-dot {
+        width: 8px;
+        height: 8px;
+        background: #E0AD63;
+        border-radius: 50%;
+        animation: typing 1.4s infinite ease-in-out;
+      }
+      
+      .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+      .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+      .typing-dot:nth-child(3) { animation-delay: 0; }
+      
+      @keyframes typing {
+        0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+        40% { transform: scale(1); opacity: 1; }
+      }
+    </style>
+  </head>
+  
+  <body class="theme-dark transition-all duration-300">
+    <!-- 登录界面 -->
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
+      <div class="max-w-md w-full bg-dark-800 rounded-2xl p-8 shadow-2xl animate-fade-in">
+        <div class="text-center mb-8">
+          <div class="w-16 h-16 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-comments text-2xl text-white"></i>
+          </div>
+          <h1 class="text-3xl font-tech font-bold text-primary mb-2">现代聊天室</h1>
+          <p class="text-gray-400">连接世界，分享想法</p>
+        </div>
+        
+        <form id="login-form" class="space-y-6">
+          <div>
+            <label for="username" class="block text-sm font-medium text-gray-300 mb-2">
+              输入您的昵称
+            </label>
+            <input 
+              type="text" 
+              id="username" 
+              name="username"
+              placeholder="例如：科技探索者"
+              class="w-full px-4 py-3 bg-dark-700 border border-dark-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+              required
+              minlength="2"
+              maxlength="20"
+            >
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">
+              选择主题
+            </label>
+            <div class="flex gap-4">
+              <label class="flex items-center cursor-pointer">
+                <input type="radio" name="theme" value="dark" class="sr-only" checked>
+                <div class="w-8 h-8 bg-gradient-to-r from-dark-800 to-dark-700 rounded-lg border-2 border-transparent hover:border-primary transition-all"></div>
+                <span class="ml-2 text-sm text-gray-300">深色</span>
+              </label>
+              <label class="flex items-center cursor-pointer">
+                <input type="radio" name="theme" value="light" class="sr-only">
+                <div class="w-8 h-8 bg-gradient-to-r from-gray-100 to-gray-200 rounded-lg border-2 border-transparent hover:border-primary transition-all"></div>
+                <span class="ml-2 text-sm text-gray-300">浅色</span>
+              </label>
+            </div>
+          </div>
+          
+          <button 
+            type="submit"
+            class="w-full py-3 bg-gradient-to-r from-primary to-accent text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-primary/25 transition-all duration-200 transform hover:-translate-y-0.5"
+          >
+            进入聊天室
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 聊天室主界面 -->
+    <div id="chat-screen" class="hidden h-screen flex flex-col">
+      <!-- 顶部导航栏 -->
+      <header class="bg-dark-800 border-b border-dark-700 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center">
+            <i class="fas fa-comments text-white"></i>
+          </div>
+          <div>
+            <h1 class="text-lg font-tech font-bold text-primary">现代聊天室</h1>
+            <div class="flex items-center space-x-2 text-sm text-gray-400">
+              <div class="w-2 h-2 bg-green-500 rounded-full online-indicator"></div>
+              <span id="online-count">1</span> 在线用户
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+          <button id="theme-toggle" class="p-2 text-gray-400 hover:text-primary transition-colors rounded-lg hover:bg-dark-700">
+            <i class="fas fa-moon"></i>
+          </button>
+          <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center">
+              <span id="user-avatar-text" class="text-white text-sm font-bold">A</span>
+            </div>
+            <span id="current-user" class="text-sm text-gray-300">用户</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- 主要内容区域 -->
+      <div class="flex-1 flex overflow-hidden">
+        <!-- 聊天消息区域 -->
+        <div class="flex-1 flex flex-col">
+          <!-- 消息列表 -->
+          <div id="chat-messages" class="chat-messages flex-1 overflow-y-auto p-4 space-y-4">
+            <!-- 消息将在这里动态添加 -->
+          </div>
+          
+          <!-- 输入区域 -->
+          <div class="bg-dark-800 border-t border-dark-700 p-4">
+            <div class="flex items-end space-x-3">
+              <div class="flex-1 relative">
+                <textarea 
+                  id="message-input"
+                  placeholder="输入消息... (支持emoji 😊)"
+                  class="message-input w-full px-4 py-3 bg-dark-700 border border-dark-600 rounded-lg text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+                  rows="1"
+                  maxlength="500"
+                ></textarea>
+                <div id="typing-indicator" class="typing-indicator hidden absolute bottom-2 left-4">
+                  <span class="text-sm text-gray-400">对方正在输入</span>
+                  <div class="flex items-center ml-2">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="flex flex-col space-y-2">
+                <button 
+                  id="emoji-btn"
+                  class="p-3 bg-dark-700 text-gray-400 hover:text-primary rounded-lg hover:bg-dark-600 transition-all duration-200"
+                  title="选择表情"
+                >
+                  <i class="fas fa-smile"></i>
+                </button>
+                <button 
+                  id="send-btn"
+                  class="p-3 bg-gradient-to-r from-primary to-accent text-white rounded-lg hover:shadow-lg hover:shadow-primary/25 transition-all duration-200 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="发送消息"
+                >
+                  <i class="fas fa-paper-plane"></i>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Emoji选择器 -->
+            <div id="emoji-picker" class="emoji-picker hidden absolute bottom-20 right-4 bg-dark-800 border border-dark-600 rounded-lg p-3 shadow-xl z-10">
+              <div class="grid grid-cols-8 gap-1 text-lg">
+                😀 😃 😄 😁 😆 😅 😂 🤣 😊 😇 🙂 🙃 😉 😌 😍 🥰 😘 😗 😙 😚 😋 😛 😝 😜 🤪 🤨 🧐 🤓 😎 🤩 🥳 😏 😒 😞 😔 😟 😕 🙁 ☹️ 😣 😖 😫 😩 🥺 😢 😭 😤 😠 😡 🤬 🤯 😳 🥵 🥶 😱 😨 😰 😥 😓 🤗 🤔 🤭 🤫 🤥 😶 😐 😑 😬 🙄 😯 😦 😧 😮 😲 🥱 😴 🤤 😪 😵 🤐 🥴 🤢 🤮 🤧 😷 🤒 🤕 🤑 🤠 😈 👿 👹 👺 🤡 💩 👻 💀 ☠️ 👽 👾 🤖 🎃 😺 😸 😹 😻 😼 😽 🙀 😿 😾
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 在线用户列表 -->
+        <div class="w-64 bg-dark-800 border-l border-dark-700 p-4 hidden lg:block">
+          <h3 class="text-sm font-semibold text-gray-300 mb-4 flex items-center">
+            <i class="fas fa-users mr-2"></i>
+            在线用户
+          </h3>
+          <div id="online-users" class="space-y-2">
+            <!-- 在线用户将在这里动态添加 -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 脚本文件 -->
+    <script type="module" src="./assets/chat-app.js"></script>
+  </body>
+</html>

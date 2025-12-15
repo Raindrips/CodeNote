@@ -53,22 +53,20 @@ class CanvasRenderer
         this.ctx.stroke();
     }
 
-    drawLine(points, strokeColor = '#ff0000', lineWidth = 3)
+    drawLine(points, strokeColor = '#00ff00', lineWidth = 1)
     {
         if (points.length < 2) return;
-
-        console.log(points)
+        this.ctx.beginPath();
         for (let i = 0; i < points.length; i++) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(points[i][0].x, points[i][1].y);
+
+            this.ctx.moveTo(points[i][0].x, points[i][0].y);
             this.ctx.lineTo(points[i][1].x, points[i][1].y);
-            this.ctx.closePath();
-            this.ctx.strokeStyle = strokeColor;
-            this.ctx.lineWidth = lineWidth;
-            this.ctx.stroke();
 
         }
-
+        this.ctx.closePath();
+        this.ctx.strokeStyle = strokeColor;
+        this.ctx.lineWidth = lineWidth;
+        this.ctx.stroke();
     }
 
     drawGrid(size, color = '#f5f5f5')

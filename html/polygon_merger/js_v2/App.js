@@ -9,6 +9,7 @@ class App
         this.merger = new PolygonMerger();
         this.squareSize = squareSize;
         this.polygons = [];
+        this.allLine = [];
 
         this.xLen = Math.floor(this.renderer.getWidth() / squareSize);
         this.yLen = Math.floor(this.renderer.getHeight() / squareSize)
@@ -27,6 +28,7 @@ class App
         this.renderer.canvas.addEventListener('click', (e) =>
         {
             const rect = this.renderer.canvas.getBoundingClientRect();
+            
             const cx = e.clientX - rect.left;
             const cy = e.clientY - rect.top;
 
@@ -36,7 +38,6 @@ class App
             // 对齐到网格
             const gridX = x * this.squareSize;
             const gridY = y * this.squareSize;
-
 
             this.addSquare(gridX, gridY);
         });
@@ -73,7 +74,8 @@ class App
 
     mergeSquares()
     {
-        this.polygons = this.merger.mergeAll();
+        this.polygons = this.merger.mergePolygonsAll();
+        this.allLine = this.merger.mergeLineAll();
         this.render();
         this.updateInfo();
     }
@@ -93,16 +95,17 @@ class App
             this.renderer.drawPolygon(polygon);
         }
 
-        // // 绘制多条线
-        // for (const polygon of this.polygons) {
-        //     this.renderer.drawLine(polygon);
-        // }
+        // 绘制多条线
+        for (const polygon of this.allLine) {
+            this.renderer.drawLine(polygon);
+        }
     }
 
     clear()
     {
         this.merger.clear();
         this.polygons = [];
+        this.allLine = [];
         this.render();
         this.updateInfo();
     }

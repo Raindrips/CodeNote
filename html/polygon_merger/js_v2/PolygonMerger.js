@@ -1,4 +1,3 @@
-
 /**
  * 多边形合并器 - 核心算法类（与渲染无关）
  */
@@ -84,21 +83,22 @@ class PolygonMerger
         // 只保留出现一次的边（外轮廓边）
         const outlineEdges = [];
         for (const [key, count] of edges.entries()) {
-            if (count <= 3) {
+            if (count === 1) {
                 const [p1, p2] = this.parseEdgeKey(key);
                 outlineEdges.push([p1, p2]);
             }
         }
-        // return outlineEdges;
-        // 将边连接成有序的轮廓路径
-        // return this.orderEdges(outlineEdges);
+        return outlineEdges;
+
     }
 
     // 创建边的唯一键
     edgeKey(p1, p2)
     {
-        const [first, second] = [p1, p2];
-        return `${first.x.toFixed(0)},${first.y.toFixed(0)}-${second.x.toFixed(0)},${second.y.toFixed(0)}`;
+        const [first, second] = [p1, p2].sort((a, b) =>
+            a.x !== b.x ? a.x - b.x : a.y - b.y
+        );
+        return `${first.x.toFixed(2)},${first.y.toFixed(2)}-${second.x.toFixed(2)},${second.y.toFixed(2)}`;
     }
 
     parseEdgeKey(key)
@@ -143,25 +143,36 @@ class PolygonMerger
         return path;
     }
 
-
     pointsEqual(p1, p2)
     {
         return Math.abs(p1.x - p2.x) < 0.1 && Math.abs(p1.y - p2.y) < 0.1;
     }
 
     // 主方法：合并所有正方形并返回多边形轮廓
-    mergeAll()
+    mergeLineAll()
+    {
+        const groups = this.findConnectedGroups();
+        const line = [];
+        for (const group of groups) {
+            const outline = this.extractOutline(group);
+            if (outline.length > 0) {
+                line.push(outline);
+            }
+        }
+
+        return line;
+    }
+
+    mergePolygonsAll()
     {
         const groups = this.findConnectedGroups();
         const polygons = [];
-
         for (const group of groups) {
-            const outline = this.extractOutline(group);
+            const outline = this.orderEdges(this.extractOutline(group));
             if (outline.length > 0) {
                 polygons.push(outline);
             }
         }
-
         return polygons;
     }
 
