@@ -11,20 +11,47 @@ namespace _43
     {
         public string Multiply(string num1, string num2)
         {
-            return "";
+            return Mult(num1, num2);
         }
 
-        string Mult(string num1, string num2)
+        string Mult(ReadOnlySpan<char> num1, ReadOnlySpan<char> num2)
         {
-
-            if (num1 == "0" || num2 == "0")
-            {
+            if (num1.SequenceEqual("0") || num2.SequenceEqual("0"))
                 return "0";
+
+            string ret = "0";
+            int m = num1.Length, n = num2.Length;
+
+            for (int i = n - 1; i >= 0; i--)
+            {
+                StringBuilder ans = new StringBuilder();
+                int add = 0;
+                for (int j = n - 1; j > i; j--)
+                {
+                    ans.Append(0);
+                }
+                int y = num2[i] - '0';
+                for (int j = m - 1; j >= 0; j--)
+                {
+                    int x = num1[j] - '0';
+                    int result = x * y + add;
+                    ans.Append(result % 10);
+                    add = result / 10;
+                }
+                if (add != 0)
+                {
+                    ans.Append(add % 10);
+                }
+                char[] arr = ans.ToString().ToCharArray();
+                Array.Reverse(arr);
+                ret = AddStrings(ret, arr);
             }
-            return "";
+
+
+            return ret;
         }
 
-        public string AddStrings(string num1, string num2)
+        public string AddStrings(ReadOnlySpan<char> num1, ReadOnlySpan<char> num2)
         {
             int i = num1.Length - 1, j = num2.Length - 1, add = 0;
             StringBuilder ans = new StringBuilder();
@@ -42,8 +69,6 @@ namespace _43
             Array.Reverse(arr);
             return new string(arr);
         }
-
-
     }
     class Test
     {
@@ -57,6 +82,7 @@ namespace _43
         {
 
             T("3", "2");
+            T("123", "456");
             T("123", "456");
         }
     }
