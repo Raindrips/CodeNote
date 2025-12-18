@@ -4,11 +4,19 @@
 pip install pillow
 ```
 
-工具
+## 工具
 
 ```bash
 python convert.py img.webp jpg ./output/
 ```
+
+### 压缩命令
+
+```
+python main_press.py <source_dir> <output_dir> <quality=90>
+```
+
+
 
 ## app 打包
 

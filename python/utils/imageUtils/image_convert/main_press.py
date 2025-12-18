@@ -117,7 +117,7 @@ def start_press(source_dir, output_dir, quality):
 def main():
     # 验证命令行参数
     if len(sys.argv) < 3:
-        print("Usage: python main.py <source_dir> <output_dir> <quality=90>")
+        print("Usage: python main_press.py <source_dir> <output_dir> <quality=90>")
         sys.exit(1)
 
     # 解析命令行参数
