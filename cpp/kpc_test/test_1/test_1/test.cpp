@@ -15,12 +15,12 @@
 
 
 // 模拟网络
-LatencySimulator *vnet;
+LatencySimulator* vnet;
 
 // 模拟网络：模拟发送一个 udp包
-int udp_output(const char *buf, int len, ikcpcb *kcp, void *user)
+int udp_output(const char* buf, int len, ikcpcb* kcp, void* user)
 {
-	union { int id; void *ptr; } parameter;
+	union { int id; void* ptr; } parameter;
 	parameter.ptr = user;
 	vnet->send(parameter.id, buf, len);
 	return 0;
@@ -34,8 +34,8 @@ void test(int mode)
 
 	// 创建两个端点的 kcp对象，第一个参数 conv是会话编号，同一个会话需要相同
 	// 最后一个是 user参数，用来传递标识
-	ikcpcb *kcp1 = ikcp_create(0x11223344, (void*)0);
-	ikcpcb *kcp2 = ikcp_create(0x11223344, (void*)1);
+	ikcpcb* kcp1 = ikcp_create(0x11223344, (void*)0);
+	ikcpcb* kcp2 = ikcp_create(0x11223344, (void*)1);
 
 	// 设置kcp的下层输出，这里为 udp_output，模拟udp网络输出函数
 	kcp1->output = udp_output;
@@ -64,7 +64,8 @@ void test(int mode)
 		// 普通模式，关闭流控等
 		ikcp_nodelay(kcp1, 0, 10, 0, 1);
 		ikcp_nodelay(kcp2, 0, 10, 0, 1);
-	}	else {
+	}
+	else {
 		// 启动快速模式
 		// 第二个参数 nodelay-启用以后若干常规加速将启动
 		// 第三个参数 interval为内部处理时钟，默认设置为 10ms
@@ -130,7 +131,7 @@ void test(int mode)
 			IUINT32 sn = *(IUINT32*)(buffer + 0);
 			IUINT32 ts = *(IUINT32*)(buffer + 4);
 			IUINT32 rtt = current - ts;
-			
+
 			if (sn != next) {
 				// 如果收到的包不连续
 				printf("ERROR sn %d<->%d\n", (int)count, (int)next);
@@ -152,7 +153,7 @@ void test(int mode)
 	ikcp_release(kcp1);
 	ikcp_release(kcp2);
 
-	const char *names[3] = { "default", "normal", "fast" };
+	const char* names[3] = { "default", "normal", "fast" };
 	printf("%s mode result (%dms):\n", names[mode], (int)ts1);
 	printf("avgrtt=%d maxrtt=%d tx=%d\n", (int)(sumrtt / count), (int)maxrtt, (int)vnet->tx1);
 	printf("press enter to next ...\n");

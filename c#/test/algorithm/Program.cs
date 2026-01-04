@@ -50,9 +50,20 @@
             }
 
         }
+
+        static void Test3()
+        {
+            var cache = new LRUCache<int, string>(3);
+            cache.Put(1, "A");
+            cache.Put(2, "B");
+            cache.Put(3, "C");
+            cache.Get(1); // 1 变成最近使用
+            cache.Put(4, "D"); // 淘汰 key=2，因为它最久未使用
+            cache.Put(5, "E"); // 淘汰 key=3
+        }
         static void Main(string[] args)
         {
-            Test2();
+            Test3();
         }
     }
 }
