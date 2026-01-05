@@ -60,6 +60,7 @@
             cache.Get(1); // 1 变成最近使用
             cache.Put(4, "D"); // 淘汰 key=2，因为它最久未使用
             cache.Put(5, "E"); // 淘汰 key=3
+
         }
         static void Main(string[] args)
         {
