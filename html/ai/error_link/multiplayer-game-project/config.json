@@ -1,0 +1,124 @@
+{
+  "server": {
+    "port": 3000,
+    "host": "localhost",
+    "maxUsers": 100,
+    "websocket": {
+      "path": "/",
+      "heartbeatInterval": 30000,
+      "heartbeatTimeout": 60000
+    },
+    "security": {
+      "rateLimit": {
+        "windowMs": 60000,
+        "maxRequests": 100,
+        "messageDelay": 100
+      },
+      "messageFilter": {
+        "maxMessageLength": 200,
+        "blockedWords": ["spam", "advertisement"]
+      }
+    },
+    "logging": {
+      "level": "info",
+      "file": "logs/server.log",
+      "console": true
+    }
+  },
+  "client": {
+    "port": 5173,
+    "host": "localhost",
+    "canvas": {
+      "width": 1200,
+      "height": 800,
+      "backgroundColor": "#000000",
+      "gridSize": 50
+    },
+    "player": {
+      "avatarSize": 40,
+      "speed": 3,
+      "colors": {
+        "myPlayer": "#FFD700",
+        "otherPlayer": "#4CAF50",
+        "nameText": "#FFFFFF",
+        "highlight": "#FFD700"
+      }
+    },
+    "websocket": {
+      "reconnectInterval": 3000,
+      "maxReconnectAttempts": 5,
+      "heartbeatInterval": 30000
+    },
+    "ui": {
+      "showGrid": true,
+      "showPlayerCount": true,
+      "showPosition": true,
+      "showConnectionStatus": true
+    }
+  },
+  "game": {
+    "world": {
+      "width": 2000,
+      "height": 2000,
+      "bounds": {
+        "x": [-1000, 1000],
+        "y": [-1000, 1000],
+        "z": [-100, 100]
+      }
+    },
+    "physics": {
+      "collisionDetection": true,
+      "gravity": 0,
+      "friction": 0.1
+    },
+    "rooms": {
+      "maxRooms": 10,
+      "maxPlayersPerRoom": 20,
+      "roomTimeout": 300000
+    }
+  },
+  "messages": {
+    "types": {
+      "client": [
+        "login",
+        "move",
+        "rotate",
+        "chat",
+        "heartbeat",
+        "join_room",
+        "leave_room",
+        "create_room"
+      ],
+      "server": [
+        "connected",
+        "login_success",
+        "login_failed",
+        "user_joined",
+        "user_left",
+        "user_moved",
+        "chat_message",
+        "room_created",
+        "room_joined",
+        "room_left",
+        "error",
+        "heartbeat_response"
+      ]
+    },
+    "validation": {
+      "username": {
+        "minLength": 2,
+        "maxLength": 20,
+        "pattern": "^[a-zA-Z0-9_\\-\\s]+$"
+      },
+      "position": {
+        "min": -1000,
+        "max": 1000,
+        "precision": 2
+      },
+      "chat": {
+        "maxLength": 200,
+        "rateLimit": 1000
+      }
+    }
+  }
+}

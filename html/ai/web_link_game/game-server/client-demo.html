@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简易联机游戏客户端演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .connected {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .game-area {
+            width: 100%;
+            height: 400px;
+            border: 2px solid #333;
+            position: relative;
+            background-color: #e8f5e8;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .player {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #007bff;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            transition: all 0.1s ease;
+        }
+        .player.me {
+            background-color: #28a745;
+            width: 25px;
+            height: 25px;
+        }
+        .player-info {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0,0,0,0.8);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .control-btn {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .control-btn:hover {
+            background-color: #0056b3;
+        }
+        .control-btn:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .info-panel {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .info-item {
+            text-align: center;
+        }
+        .info-label {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .info-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .log {
+            max-height: 150px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 简易联机游戏客户端演示</h1>
+        
+        <div id="status" class="status disconnected">未连接</div>
+        
+        <div class="info-panel">
+            <div class="info-item">
+                <div class="info-label">我的ID</div>
+                <div id="myPlayerId" class="info-value">-</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">在线玩家</div>
+                <div id="onlineCount" class="info-value">0</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">我的位置</div>
+                <div id="myPosition" class="info-value">(0, 0)</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="connectBtn" class="control-btn">连接服务器</button>
+            <button id="disconnectBtn" class="control-btn" disabled>断开连接</button>
+            <button id="randomMoveBtn" class="control-btn" disabled>随机移动</button>
+        </div>
+
+        <div class="game-area" id="gameArea">
+            <!-- 玩家将在这里显示 -->
+        </div>
+
+        <div class="controls">
+            <button class="control-btn move-btn" data-dx="-30" data-dy="0" disabled>← 左</button>
+            <button class="control-btn move-btn" data-dx="0" data-dy="-30" disabled>↑ 上</button>
+            <button class="control-btn move-btn" data-dx="0" data-dy="30" disabled>↓ 下</button>
+            <button class="control-btn move-btn" data-dx="30" data-dy="0" disabled>→ 右</button>
+        </div>
+
+        <h3>事件日志</h3>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script>
+        class GameClient {
+            constructor() {
+                this.ws = null;
+                this.playerId = null;
+                this.players = new Map();
+                this.myPosition = { x: 0, y: 0 };
+                this.gameArea = document.getElementById('gameArea');
+                this.isConnected = false;
+                
+                this.setupEventListeners();
+            }
+
+            setupEventListeners() {
+                document.getElementById('connectBtn').addEventListener('click', () => this.connect());
+                document.getElementById('disconnectBtn').addEventListener('click', () => this.disconnect());
+                document.getElementById('randomMoveBtn').addEventListener('click', () => this.randomMove());
+                
+                // 移动按钮事件
+                document.querySelectorAll('.move-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const dx = parseInt(e.target.dataset.dx);
+                        const dy = parseInt(e.target.dataset.dy);
+                        this.moveBy(dx, dy);
+                    });
+                });
+
+                // 键盘控制
+                document.addEventListener('keydown', (e) => {
+                    if (!this.isConnected) return;
+                    
+                    let dx = 0, dy = 0;
+                    switch(e.key) {
+                        case 'ArrowLeft': dx = -30; break;
+                        case 'ArrowRight': dx = 30; break;
+                        case 'ArrowUp': dy = -30; break;
+                        case 'ArrowDown': dy = 30; break;
+                        default: return;
+                    }
+                    
+                    e.preventDefault();
+                    this.moveBy(dx, dy);
+                });
+            }
+
+            connect() {
+                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                    this.log('已经连接到服务器');
+                    return;
+                }
+
+                try {
+                    this.ws = new WebSocket('ws://localhost:8080');
+                    this.setupWebSocketHandlers();
+                    this.log('正在连接服务器...');
+                } catch (error) {
+                    this.log('连接失败: ' + error.message, 'error');
+                }
+            }
+
+            setupWebSocketHandlers() {
+                this.ws.onopen = () => {
+                    this.isConnected = true;
+                    this.updateConnectionStatus(true);
+                    this.log('成功连接到服务器');
+                };
+
+                this.ws.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        this.handleMessage(data);
+                    } catch (error) {
+                        this.log('消息解析失败: ' + error.message, 'error');
+                    }
+                };
+
+                this.ws.onclose = () => {
+                    this.isConnected = false;
+                    this.updateConnectionStatus(false);
+                    this.log('与服务器断开连接');
+                    this.clearPlayers();
+                };
+
+                this.ws.onerror = (error) => {
+                    this.log('WebSocket错误: ' + error.message, 'error');
+                };
+            }
+
+            handleMessage(data) {
+                console.log('收到消息:', data);
+
+                switch (data.type) {
+                    case 'welcome':
+                        this.playerId = data.playerId;
+                        this.myPosition = data.position;
+                        document.getElementById('myPlayerId').textContent = this.playerId;
+                        this.updateMyPosition();
+                        this.log(`欢迎！你的玩家ID: ${this.playerId}`);
+                        break;
+
+                    case 'allPlayers':
+                        this.updateAllPlayers(data.players);
+                        break;
+
+                    case 'positions':
+                        this.updatePlayerPositions(data.positions);
+                        break;
+
+                    case 'playerJoined':
+                        this.addPlayer(data.playerId, data.position);
+                        this.log(`玩家 ${data.playerId} 加入游戏`);
+                        break;
+
+                    case 'playerLeft':
+                        this.removePlayer(data.playerId);
+                        this.log(`玩家 ${data.playerId} 离开游戏`);
+                        break;
+
+                    case 'pong':
+                        // 心跳响应，可以忽略
+                        break;
+
+                    case 'error':
+                        this.log('错误: ' + data.message, 'error');
+                        break;
+
+                    default:
+                        this.log('未知消息类型: ' + data.type, 'warn');
+                }
+            }
+
+            updateAllPlayers(players) {
+                this.clearPlayers();
+                for (const [playerId, position] of Object.entries(players)) {
+                    this.addPlayer(playerId, position);
+                }
+                this.updateOnlineCount();
+            }
+
+            updatePlayerPositions(positions) {
+                for (const [playerId, position] of Object.entries(positions)) {
+                    if (playerId === this.playerId) {
+                        this.myPosition = position;
+                        this.updateMyPosition();
+                    } else {
+                        this.updatePlayerPosition(playerId, position);
+                    }
+                }
+            }
+
+            addPlayer(playerId, position) {
+                if (this.players.has(playerId)) return;
+
+                const playerElement = document.createElement('div');
+                playerElement.className = 'player';
+                if (playerId === this.playerId) {
+                    playerElement.classList.add('me');
+                }
+
+                const infoElement = document.createElement('div');
+                infoElement.className = 'player-info';
+                infoElement.textContent = playerId;
+                playerElement.appendChild(infoElement);
+
+                this.gameArea.appendChild(playerElement);
+                this.players.set(playerId, {
+                    element: playerElement,
+                    position: position
+                });
+
+                this.updatePlayerPosition(playerId, position);
+                this.updateOnlineCount();
+            }
+
+            removePlayer(playerId) {
+                const player = this.players.get(playerId);
+                if (player) {
+                    player.element.remove();
+                    this.players.delete(playerId);
+                    this.updateOnlineCount();
+                }
+            }
+
+            updatePlayerPosition(playerId, position) {
+                const player = this.players.get(playerId);
+                if (player) {
+                    player.position = position;
+                    player.element.style.left = position.x + 'px';
+                    player.element.style.top = position.y + 'px';
+                }
+            }
+
+            clearPlayers() {
+                this.players.forEach(player => {
+                    player.element.remove();
+                });
+                this.players.clear();
+                this.updateOnlineCount();
+            }
+
+            moveBy(dx, dy) {
+                if (!this.isConnected) return;
+
+                const newX = Math.max(0, Math.min(980, this.myPosition.x + dx));
+                const newY = Math.max(0, Math.min(380, this.myPosition.y + dy));
+
+                this.send({
+                    type: 'move',
+                    x: newX,
+                    y: newY
+                });
+            }
+
+            randomMove() {
+                const x = Math.random() * 980;
+                const y = Math.random() * 380;
+                
+                this.send({
+                    type: 'move',
+                    x: x,
+                    y: y
+                });
+            }
+
+            updateMyPosition() {
+                document.getElementById('myPosition').textContent = 
+                    `(${Math.round(this.myPosition.x)}, ${Math.round(this.myPosition.y)})`;
+            }
+
+            updateOnlineCount() {
+                document.getElementById('onlineCount').textContent = this.players.size;
+            }
+
+            updateConnectionStatus(connected) {
+                const statusEl = document.getElementById('status');
+                const connectBtn = document.getElementById('connectBtn');
+                const disconnectBtn = document.getElementById('disconnectBtn');
+                const moveBtns = document.querySelectorAll('.move-btn');
+                const randomMoveBtn = document.getElementById('randomMoveBtn');
+
+                if (connected) {
+                    statusEl.textContent = '已连接';
+                    statusEl.className = 'status connected';
+                    connectBtn.disabled = true;
+                    disconnectBtn.disabled = false;
+                    moveBtns.forEach(btn => btn.disabled = false);
+                    randomMoveBtn.disabled = false;
+                } else {
+                    statusEl.textContent = '未连接';
+                    statusEl.className = 'status disconnected';
+                    connectBtn.disabled = false;
+                    disconnectBtn.disabled = true;
+                    moveBtns.forEach(btn => btn.disabled = true);
+                    randomMoveBtn.disabled = true;
+                }
+            }
+
+            send(data) {
+                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                    this.ws.send(JSON.stringify(data));
+                }
+            }
+
+            disconnect() {
+                if (this.ws) {
+                    this.ws.close();
+                    this.ws = null;
+                }
+            }
+
+            log(message, type = 'info') {
+                const logEl = document.getElementById('log');
+                const entry = document.createElement('div');
+                entry.className = 'log-entry';
+                
+                const timestamp = new Date().toLocaleTimeString();
+                entry.textContent = `[${timestamp}] ${message}`;
+                
+                if (type === 'error') {
+                    entry.style.color = '#dc3545';
+                } else if (type === 'warn') {
+                    entry.style.color = '#ffc107';
+                }
+                
+                logEl.appendChild(entry);
+                logEl.scrollTop = logEl.scrollHeight;
+            }
+        }
+
+        // 初始化客户端
+        const client = new GameClient();
+        
+        // 页面加载完成后的提示
+        window.addEventListener('load', () => {
+            client.log('客户端已加载完成，点击"连接服务器"开始游戏');
+            client.log('提示：可以使用方向键或点击按钮来移动');
+        });
+    </script>
+</body>
+</html>

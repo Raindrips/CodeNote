@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>正方形合并多边形</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        canvas {
+            border: 1px solid #ccc;
+            display: block;
+            margin: 20px auto;
+            cursor: crosshair;
+        }
+
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 0 5px;
+            font-size: 14px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        button.secondary {
+            background: #2196F3;
+        }
+
+        button.secondary:hover {
+            background: #0b7dda;
+        }
+
+        button.danger {
+            background: #f44336;
+        }
+
+        button.danger:hover {
+            background: #da190b;
+        }
+
+        .info {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>正方形合并多边形系统</h1>
+        <p class="description">点击画布添加正方形，系统会自动检测相邻的正方形并合并成多边形，然后绘制多边形边框。</p>
+
+        <div class="controls">
+            <button onclick="app.mergeSquares()">合并多边形</button>
+            <button class="secondary" onclick="app.addRandomSquares()">添加随机正方形</button>
+            <button class="danger" onclick="app.clear()">清空</button>
+        </div>
+
+        <canvas id="canvas" width="800" height="600"></canvas>
+
+        <div class="info">
+            已添加 <span id="squareCount">0</span> 个正方形 |
+            已合并 <span id="polygonCount">0</span> 个多边形
+        </div>
+    </div>
+
+    <script>
+        /**
+         * 正方形类
+         */
+        class Square {
+            constructor(x, y, size) {
+                this.x = x;
+                this.y = y;
+                this.size = size;
+            }
+
+            // 检查与另一个正方形是否相邻（有重叠边）
+            isAdjacent(other) {
+                const tolerance = 0.2; // 浮点数容差
+
+                // 检查是否在同一行（y相同）且x方向相邻
+                if (Math.abs(this.y - other.y) < tolerance)
+                {
+                    if (Math.abs(this.x + this.size - other.x) < tolerance ||
+                        Math.abs(other.x + other.size - this.x) < tolerance)
+                    {
+                        return true;
+                    }
+                }
+
+                // 检查是否在同一列（x相同）且y方向相邻
+                if (Math.abs(this.x - other.x) < tolerance)
+                {
+                    if (Math.abs(this.y + this.size - other.y) < tolerance ||
+                        Math.abs(other.y + other.size - this.y) < tolerance)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            // 获取正方形的四个顶点
+            getVertices() {
+                return [
+                    { x: this.x, y: this.y },
+                    { x: this.x + this.size, y: this.y },
+                    { x: this.x + this.size, y: this.y + this.size },
+                    { x: this.x, y: this.y + this.size }
+                ];
+            }
+        }
+
+        /**
+         * 多边形合并器 - 核心算法类（与渲染无关）
+         */
+        class PolygonMerger {
+            constructor() {
+                this.squares = [];
+            }
+
+            addSquare(square) {
+                this.squares.push(square);
+            }
+
+            // 使用并查集找出所有连通的正方形组
+            findConnectedGroups() {
+                const n = this.squares.length;
+                const parent = Array.from({ length: n }, (_, i) => i);
+
+                const find = (x) => {
+                    if (parent[x] !== x)
+                    {
+                        parent[x] = find(parent[x]);
+                    }
+                    return parent[x];
+                };
+
+                const union = (x, y) => {
+                    const rootX = find(x);
+                    const rootY = find(y);
+                    if (rootX !== rootY)
+                    {
+                        parent[rootX] = rootY;
+                    }
+                };
+
+                // 检查所有正方形对，如果相邻则合并到同一组
+                for (let i = 0; i < n; i++)
+                {
+                    for (let j = i + 1; j < n; j++)
+                    {
+                        if (this.squares[i].isAdjacent(this.squares[j]))
+                        {
+                            union(i, j);
+                        }
+                    }
+                }
+
+                // 将正方形按组分类
+                const groups = {};
+                for (let i = 0; i < n; i++)
+                {
+                    const root = find(i);
+                    if (!groups[root])
+                    {
+                        groups[root] = [];
+                    }
+                    groups[root].push(this.squares[i]);
+                }
+
+                return Object.values(groups);
+            }
+
+            // 从一组正方形中提取所有轮廓（包括外轮廓和内部空心）
+            extractOutline(squares) {
+                // 收集所有边，使用有向边来区分方向
+                const edgeMap = new Map();
+
+                for (const sq of squares)
+                {
+                    const vertices = sq.getVertices();
+                    // 添加四条有向边（逆时针方向为外轮廓）
+                    const edgeList = [
+                        [vertices[0], vertices[1]], // 上
+                        [vertices[1], vertices[2]], // 右
+                        [vertices[2], vertices[3]], // 下
+                        [vertices[3], vertices[0]]  // 左
+                    ];
+
+                    for (const [p1, p2] of edgeList)
+                    {
+                        const key = this.directedEdgeKey(p1, p2);
+                        edgeMap.set(key, (edgeMap.get(key) || 0) + 1);
+                    }
+                }
+
+                // 只保留出现一次的边（轮廓边）
+                const outlineEdges = [];
+                for (const [key, count] of edgeMap.entries())
+                {
+                    if (count === 1)
+                    {
+                        const [p1, p2] = this.parseDirectedEdgeKey(key);
+                        outlineEdges.push([p1, p2]);
+                    }
+                }
+
+                // 将边连接成多个闭合路径（可能有多个环）
+                return this.orderEdgesIntoLoops(outlineEdges);
+            }
+
+            // 创建有向边的唯一键
+            directedEdgeKey(p1, p2) {
+                return `${p1.x.toFixed(2)},${p1.y.toFixed(2)}->${p2.x.toFixed(2)},${p2.y.toFixed(2)}`;
+            }
+
+            parseDirectedEdgeKey(key) {
+                const [p1Str, p2Str] = key.split('->');
+                const [x1, y1] = p1Str.split(',').map(Number);
+                const [x2, y2] = p2Str.split(',').map(Number);
+                return [{ x: x1, y: y1 }, { x: x2, y: y2 }];
+            }
+
+            // 将无序的边连接成多个闭合环
+            orderEdgesIntoLoops(edges) {
+                if (edges.length === 0) return [];
+
+                const loops = [];
+                const remainingEdges = [...edges];
+
+                while (remainingEdges.length > 0)
+                {
+                    const loop = [remainingEdges[0][0], remainingEdges[0][1]];
+                    const startPoint = remainingEdges[0][0];
+                    remainingEdges.splice(0, 1);
+
+                    // 尝试形成闭合环
+                    let maxIterations = remainingEdges.length + 10;
+                    while (remainingEdges.length > 0 && maxIterations-- > 0)
+                    {
+                        const lastPoint = loop[loop.length - 1];
+
+                        // 如果回到起点，形成闭合环
+                        if (this.pointsEqual(lastPoint, startPoint) && loop.length > 2)
+                        {
+                            break;
+                        }
+
+                        let found = false;
+                        for (let i = 0; i < remainingEdges.length; i++)
+                        {
+                            const [p1, p2] = remainingEdges[i];
+
+                            if (this.pointsEqual(p1, lastPoint))
+                            {
+                                loop.push(p2);
+                                remainingEdges.splice(i, 1);
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (!found) break;
+                    }
+
+                    // 移除重复的起点（闭合环会重复）
+                    if (loop.length > 2 && this.pointsEqual(loop[0], loop[loop.length - 1]))
+                    {
+                        loop.pop();
+                    }
+
+                    if (loop.length >= 3)
+                    {
+                        loops.push(loop);
+                    }
+                }
+
+                return loops;
+            }
+
+            pointsEqual(p1, p2) {
+                return Math.abs(p1.x - p2.x) < 0.1 && Math.abs(p1.y - p2.y) < 0.1;
+            }
+
+            // 主方法：合并所有正方形并返回多边形轮廓（包括空心）
+            mergeAll() {
+                const groups = this.findConnectedGroups();
+                const polygons = [];
+
+                for (const group of groups)
+                {
+                    const loops = this.extractOutline(group);
+                    if (loops.length > 0)
+                    {
+                        // 每个组可能包含多个环（外环和内环）
+                        polygons.push({
+                            loops: loops,
+                            squares: group
+                        });
+                    }
+                }
+
+                return polygons;
+            }
+
+            clear() {
+                this.squares = [];
+            }
+        }
+
+        /**
+         * Canvas渲染器 - 负责可视化
+         */
+        class CanvasRenderer {
+            constructor(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+            }
+
+            clear() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            }
+
+            drawSquare(square, color = '#e0e0e0', strokeColor = '#999') {
+                this.ctx.fillStyle = color;
+                this.ctx.fillRect(square.x, square.y, square.size, square.size);
+                this.ctx.strokeStyle = strokeColor;
+                this.ctx.lineWidth = 1;
+                this.ctx.strokeRect(square.x, square.y, square.size, square.size);
+            }
+
+            drawPolygon(polygon, strokeColor = '#ff0000', lineWidth = 3) {
+                if (!polygon.loops || polygon.loops.length === 0) return;
+
+                // 绘制所有环（外环和内环）
+                for (const loop of polygon.loops)
+                {
+                    if (loop.length < 2) continue;
+
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(loop[0].x, loop[0].y);
+
+                    for (let i = 1; i < loop.length; i++)
+                    {
+                        this.ctx.lineTo(loop[i].x, loop[i].y);
+                    }
+
+                    this.ctx.closePath();
+                    this.ctx.strokeStyle = strokeColor;
+                    this.ctx.lineWidth = lineWidth;
+                    this.ctx.stroke();
+                }
+            }
+
+            drawGrid(size, color = '#f5f5f5') {
+                this.ctx.strokeStyle = color;
+                this.ctx.lineWidth = 1;
+
+                for (let x = 0; x < this.canvas.width; x += size)
+                {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, 0);
+                    this.ctx.lineTo(x, this.canvas.height);
+                    this.ctx.stroke();
+                }
+
+                for (let y = 0; y < this.canvas.height; y += size)
+                {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, y);
+                    this.ctx.lineTo(this.canvas.width, y);
+                    this.ctx.stroke();
+                }
+            }
+        }
+
+        /**
+         * 应用主类 - 协调各个组件
+         */
+        class App {
+            constructor(canvasId, squareSize = 50) {
+                this.renderer = new CanvasRenderer(canvasId);
+                this.merger = new PolygonMerger();
+                this.squareSize = squareSize;
+                this.polygons = [];
+
+                this.setupEventListeners();
+                this.render();
+            }
+
+            setupEventListeners() {
+                this.renderer.canvas.addEventListener('click', (e) => {
+                    const rect = this.renderer.canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+
+                    // 对齐到网格
+                    const gridX = Math.floor(x / this.squareSize) * this.squareSize;
+                    const gridY = Math.floor(y / this.squareSize) * this.squareSize;
+
+                    this.addSquare(gridX, gridY);
+                });
+            }
+
+            addSquare(x, y) {
+                const square = new Square(x, y, this.squareSize);
+                this.merger.addSquare(square);
+                this.polygons = []; // 清空之前的多边形
+                this.render();
+                this.updateInfo();
+            }
+
+            addRandomSquares() {
+                const count = 5 + Math.floor(Math.random() * 5);
+                for (let i = 0; i < count; i++)
+                {
+                    const x = Math.floor(Math.random() * (this.renderer.canvas.width / this.squareSize)) * this.squareSize;
+                    const y = Math.floor(Math.random() * (this.renderer.canvas.height / this.squareSize)) * this.squareSize;
+                    const square = new Square(x, y, this.squareSize);
+                    this.merger.addSquare(square);
+                }
+                this.polygons = [];
+                this.render();
+                this.updateInfo();
+            }
+
+            mergeSquares() {
+                this.polygons = this.merger.mergeAll();
+                this.render();
+                this.updateInfo();
+            }
+
+            render() {
+                this.renderer.clear();
+                this.renderer.drawGrid(this.squareSize);
+
+                // 绘制正方形
+                for (const square of this.merger.squares)
+                {
+                    this.renderer.drawSquare(square);
+                }
+
+                // 绘制多边形轮廓
+                for (const polygon of this.polygons)
+                {
+                    this.renderer.drawPolygon(polygon);
+                }
+            }
+
+            clear() {
+                this.merger.clear();
+                this.polygons = [];
+                this.render();
+                this.updateInfo();
+            }
+
+            updateInfo() {
+                document.getElementById('squareCount').textContent = this.merger.squares.length;
+                document.getElementById('polygonCount').textContent = this.polygons.length;
+            }
+        }
+
+        // 初始化应用
+        const app = new App('canvas', 50);
+    </script>
+</body>
+
+</html>

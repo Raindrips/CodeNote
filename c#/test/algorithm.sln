@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventTest", "EventTest\Even
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameCore", "GameCore\GameCore.csproj", "{4CA85E56-E9A3-43D2-B468-F8F1944C8C28}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyTest", "MyTest\MyTest.csproj", "{15D38F27-31B8-4F08-878F-20A1CE8F2BDB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTest", "TaskTest\TaskTest.csproj", "{7504B8B0-D658-48E4-8461-A9BC5EDA9F65}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +41,10 @@ Global
 		{4CA85E56-E9A3-43D2-B468-F8F1944C8C28}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4CA85E56-E9A3-43D2-B468-F8F1944C8C28}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4CA85E56-E9A3-43D2-B468-F8F1944C8C28}.Release|Any CPU.Build.0 = Release|Any CPU
-		{15D38F27-31B8-4F08-878F-20A1CE8F2BDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{15D38F27-31B8-4F08-878F-20A1CE8F2BDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{15D38F27-31B8-4F08-878F-20A1CE8F2BDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{15D38F27-31B8-4F08-878F-20A1CE8F2BDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7504B8B0-D658-48E4-8461-A9BC5EDA9F65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7504B8B0-D658-48E4-8461-A9BC5EDA9F65}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7504B8B0-D658-48E4-8461-A9BC5EDA9F65}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7504B8B0-D658-48E4-8461-A9BC5EDA9F65}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

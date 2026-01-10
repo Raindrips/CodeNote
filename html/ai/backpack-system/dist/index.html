@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <script>
+      // DO NOT REMOVE THIS SCRIPT
+      // 运行时动态计算 basename
+      (function() {
+        var pathname = window.location.pathname;
+        pathname = pathname.replace(/\/index\.html?$/, '');
+        var basename = pathname || '/';
+        if (basename !== '/' && basename.endsWith('/')) {
+          basename = basename.slice(0, -1);
+        }
+        window.__APP_BASENAME__ = basename;
+
+        // 设置 <base> 标签，让所有相对路径资源正确解析
+        var base = document.createElement('base');
+        // 如果 basename 是 '/'，直接设置为 '/'，否则添加 '/'
+        base.href = basename === '/' ? '/' : basename + '/';
+        document.head.appendChild(base);
+      })();
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎒 冒险者背包系统</title>
+    
+    <!-- 字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 样式 -->
+    
+    <!-- 图标 -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎒</text></svg>">
+    
+    <!-- 元信息 -->
+    <meta name="description" content="功能完善的背包系统，支持物品管理、拖拽操作、堆叠功能等">
+    <meta name="keywords" content="背包系统,游戏开发,物品管理,拖拽操作">
+    
+    <!-- 主题色 -->
+    <meta name="theme-color" content="#6363e6">
+    
+    <!-- PWA 支持 -->
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoi5bCR5q2l5L2T5aix5Z6L6Iqx5ZCrIiwic2hvcnRfbmFtZSI6IuaViOeOh++8jOaViOeOh++8jOaViOeOh+S4reW/gyIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMGYxNzJhIiwidGhlbWVfY29sb3IiOiIjNjM2M2U2In0=">
+    
+    <style>
+        /* 加载动画 */
+        .app-loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(99, 99, 230, 0.3);
+            border-top: 4px solid #6363e6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 2rem;
+        }
+        
+        .loading-text {
+            color: #94a3b8;
+            font-size: 1.2rem;
+            font-weight: 300;
+            text-align: center;
+        }
+        
+        .loading-subtext {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .app-loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+  <script type="module" crossorigin>(function(){const t=document.createElement("link").relList;if(t&&t.supports&&t.supports("modulepreload"))return;for(const a of document.querySelectorAll('link[rel="modulepreload"]'))s(a);new MutationObserver(a=>{for(const i of a)if(i.type==="childList")for(const n of i.addedNodes)n.tagName==="LINK"&&n.rel==="modulepreload"&&s(n)}).observe(document,{childList:!0,subtree:!0});function e(a){const i={};return a.integrity&&(i.integrity=a.integrity),a.referrerPolicy&&(i.referrerPolicy=a.referrerPolicy),a.crossOrigin==="use-credentials"?i.credentials="include":a.crossOrigin==="anonymous"?i.credentials="omit":i.credentials="same-origin",i}function s(a){if(a.ep)return;a.ep=!0;const i=e(a);fetch(a.href,i)}})();const r={WEAPON:"weapon",ARMOR:"armor",CONSUMABLE:"consumable",MATERIAL:"material",QUEST:"quest",MISC:"misc"},l={COMMON:{name:"普通",color:"#9ca3af",level:1},UNCOMMON:{name:"优秀",color:"#22c55e",level:2},RARE:{name:"稀有",color:"#3b82f6",level:3},EPIC:{name:"史诗",color:"#a855f7",level:4},LEGENDARY:{name:"传说",color:"#f59e0b",level:5}};class d{constructor(t,e,s,a,i=1,n="",o=""){this.id=t,this.name=e,this.type=s,this.rarity=a,this.maxStack=i,this.description=n,this.icon=o}}class b{constructor(t,e=1){this.item=t,this.quantity=e,this.position=null}}const E={items:new Map,init(){this.addItem(new d(1001,"铁剑",r.WEAPON,l.COMMON,1,"一把普通的铁剑，适合新手使用。","./assets/icons/placeholder.svg")),this.addItem(new d(1002,"魔法杖",r.WEAPON,l.RARE,1,"蕴含魔法能量的法杖，能增强法术威力。","./assets/icons/placeholder.svg")),this.addItem(new d(1003,"龙鳞剑",r.WEAPON,l.LEGENDARY,1,"由古龙鳞片锻造的神兵，拥有毁天灭地的力量。","./assets/icons/placeholder.svg")),this.addItem(new d(2001,"皮甲",r.ARMOR,l.COMMON,1,"用野兽皮革制作的轻甲，提供基础防护。","./assets/icons/placeholder.svg")),this.addItem(new d(2002,"铁甲",r.ARMOR,l.UNCOMMON,1,"由铁片编制的铠甲，防御力较高。","./assets/icons/placeholder.svg")),this.addItem(new d(2003,"魔法长袍",r.ARMOR,l.RARE,1,"附魔的华丽长袍，能提升魔法抗性。","./assets/icons/placeholder.svg")),this.addItem(new d(3001,"生命药水",r.CONSUMABLE,l.COMMON,99,"恢复50点生命值。","./assets/icons/placeholder.svg")),this.addItem(new d(3002,"魔法药水",r.CONSUMABLE,l.COMMON,99,"恢复30点魔法值。","./assets/icons/placeholder.svg")),this.addItem(new d(3003,"力量药剂",r.CONSUMABLE,l.UNCOMMON,10,"临时增加10点力量，持续5分钟。","./assets/icons/placeholder.svg")),this.addItem(new d(4001,"铁矿石",r.MATERIAL,l.COMMON,999,"基础的锻造材料。","./assets/icons/placeholder.svg")),this.addItem(new d(4002,"魔法水晶",r.MATERIAL,l.RARE,999,"蕴含魔力的水晶，用于制作魔法物品。","./assets/icons/placeholder.svg")),this.addItem(new d(4003,"龙鳞",r.MATERIAL,l.EPIC,999,"珍贵的古龙鳞片，极为稀有。","./assets/icons/placeholder.svg")),this.addItem(new d(5001,"古老的钥匙",r.QUEST,l.RARE,1,"一把锈迹斑斑的钥匙，似乎能打开某扇门。","./assets/icons/placeholder.svg")),this.addItem(new d(5002,"神秘卷轴",r.QUEST,l.EPIC,1,"上面记录着古老的咒语。","./assets/icons/placeholder.svg")),this.addItem(new d(6001,"金币",r.MISC,l.COMMON,99999,"通用的货币。","./assets/icons/placeholder.svg")),this.addItem(new d(6002,"火把",r.MISC,l.COMMON,20,"照亮黑暗的光源。","./assets/icons/placeholder.svg"))},addItem(c){this.items.set(c.id,c)},getItem(c){return this.items.get(c)},getAllItems(){return Array.from(this.items.values())},getItemsByType(c){return this.getAllItems().filter(t=>t.type===c)},getItemsByRarity(c){return this.getAllItems().filter(t=>t.rarity===c)}};E.init();const g={DEFAULT_SIZE:20,MAX_SIZE:100,EXPANSION_COST:1e3,EXPANSION_INCREMENT:10},m={DEFAULT:"default",NAME:"name",TYPE:"type",QUANTITY:"quantity",RARITY:"rarity"};class k{constructor(t){this.index=t,this.item=null,this.locked=!1}isEmpty(){return this.item===null}isLocked(){return this.locked}getItem(){return this.item}setItem(t){this.item=t,t&&(t.position=this.index)}clear(){this.item=null}lock(){this.locked=!0}unlock(){this.locked=!1}}class v{constructor(t=g.DEFAULT_SIZE){this.size=t,this.slots=[],this.gold=0,this.maxStackSize=999,this.initSlots()}initSlots(){this.slots=[];for(let t=0;t<this.size;t++)this.slots.push(new k(t))}getSlot(t){return t<0||t>=this.size?null:this.slots[t]}getUsedSlots(){return this.slots.filter(t=>!t.isEmpty())}getEmptySlots(){return this.slots.filter(t=>t.isEmpty()&&!t.isLocked())}getFirstEmptySlot(){return this.slots.find(t=>t.isEmpty()&&!t.isLocked())}isFull(){return this.getEmptySlots().length===0}expand(t=g.EXPANSION_INCREMENT){const e=this.size,s=Math.min(this.size+t,g.MAX_SIZE);if(s>this.size){this.size=s;for(let a=e;a<s;a++)this.slots.push(new k(a));return!0}return!1}getTotalItemCount(){return this.getUsedSlots().reduce((t,e)=>{var s;return t+(((s=e.getItem())==null?void 0:s.quantity)||0)},0)}getItemCountByType(){const t={};return this.getUsedSlots().forEach(e=>{var a;const s=(a=e.getItem())==null?void 0:a.item;s&&(t[s.type]=(t[s.type]||0)+e.getItem().quantity)}),t}serialize(){const t={size:this.size,gold:this.gold,slots:this.slots.map(e=>({index:e.index,locked:e.locked,item:e.item?{itemId:e.item.item.id,quantity:e.item.quantity}:null}))};return JSON.stringify(t)}deserialize(t,e){try{const s=JSON.parse(t);return this.size=s.size||g.DEFAULT_SIZE,this.gold=s.gold||0,this.initSlots(),s.slots&&s.slots.forEach(a=>{const i=this.getSlot(a.index);if(i&&(i.locked=a.locked||!1,a.item)){const n=e.getItem(a.item.itemId);if(n){const o=window.ItemInstance||class{constructor(u,h){this.item=u,this.quantity=h,this.position=null}},p=new o(n,a.item.quantity);i.setItem(p)}}}),!0}catch(s){return console.error("反序列化背包数据失败:",s),!1}}}class I{constructor(){this.itemEffects=new Map,this.initItemEffects()}initItemEffects(){this.itemEffects.set(3001,this.useHealthPotion.bind(this)),this.itemEffects.set(3002,this.useManaPotion.bind(this)),this.itemEffects.set(3003,this.useStrengthPotion.bind(this)),this.itemEffects.set(1001,this.equipWeapon.bind(this)),this.itemEffects.set(1002,this.equipWeapon.bind(this)),this.itemEffects.set(2001,this.equipArmor.bind(this)),this.itemEffects.set(2002,this.equipArmor.bind(this))}useItem(t){if(!t||!t.item)return{success:!1,message:"无效的物品"};const e=t.item,s=this.itemEffects.get(e.id);if(s){const a=s(t);return a.success&&e.type==="consumable"&&(t.quantity--,t.quantity<=0)?{success:!0,message:a.message,consumed:!0}:a}return{success:!1,message:`无法使用 ${e.name}，这可能不是消耗品。`}}dropItem(t,e=1){if(!t||!t.item)return{success:!1,message:"无效的物品"};if(t.quantity<e)return{success:!1,message:"物品数量不足"};const s=t.item.name;return t.quantity-=e,{success:!0,message:`丢弃了 ${e} 个 ${s}`}}getItemDetails(t){if(!t||!t.item)return null;const e=t.item,s={name:e.name,type:this.getItemTypeName(e.type),rarity:e.rarity.name,rarityColor:e.rarity.color,quantity:t.quantity,maxStack:e.maxStack,description:e.description,icon:e.icon,canStack:e.maxStack>1,canUse:this.itemEffects.has(e.id),id:e.id};switch(e.type){case"weapon":s.category="武器",s.equippable=!0;break;case"armor":s.category="护甲",s.equippable=!0;break;case"consumable":s.category="消耗品",s.consumable=!0;break;case"material":s.category="材料",s.stackable=!0;break;case"quest":s.category="任务物品",s.questItem=!0;break;default:s.category="杂物"}return s}getItemTypeName(t){return{weapon:"武器",armor:"护甲",consumable:"消耗品",material:"材料",quest:"任务物品",misc:"杂物"}[t]||"未知"}canStack(t,e){return!t||!e?!1:t.item.id===e.item.id&&t.item.maxStack>1&&e.item.maxStack>1}mergeStacks(t,e){if(!this.canStack(t,e))return!1;const s=t.item.maxStack,a=t.quantity+e.quantity;return a<=s?(t.quantity=a,!0):(t.quantity=s,e.quantity=a-s,!1)}useHealthPotion(t){return{success:!0,message:"恢复了50点生命值！",effect:{type:"heal",value:50}}}useManaPotion(t){return{success:!0,message:"恢复了30点魔法值！",effect:{type:"mana",value:30}}}useStrengthPotion(t){return{success:!0,message:"力量增加了10点，持续5分钟！",effect:{type:"buff",stat:"strength",value:10,duration:300}}}equipWeapon(t){return{success:!0,message:`装备了 ${t.item.name}！`,effect:{type:"equip",item:t.item}}}equipArmor(t){return{success:!0,message:`装备了 ${t.item.name}！`,effect:{type:"equip",item:t.item}}}}class S{constructor(t,e){this.backpack=t,this.itemDatabase=e,this.itemLogic=new I,this.sortType=m.DEFAULT}addItem(t,e=1){const s=this.itemDatabase.getItem(t);if(!s)return{success:!1,message:"物品不存在"};if(s.maxStack>1){const a=this.findItemSlots(t);let i=e;for(const n of a){const o=n.getItem(),p=s.maxStack-o.quantity;if(p>0){const u=Math.min(p,i);if(o.quantity+=u,i-=u,i<=0)return{success:!0,message:`成功添加 ${e} 个 ${s.name}`}}}if(i>0)return this.addItemToNewSlot(s,i)}else return this.addItemToNewSlot(s,e);return{success:!1,message:"背包已满"}}addItemToNewSlot(t,e){const s=this.backpack.getFirstEmptySlot();if(!s)return{success:!1,message:"背包已满"};const a=window.ItemInstance||class{constructor(n,o){this.item=n,this.quantity=o,this.position=null}},i=new a(t,e);return s.setItem(i),{success:!0,message:`成功添加 ${e} 个 ${t.name}`}}removeItem(t,e=1){const s=this.backpack.getSlot(t);if(!s||s.isEmpty())return{success:!1,message:"该格子没有物品"};const a=s.getItem();return a.quantity<e?{success:!1,message:"物品数量不足"}:(a.quantity-=e,a.quantity<=0&&s.clear(),{success:!0,message:`移除了 ${e} 个 ${a.item.name}`})}moveItem(t,e){const s=this.backpack.getSlot(t),a=this.backpack.getSlot(e);if(!s||!a)return{success:!1,message:"无效的格子位置"};if(s.isEmpty())return{success:!1,message:"源格子没有物品"};if(t===e)return{success:!1,message:"不能移动到相同位置"};const i=s.getItem(),n=a.getItem();if(a.isEmpty())return a.setItem(i),s.clear(),{success:!0,message:"移动成功"};if(this.itemLogic.canStack(i,n)){const o=i.quantity;return this.itemLogic.mergeStacks(n,i),i.quantity<=0?(s.clear(),{success:!0,message:"堆叠成功"}):{success:!0,message:`部分堆叠：移动了 ${o-i.quantity} 个物品`}}return a.setItem(i),s.setItem(n),{success:!0,message:"交换成功"}}useItem(t){const e=this.backpack.getSlot(t);if(!e||e.isEmpty())return{success:!1,message:"该格子没有物品"};const s=this.itemLogic.useItem(e.getItem());return s.success&&s.consumed&&e.clear(),s}dropItem(t,e=1){const s=this.backpack.getSlot(t);if(!s||s.isEmpty())return{success:!1,message:"该格子没有物品"};const a=this.itemLogic.dropItem(s.getItem(),e);return a.success&&s.getItem().quantity<=0&&s.clear(),a}findItemSlots(t){return this.backpack.getUsedSlots().filter(e=>e.getItem().item.id===t)}getItemCount(t){return this.findItemSlots(t).reduce((s,a)=>s+a.getItem().quantity,0)}hasItem(t,e=1){return this.getItemCount(t)>=e}sortBackpack(t=m.DEFAULT){this.sortType=t;const e=[];return this.backpack.slots.forEach(s=>{s.isEmpty()||e.push({slot:s.index,item:s.getItem()})}),e.sort((s,a)=>{switch(t){case m.NAME:return s.item.item.name.localeCompare(a.item.item.name);case m.TYPE:return s.item.item.type.localeCompare(a.item.item.type);case m.QUANTITY:return a.item.quantity-s.item.quantity;case m.RARITY:return a.item.item.rarity.level-s.item.item.rarity.level;default:return s.slot-a.slot}}),this.backpack.slots.forEach(s=>s.clear()),e.forEach((s,a)=>{this.backpack.slots[a].setItem(s.item)}),{success:!0,message:"排序完成"}}expandBackpack(){return this.backpack.gold<g.EXPANSION_COST?{success:!1,message:"金币不足"}:this.backpack.size>=g.MAX_SIZE?{success:!1,message:"背包已达到最大容量"}:this.backpack.expand()?(this.backpack.gold-=g.EXPANSION_COST,{success:!0,message:`背包扩展成功，容量增加到 ${this.backpack.size} 格`}):{success:!1,message:"扩展失败"}}getBackpackStats(){const t=this.backpack.getUsedSlots().length,e=this.backpack.size,s=this.backpack.getTotalItemCount(),a=this.backpack.getItemCountByType();return{usedSlots:t,totalSlots:e,emptySlots:e-t,totalItems:s,gold:this.backpack.gold,itemCountsByType:a,usageRate:Math.round(t/e*100)}}saveBackpack(){try{const t=this.backpack.serialize();return localStorage.setItem("backpack_data",t),{success:!0,message:"保存成功"}}catch(t){return{success:!1,message:"保存失败: "+t.message}}}loadBackpack(){try{const t=localStorage.getItem("backpack_data");return t&&this.backpack.deserialize(t,this.itemDatabase)?{success:!0,message:"加载成功"}:{success:!1,message:"没有保存的数据"}}catch(t){return{success:!1,message:"加载失败: "+t.message}}}}class y{constructor(t,e={}){this.itemInstance=t,this.options={showQuantity:!0,showRarity:!0,draggable:!0,size:"medium",...e},this.element=null,this.tooltip=null,this.isHovered=!1}createElement(){if(!this.itemInstance||!this.itemInstance.item)return this.createEmptyElement();const t=this.itemInstance.item;this.element=document.createElement("div"),this.element.className=`item-component item-${this.options.size}`,this.element.dataset.itemId=t.id,this.element.dataset.quantity=this.itemInstance.quantity,this.options.showRarity&&(this.element.style.borderColor=t.rarity.color,this.element.style.boxShadow=`0 0 10px ${t.rarity.color}20`);const e=document.createElement("div");e.className="item-icon";const s=document.createElement("div");s.className="item-icon-inner";const a=this.generateItemColor(t.type);s.style.background=`linear-gradient(135deg, ${a.primary}, ${a.secondary})`;const i=document.createElement("div");if(i.className="item-type-indicator",i.textContent=this.getItemTypeIcon(t.type),i.style.color=a.text,s.appendChild(i),e.appendChild(s),this.options.showQuantity&&t.maxStack>1&&this.itemInstance.quantity>1){const o=document.createElement("div");o.className="item-quantity",o.textContent=this.formatQuantity(this.itemInstance.quantity),e.appendChild(o)}const n=document.createElement("div");return n.className="item-name",n.textContent=t.name,n.style.color=t.rarity.color,this.element.appendChild(e),this.element.appendChild(n),this.setupInteractions(),this.element}createEmptyElement(){return this.element=document.createElement("div"),this.element.className="item-component item-empty",this.element}setupInteractions(){this.element&&(this.element.addEventListener("mouseenter",()=>{this.isHovered=!0,this.showTooltip()}),this.element.addEventListener("mouseleave",()=>{this.isHovered=!1,this.hideTooltip()}),this.element.addEventListener("contextmenu",t=>{t.preventDefault(),this.showContextMenu(t)}),this.options.draggable&&(this.element.draggable=!0,this.element.addEventListener("dragstart",t=>{t.dataTransfer.effectAllowed="move",t.dataTransfer.setData("text/plain","");const e={type:"item",itemId:this.itemInstance.item.id,quantity:this.itemInstance.quantity,sourceSlot:this.itemInstance.position,source:"inventory"};t.dataTransfer.setData("itemData",JSON.stringify(e)),this.element.classList.add("dragging")}),this.element.addEventListener("dragend",()=>{this.element.classList.remove("dragging")})))}showTooltip(){if(this.tooltip)return;const t=this.itemInstance.item;this.tooltip=document.createElement("div"),this.tooltip.className="item-tooltip";const e=document.createElement("div");e.className="tooltip-content";const s=document.createElement("div");s.className="tooltip-header",s.innerHTML=`
+            <h3 style="color: ${t.rarity.color}">${t.name}</h3>
+            <span class="rarity-label">${t.rarity.name}</span>
+        `;const a=document.createElement("div");a.className="tooltip-type",a.textContent=this.getItemTypeName(t.type);const i=document.createElement("div");if(i.className="tooltip-description",i.textContent=t.description,t.maxStack>1){const n=document.createElement("div");n.className="tooltip-quantity",n.innerHTML=`
+                <span>数量: ${this.itemInstance.quantity} / ${t.maxStack}</span>
+            `,e.appendChild(n)}e.appendChild(s),e.appendChild(a),e.appendChild(i),this.tooltip.appendChild(e),document.body.appendChild(this.tooltip),this.positionTooltip(),requestAnimationFrame(()=>{this.tooltip.classList.add("show")})}hideTooltip(){this.tooltip&&(this.tooltip.classList.remove("show"),setTimeout(()=>{this.tooltip&&this.tooltip.parentNode&&this.tooltip.parentNode.removeChild(this.tooltip),this.tooltip=null},200))}positionTooltip(){if(!this.tooltip||!this.element)return;const t=this.element.getBoundingClientRect(),e=this.tooltip.getBoundingClientRect();let s=t.right+10,a=t.top;s+e.width>window.innerWidth&&(s=t.left-e.width-10),a+e.height>window.innerHeight&&(a=window.innerHeight-e.height-10),this.tooltip.style.left=s+"px",this.tooltip.style.top=a+"px"}showContextMenu(t){const e=document.createElement("div");e.className="item-context-menu",e.style.left=t.pageX+"px",e.style.top=t.pageY+"px";const s=this.itemInstance.item,a=this.itemLogic&&this.itemLogic.itemEffects.has(s.id);e.innerHTML=`
+            <div class="menu-item ${a?"":"disabled"}" data-action="use">
+                <span class="menu-icon">⚡</span>
+                使用
+            </div>
+            <div class="menu-item" data-action="drop">
+                <span class="menu-icon">🗑️</span>
+                丢弃
+            </div>
+            <div class="menu-item" data-action="info">
+                <span class="menu-icon">ℹ️</span>
+                详情
+            </div>
+        `,e.addEventListener("click",n=>{const o=n.target.closest("[data-action]");o&&(this.handleContextMenuAction(o.dataset.action),e.remove())}),document.body.appendChild(e);const i=n=>{e.contains(n.target)||(e.remove(),document.removeEventListener("click",i))};setTimeout(()=>{document.addEventListener("click",i)},100)}handleContextMenuAction(t){const e=new CustomEvent("item-action",{detail:{action:t,itemInstance:this.itemInstance,component:this}});document.dispatchEvent(e)}generateItemColor(t){return{weapon:{primary:"#ff6b6b",secondary:"#ee5a24",text:"#fff"},armor:{primary:"#4ecdc4",secondary:"#44a3aa",text:"#fff"},consumable:{primary:"#95e1d3",secondary:"#3fc1c9",text:"#2d3436"},material:{primary:"#f9ca24",secondary:"#f0932b",text:"#2d3436"},quest:{primary:"#a29bfe",secondary:"#6c5ce7",text:"#fff"},misc:{primary:"#fd79a8",secondary:"#e84393",text:"#fff"}}[t]||{primary:"#ddd",secondary:"#bbb",text:"#2d3436"}}getItemTypeIcon(t){return{weapon:"⚔️",armor:"🛡️",consumable:"🧪",material:"💎",quest:"📜",misc:"📦"}[t]||"❓"}getItemTypeName(t){return{weapon:"武器",armor:"护甲",consumable:"消耗品",material:"材料",quest:"任务物品",misc:"杂物"}[t]||"未知"}formatQuantity(t){return t>=1e3?Math.floor(t/1e3)+"k":t.toString()}update(){if(!this.element)return;const t=this.createElement();this.element.parentNode.replaceChild(t,this.element),this.element=t}destroy(){this.hideTooltip(),this.element&&this.element.parentNode&&this.element.parentNode.removeChild(this.element),this.element=null,this.tooltip=null}}class C{constructor(){this.draggedElement=null,this.draggedData=null,this.dragSource=null,this.isDragging=!1,this.init()}init(){this.createDragGhost(),document.addEventListener("dragstart",this.handleDragStart.bind(this),!0),document.addEventListener("dragover",this.handleDragOver.bind(this),!0),document.addEventListener("drop",this.handleDrop.bind(this),!0),document.addEventListener("dragend",this.handleDragEnd.bind(this),!0),document.addEventListener("dragenter",this.handleDragEnter.bind(this),!0),document.addEventListener("dragleave",this.handleDragLeave.bind(this),!0)}createDragGhost(){this.dragGhost=document.createElement("div"),this.dragGhost.id="drag-ghost",this.dragGhost.style.cssText=`
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+            opacity: 0.8;
+            transform: rotate(-5deg);
+            transition: none;
+            display: none;
+        `,document.body.appendChild(this.dragGhost)}handleDragStart(t){const e=t.target.closest('[draggable="true"]');e&&(this.draggedElement=e,this.draggedData={type:e.dataset.dragType,data:JSON.parse(e.dataset.dragData||"{}"),element:e},this.dragSource=t.target,this.isDragging=!0,t.dataTransfer.effectAllowed="move",t.dataTransfer.setData("text/plain",""),this.updateDragGhost(t),t.dataTransfer.setDragImage(this.dragGhost,0,0),e.classList.add("dragging"),document.body.classList.add("dragging-active"),this.triggerCustomEvent("dragstart",{element:e,data:this.draggedData,originalEvent:t}))}handleDragOver(t){if(!this.isDragging)return;const e=t.target.closest("[data-drop-zone]");e&&(t.preventDefault(),t.dataTransfer.dropEffect="move",this.updateDragGhost(t),this.highlightDropTarget(e))}handleDrop(t){if(!this.isDragging)return;t.preventDefault();const e=t.target.closest("[data-drop-zone]");if(e){const s={zone:e.dataset.dropZone,index:parseInt(e.dataset.dropIndex)||0,target:e};this.triggerCustomEvent("item-drop",{draggedData:this.draggedData,dropData:s,originalEvent:t}),this.executeDrop(s)}this.clearDragState()}handleDragEnd(t){this.isDragging&&(this.triggerCustomEvent("dragend",{element:this.draggedElement,data:this.draggedData,cancelled:t.dataTransfer.dropEffect==="none"}),this.clearDragState())}handleDragEnter(t){if(!this.isDragging)return;const e=t.target.closest("[data-drop-zone]");e&&e.classList.add("drop-target-hover")}handleDragLeave(t){if(!this.isDragging)return;const e=t.target.closest("[data-drop-zone]");if(e){const s=e.getBoundingClientRect(),a=t.clientX,i=t.clientY;(a<s.left||a>s.right||i<s.top||i>s.bottom)&&e.classList.remove("drop-target-hover")}}updateDragGhost(t){if(!this.draggedElement)return;const e=this.draggedElement.cloneNode(!0);e.style.cssText=`
+            width: ${this.draggedElement.offsetWidth}px;
+            height: ${this.draggedElement.offsetHeight}px;
+            background: rgba(99, 99, 230, 0.9);
+            border: 2px solid #6363e6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 8px 32px rgba(99, 99, 230, 0.3);
+        `,this.dragGhost.innerHTML="",this.dragGhost.appendChild(e),this.dragGhost.style.display="block",this.dragGhost.style.left=t.clientX-this.draggedElement.offsetWidth/2+"px",this.dragGhost.style.top=t.clientY-this.draggedElement.offsetHeight/2+"px"}highlightDropTarget(t){document.querySelectorAll(".drop-target-valid").forEach(e=>{e.classList.remove("drop-target-valid")}),t.classList.add("drop-target-valid")}executeDrop(t){if(!this.draggedData)return;const e=new CustomEvent("item-drop",{detail:{draggedData:this.draggedData,dropData:t}});document.dispatchEvent(e)}clearDragState(){this.draggedElement&&this.draggedElement.classList.remove("dragging"),document.querySelectorAll(".drop-target-hover, .drop-target-valid").forEach(t=>{t.classList.remove("drop-target-hover","drop-target-valid")}),document.body.classList.remove("dragging-active"),this.dragGhost&&(this.dragGhost.style.display="none"),this.draggedElement=null,this.draggedData=null,this.dragSource=null,this.isDragging=!1}triggerCustomEvent(t,e){const s=new CustomEvent(`dragdrop:${t}`,{detail:e});document.dispatchEvent(s)}makeDraggable(t,e,s){t&&(t.draggable=!0,t.dataset.dragType=e,t.dataset.dragData=JSON.stringify(s),t.classList.add("draggable-item"))}makeDroppable(t,e,s=0){t&&(t.dataset.dropZone=e,t.dataset.dropIndex=s,t.classList.add("drop-zone"))}destroy(){document.removeEventListener("dragstart",this.handleDragStart,!0),document.removeEventListener("dragover",this.handleDragOver,!0),document.removeEventListener("drop",this.handleDrop,!0),document.removeEventListener("dragend",this.handleDragEnd,!0),document.removeEventListener("dragenter",this.handleDragEnter,!0),document.removeEventListener("dragleave",this.handleDragLeave,!0),this.dragGhost&&this.dragGhost.parentNode&&this.dragGhost.parentNode.removeChild(this.dragGhost),this.clearDragState()}}class w{constructor(t,e={}){this.backpackLogic=t,this.options={columns:5,showStats:!0,showToolbar:!0,draggable:!0,...e},this.element=null,this.gridElement=null,this.statsElement=null,this.toolbarElement=null,this.slotElements=[],this.dragDropManager=null,this.itemComponents=new Map}createElement(){this.element=document.createElement("div"),this.element.className="backpack-component";const t=this.createHeader();return this.element.appendChild(t),this.options.showToolbar&&(this.toolbarElement=this.createToolbar(),this.element.appendChild(this.toolbarElement)),this.gridElement=this.createGrid(),this.element.appendChild(this.gridElement),this.options.showStats&&(this.statsElement=this.createStats(),this.element.appendChild(this.statsElement)),this.options.draggable&&this.initDragDrop(),this.updateDisplay(),this.element}createHeader(){const t=document.createElement("div");t.className="backpack-header";const e=document.createElement("h2");e.textContent="背包",e.className="backpack-title";const s=document.createElement("div");return s.className="backpack-subtitle",s.textContent="冒险者的行囊",t.appendChild(e),t.appendChild(s),t}createToolbar(){const t=document.createElement("div");t.className="backpack-toolbar";const e=document.createElement("div");e.className="toolbar-group";const s=document.createElement("span");s.textContent="排序:",s.className="toolbar-label";const a=document.createElement("select");a.className="toolbar-select",[{value:m.DEFAULT,text:"默认"},{value:m.NAME,text:"名称"},{value:m.TYPE,text:"类型"},{value:m.QUANTITY,text:"数量"},{value:m.RARITY,text:"稀有度"}].forEach(h=>{const f=document.createElement("option");f.value=h.value,f.textContent=h.text,a.appendChild(f)}),a.addEventListener("change",h=>{this.backpackLogic.sortBackpack(h.target.value),this.updateDisplay()}),e.appendChild(s),e.appendChild(a);const n=document.createElement("div");n.className="toolbar-group";const o=document.createElement("button");o.className="toolbar-button",o.innerHTML="📦 扩展背包",o.addEventListener("click",()=>{const h=this.backpackLogic.expandBackpack();h.success?(this.updateDisplay(),this.showNotification(h.message,"success")):this.showNotification(h.message,"error")}),n.appendChild(o);const p=document.createElement("div");p.className="toolbar-group";const u=document.createElement("button");return u.className="toolbar-button",u.innerHTML="🔄 整理",u.addEventListener("click",()=>{this.backpackLogic.sortBackpack(m.TYPE),a.value=m.TYPE,this.updateDisplay(),this.showNotification("背包已整理","success")}),p.appendChild(u),t.appendChild(e),t.appendChild(p),t.appendChild(n),t}createGrid(){const t=document.createElement("div");t.className="backpack-grid",t.style.gridTemplateColumns=`repeat(${this.options.columns}, 1fr)`;for(let e=0;e<this.backpackLogic.backpack.size;e++){const s=this.createSlot(e);t.appendChild(s),this.slotElements[e]=s}return t}createSlot(t){this.backpackLogic.backpack.getSlot(t);const e=document.createElement("div");e.className="backpack-slot",e.dataset.slotIndex=t,e.dataset.dropZone="backpack",e.dataset.dropIndex=t;const s=document.createElement("div");return s.className="slot-number",s.textContent=t+1,e.appendChild(s),this.options.draggable&&(e.addEventListener("dragover",a=>{a.preventDefault(),e.classList.add("slot-hover")}),e.addEventListener("dragleave",()=>{e.classList.remove("slot-hover")}),e.addEventListener("drop",a=>{a.preventDefault(),e.classList.remove("slot-hover"),this.handleItemDrop(t)})),e}createStats(){const t=document.createElement("div");t.className="backpack-stats";const e=this.backpackLogic.getBackpackStats();return t.innerHTML=`
+            <div class="stat-item">
+                <span class="stat-label">已用格子:</span>
+                <span class="stat-value">${e.usedSlots} / ${e.totalSlots}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">物品总数:</span>
+                <span class="stat-value">${e.totalItems}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">金币:</span>
+                <span class="stat-value">${e.gold.toLocaleString()}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">使用率:</span>
+                <span class="stat-value">${e.usageRate}%</span>
+            </div>
+        `,t}initDragDrop(){this.dragDropManager=new C,document.addEventListener("item-drop",t=>{this.handleItemDrop(t.detail.dropData.index)}),document.addEventListener("item-action",t=>{t.detail.component instanceof y&&this.handleItemAction(t.detail.action,t.detail.itemInstance)})}handleItemDrop(t){this.showNotification(`物品放置到格子 ${t+1}`,"info"),this.updateDisplay()}handleItemAction(t,e){switch(t){case"use":const s=this.backpackLogic.useItem(e.position);this.showNotification(s.message,s.success?"success":"error"),s.success&&this.updateDisplay();break;case"drop":const a=this.backpackLogic.dropItem(e.position);this.showNotification(a.message,a.success?"success":"error"),a.success&&this.updateDisplay();break}}updateDisplay(){for(let t=0;t<this.backpackLogic.backpack.size;t++){const e=this.backpackLogic.backpack.getSlot(t),s=this.slotElements[t];e&&s&&this.updateSlotDisplay(s,e)}if(this.statsElement){const t=this.createStats();this.statsElement.innerHTML=t.innerHTML}}updateSlotDisplay(t,e){const s=t.querySelector(".slot-number");if(t.innerHTML="",t.appendChild(s),!e.isEmpty()){const a=e.getItem(),i=new y(a,{showQuantity:!0,showRarity:!0,draggable:this.options.draggable,size:"medium"}),n=i.createElement();t.appendChild(n),this.itemComponents.set(e.index,i)}t.classList.toggle("slot-empty",e.isEmpty()),t.classList.toggle("slot-locked",e.isLocked())}showNotification(t,e="info"){const s=document.createElement("div");s.className=`notification notification-${e}`,s.textContent=t,s.style.cssText=`
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        `;const a={success:"#22c55e",error:"#ef4444",info:"#3b82f6",warning:"#f59e0b"};s.style.backgroundColor=a[e]||a.info,document.body.appendChild(s),requestAnimationFrame(()=>{s.style.transform="translateX(0)"}),setTimeout(()=>{s.style.transform="translateX(100%)",setTimeout(()=>{s.parentNode&&s.parentNode.removeChild(s)},300)},3e3)}destroy(){this.dragDropManager&&this.dragDropManager.destroy(),this.itemComponents.forEach(t=>{t.destroy()}),this.itemComponents.clear(),this.slotElements=[],this.element&&this.element.parentNode&&this.element.parentNode.removeChild(this.element),this.element=null,this.gridElement=null,this.statsElement=null,this.toolbarElement=null}}class N{constructor(){this.itemDatabase=E,this.backpack=null,this.backpackLogic=null,this.backpackComponent=null,this.isInitialized=!1,window.ItemInstance=b,this.init()}async init(){try{console.log("🎒 正在初始化背包系统..."),this.backpack=new v,this.backpackLogic=new S(this.backpack,this.itemDatabase),this.backpackComponent=new w(this.backpackLogic,{columns:5,showStats:!0,showToolbar:!0,draggable:!0}),document.readyState==="loading"?document.addEventListener("DOMContentLoaded",()=>{this.setupUI()}):this.setupUI(),this.loadSavedData(),this.addTestItems(),this.isInitialized=!0,console.log("✅ 背包系统初始化完成！")}catch(t){console.error("❌ 背包系统初始化失败:",t)}}setupUI(){const t=document.getElementById("app")||document.body,e=document.createElement("header");e.className="app-header",e.innerHTML=`
+            <h1>🎒 冒险者背包系统</h1>
+            <p>管理你的装备和道具</p>
+        `;const s=this.createControlPanel(),a=document.createElement("div");a.className="backpack-container",a.id="backpack-container";const i=this.backpackComponent.createElement();a.appendChild(i);const n=this.createQuickBar();t.appendChild(e),t.appendChild(s),t.appendChild(a),t.appendChild(n),this.setupEventListeners()}createControlPanel(){const t=document.createElement("div");return t.className="control-panel",t.innerHTML=`
+            <div class="control-group">
+                <h3>📦 物品管理</h3>
+                <div class="control-buttons">
+                    <button id="btn-add-random" class="control-btn">添加随机物品</button>
+                    <button id="btn-clear-all" class="control-btn">清空背包</button>
+                    <button id="btn-save" class="control-btn">保存数据</button>
+                    <button id="btn-load" class="control-btn">加载数据</button>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>🎯 快速添加</h3>
+                <div class="quick-add">
+                    <select id="item-selector" class="item-selector">
+                        <option value="">选择物品...</option>
+                    </select>
+                    <input type="number" id="quantity-input" class="quantity-input" value="1" min="1" max="999">
+                    <button id="btn-add-selected" class="control-btn">添加</button>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>💰 金币管理</h3>
+                <div class="gold-controls">
+                    <input type="number" id="gold-input" class="gold-input" value="0" min="0">
+                    <button id="btn-add-gold" class="control-btn">添加金币</button>
+                </div>
+            </div>
+        `,t}createQuickBar(){const t=document.createElement("div");return t.className="quick-bar",t.innerHTML=`
+            <div class="quick-item" data-item-id="3001" title="生命药水">🧪</div>
+            <div class="quick-item" data-item-id="3002" title="魔法药水">💙</div>
+            <div class="quick-item" data-item-id="3003" title="力量药剂">💪</div>
+            <div class="quick-item" data-item-id="1001" title="铁剑">⚔️</div>
+            <div class="quick-item" data-item-id="2001" title="皮甲">🛡️</div>
+        `,t.addEventListener("click",e=>{const s=e.target.closest(".quick-item");if(s){const a=parseInt(s.dataset.itemId);this.addItem(a,1)}}),t}setupEventListeners(){document.getElementById("btn-add-random").addEventListener("click",()=>{this.addRandomItems()}),document.getElementById("btn-clear-all").addEventListener("click",()=>{confirm("确定要清空整个背包吗？")&&this.clearBackpack()}),document.getElementById("btn-save").addEventListener("click",()=>{this.saveData()}),document.getElementById("btn-load").addEventListener("click",()=>{this.loadSavedData()}),document.getElementById("btn-add-selected").addEventListener("click",()=>{const t=parseInt(document.getElementById("item-selector").value),e=parseInt(document.getElementById("quantity-input").value);t?this.addItem(t,e):this.showNotification("请先选择一个物品","warning")}),document.getElementById("btn-add-gold").addEventListener("click",()=>{const t=parseInt(document.getElementById("gold-input").value);t>0&&(this.backpack.gold+=t,this.backpackComponent.updateDisplay(),this.showNotification(`添加了 ${t} 金币`,"success"))}),this.populateItemSelector(),document.addEventListener("item-drop",t=>{this.handleItemDrop(t.detail)})}populateItemSelector(){const t=document.getElementById("item-selector");this.itemDatabase.getAllItems().forEach(s=>{const a=document.createElement("option");a.value=s.id,a.textContent=`${s.name} (${this.getItemTypeName(s.type)})`,t.appendChild(a)})}addItem(t,e=1){const s=this.backpackLogic.addItem(t,e);return this.showNotification(s.message,s.success?"success":"error"),s.success&&this.backpackComponent.updateDisplay(),s.success}addRandomItems(){const t=this.itemDatabase.getAllItems(),e=Math.floor(Math.random()*5)+1;for(let s=0;s<e;s++){const a=t[Math.floor(Math.random()*t.length)],i=Math.floor(Math.random()*Math.min(a.maxStack,10))+1;this.addItem(a.id,i)}}addTestItems(){this.addItem(3001,10),this.addItem(3002,8),this.addItem(1001,1),this.addItem(2001,1),this.addItem(4001,50),this.addItem(6001,100),this.backpack.gold=500,this.backpackComponent.updateDisplay()}clearBackpack(){this.backpack.slots.forEach(t=>{t.clear()}),this.backpack.gold=0,this.backpackComponent.updateDisplay(),this.showNotification("背包已清空","info")}handleItemDrop(t){const{draggedData:e,dropData:s}=t;if(e.type==="item"){const a=e.data.sourceSlot,i=s.index;if(a!==void 0&&i!==void 0){const n=this.backpackLogic.moveItem(a,i);n.success?this.showNotification(n.message,"success"):this.showNotification(n.message,"error"),this.backpackComponent.updateDisplay()}else this.showNotification(`将 ${e.data.itemId} 放置到格子 ${i+1}`,"info")}}saveData(){const t=this.backpackLogic.saveBackpack();this.showNotification(t.message,t.success?"success":"error")}loadSavedData(){const t=this.backpackLogic.loadBackpack();t.success?(this.backpackComponent.updateDisplay(),this.showNotification(t.message,"success")):t.message!=="没有保存的数据"&&this.showNotification(t.message,"warning")}showNotification(t,e="info"){this.backpackComponent?this.backpackComponent.showNotification(t,e):console.log(`[${e.toUpperCase()}] ${t}`)}getItemTypeName(t){return{weapon:"武器",armor:"护甲",consumable:"消耗品",material:"材料",quest:"任务物品",misc:"杂物"}[t]||"未知"}getStatus(){return{initialized:this.isInitialized,backpackSize:this.backpack.size,gold:this.backpack.gold,itemCount:this.backpack.getTotalItemCount(),usedSlots:this.backpack.getUsedSlots().length}}}window.BackpackSystem=new N;window.addItem=(c,t)=>window.BackpackSystem.addItem(c,t);window.clearBackpack=()=>window.BackpackSystem.clearBackpack();window.saveBackpack=()=>window.BackpackSystem.saveData();window.loadBackpack=()=>window.BackpackSystem.loadSavedData();window.getBackpackStatus=()=>window.BackpackSystem.getStatus();
+</script>
+  <style rel="stylesheet" crossorigin>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Inter,Space Grotesk,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;background:linear-gradient(135deg,#0f172a,#1e293b);color:#e2e8f0;min-height:100vh;overflow-x:hidden}body:before{content:"";position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 20% 80%,rgba(99,99,230,.1) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(6,6,212,.1) 0%,transparent 50%);pointer-events:none;z-index:-1}.app-header{text-align:center;padding:2rem 1rem;background:#0f172acc;backdrop-filter:blur(10px);border-bottom:1px solid rgba(99,99,230,.2);margin-bottom:2rem}.app-header h1{font-size:2.5rem;font-weight:700;background:linear-gradient(135deg,#6363e6,#0606d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.5rem;text-shadow:0 0 20px rgba(99,99,230,.3)}.app-header p{font-size:1.1rem;color:#94a3b8;font-weight:300}.control-panel{max-width:1200px;margin:0 auto 2rem;padding:0 1rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem}.control-group{background:#1e293b99;backdrop-filter:blur(10px);border:1px solid rgba(99,99,230,.2);border-radius:12px;padding:1.5rem;box-shadow:0 8px 32px #02081466}.control-group h3{color:#6363e6;margin-bottom:1rem;font-size:1.1rem;font-weight:600}.control-buttons{display:flex;gap:.5rem;flex-wrap:wrap}.control-btn{background:linear-gradient(135deg,#6363e6,#0606d4);color:#fff;border:none;padding:.5rem 1rem;border-radius:8px;font-size:.9rem;font-weight:500;cursor:pointer;transition:all .3s ease;box-shadow:0 4px 15px #6363e64d}.control-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px #6363e666}.control-btn:active{transform:translateY(0)}.quick-add,.gold-controls{display:flex;gap:.5rem;align-items:center}.item-selector,.quantity-input,.gold-input{background:#0f172acc;border:1px solid rgba(99,99,230,.3);border-radius:8px;padding:.5rem;color:#e2e8f0;font-size:.9rem}.item-selector:focus,.quantity-input:focus,.gold-input:focus{outline:none;border-color:#6363e6;box-shadow:0 0 0 3px #6363e633}.backpack-container{max-width:1200px;margin:0 auto;padding:0 1rem 2rem}.backpack-component{background:#1e293b99;backdrop-filter:blur(10px);border:1px solid rgba(99,99,230,.2);border-radius:16px;padding:2rem;box-shadow:0 12px 40px #02081480;margin-bottom:2rem}.backpack-header{text-align:center;margin-bottom:2rem}.backpack-title{font-size:2rem;color:#6363e6;margin-bottom:.5rem;font-weight:700}.backpack-subtitle{color:#64748b;font-size:1rem}.backpack-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;padding:1rem;background:#0f172a66;border-radius:12px;border:1px solid rgba(99,99,230,.1);flex-wrap:wrap;gap:1rem}.toolbar-group{display:flex;align-items:center;gap:.5rem}.toolbar-label{color:#94a3b8;font-size:.9rem;font-weight:500}.toolbar-select{background:#0f172acc;border:1px solid rgba(99,99,230,.3);border-radius:8px;padding:.5rem 1rem;color:#e2e8f0;font-size:.9rem;cursor:pointer}.toolbar-button{background:linear-gradient(135deg,#6363e6,#0606d4);color:#fff;border:none;padding:.5rem 1rem;border-radius:8px;font-size:.9rem;font-weight:500;cursor:pointer;transition:all .3s ease;box-shadow:0 4px 15px #6363e64d}.toolbar-button:hover{transform:translateY(-2px);box-shadow:0 6px 20px #6363e666}.backpack-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;margin-bottom:2rem;padding:1rem;background:#0f172a4d;border-radius:12px;border:1px solid rgba(99,99,230,.1)}.backpack-slot{aspect-ratio:1;background:#0f172a99;border:2px solid rgba(99,99,230,.2);border-radius:12px;position:relative;transition:all .3s ease;cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden}.backpack-slot:hover{border-color:#6363e6;box-shadow:0 0 20px #6363e64d;transform:translateY(-2px)}.backpack-slot.slot-empty{border-style:dashed;border-color:#6363e61a}.backpack-slot.slot-locked{background:#0f172acc;border-color:#94a3b833;cursor:not-allowed}.backpack-slot.slot-locked:after{content:"🔒";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.5rem;opacity:.5}.slot-number{position:absolute;top:4px;left:4px;font-size:.7rem;color:#64748b;background:#0f172acc;padding:2px 4px;border-radius:4px;font-weight:500}.backpack-slot.slot-hover{border-color:#6363e6;background:#6363e61a;box-shadow:0 0 25px #6363e666}.backpack-slot.drop-target-valid{border-color:#22c55e;background:#22c55e1a}.item-component{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.5rem;position:relative;border-radius:8px;background:#ffffff0d;border:1px solid rgba(255,255,255,.1);transition:all .3s ease;cursor:grab}.item-component:hover{background:#ffffff1a;transform:scale(1.05)}.item-component.dragging{opacity:.5;transform:rotate(-5deg) scale(.9)}.item-icon{width:60%;height:60%;margin-bottom:.25rem;position:relative}.item-icon-inner{width:100%;height:100%;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;box-shadow:inset 0 2px 4px #0003;position:relative;overflow:hidden}.item-icon-inner:before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.2),transparent);border-radius:8px}.item-type-indicator{font-size:1.2rem;z-index:1;position:relative}.item-quantity{position:absolute;bottom:-4px;right:-4px;background:linear-gradient(135deg,#6363e6,#0606d4);color:#fff;font-size:.7rem;font-weight:600;padding:2px 6px;border-radius:10px;min-width:20px;text-align:center;box-shadow:0 2px 8px #0000004d;z-index:2}.item-name{font-size:.7rem;font-weight:500;text-align:center;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%}.item-tooltip{position:absolute;background:#0f172af2;backdrop-filter:blur(10px);border:1px solid rgba(99,99,230,.3);border-radius:12px;padding:1rem;min-width:200px;max-width:300px;z-index:1000;box-shadow:0 8px 32px #02081499;opacity:0;transform:translateY(10px);transition:all .3s ease;pointer-events:none}.item-tooltip.show{opacity:1;transform:translateY(0)}.tooltip-content{color:#e2e8f0}.tooltip-header{margin-bottom:.5rem;padding-bottom:.5rem;border-bottom:1px solid rgba(99,99,230,.2)}.tooltip-header h3{font-size:1.1rem;margin-bottom:.25rem;font-weight:600}.rarity-label{font-size:.8rem;padding:2px 6px;border-radius:4px;background:#6363e633;color:#6363e6;font-weight:500}.tooltip-type{font-size:.9rem;color:#94a3b8;margin-bottom:.5rem}.tooltip-description{font-size:.9rem;line-height:1.4;color:#cbd5e1}.tooltip-quantity{margin-top:.5rem;padding-top:.5rem;border-top:1px solid rgba(99,99,230,.1);font-size:.8rem;color:#94a3b8}.item-context-menu{position:absolute;background:#0f172af2;backdrop-filter:blur(10px);border:1px solid rgba(99,99,230,.3);border-radius:8px;padding:.5rem 0;min-width:120px;z-index:1001;box-shadow:0 8px 32px #02081499}.menu-item{padding:.5rem 1rem;cursor:pointer;transition:background-color .2s ease;display:flex;align-items:center;gap:.5rem;color:#e2e8f0;font-size:.9rem}.menu-item:hover{background:#6363e61a}.menu-item.disabled{opacity:.5;cursor:not-allowed}.menu-icon{font-size:1rem}.backpack-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;padding:1rem;background:#0f172a66;border-radius:12px;border:1px solid rgba(99,99,230,.1)}.stat-item{display:flex;justify-content:space-between;align-items:center;padding:.5rem;background:#0f172a99;border-radius:8px;border:1px solid rgba(99,99,230,.1)}.stat-label{color:#94a3b8;font-size:.9rem}.stat-value{color:#6363e6;font-weight:600;font-size:1rem}.quick-bar{position:fixed;bottom:2rem;left:50%;transform:translate(-50%);display:flex;gap:.5rem;padding:1rem;background:#1e293bcc;backdrop-filter:blur(10px);border:1px solid rgba(99,99,230,.2);border-radius:16px;box-shadow:0 8px 32px #02081499}.quick-item{width:50px;height:50px;background:#0f172a99;border:2px solid rgba(99,99,230,.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;cursor:pointer;transition:all .3s ease;position:relative}.quick-item:hover{border-color:#6363e6;background:#6363e61a;transform:translateY(-2px);box-shadow:0 4px 15px #6363e64d}.quick-item:active{transform:translateY(0)}.notification{position:fixed;top:20px;right:20px;padding:12px 20px;border-radius:8px;color:#fff;font-weight:500;z-index:10000;transform:translate(100%);transition:transform .3s ease;box-shadow:0 4px 15px #0000004d}.notification-success{background:linear-gradient(135deg,#22c55e,#16a34a)}.notification-error{background:linear-gradient(135deg,#ef4444,#dc2626)}.notification-info{background:linear-gradient(135deg,#3b82f6,#2563eb)}.notification-warning{background:linear-gradient(135deg,#f59e0b,#d97706)}.dragging-active{cursor:grabbing!important}#drag-ghost{transition:none!important}@media (max-width: 768px){.app-header h1{font-size:2rem}.backpack-grid{grid-template-columns:repeat(4,1fr);gap:.75rem}.control-panel{grid-template-columns:1fr}.backpack-toolbar{flex-direction:column;align-items:stretch}.toolbar-group{justify-content:center}.quick-bar{bottom:1rem;padding:.75rem}.quick-item{width:40px;height:40px;font-size:1.2rem}}@media (max-width: 480px){.backpack-grid{grid-template-columns:repeat(3,1fr);gap:.5rem}.backpack-component{padding:1rem}.control-btn,.toolbar-button{font-size:.8rem;padding:.4rem .8rem}}@keyframes slideInUp{0%{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}@keyframes fadeIn{0%{opacity:0}to{opacity:1}}@keyframes pulse{0%,to{transform:scale(1)}50%{transform:scale(1.05)}}.backpack-component{animation:slideInUp .6s ease-out}.item-component{animation:fadeIn .3s ease-out}.backpack-slot:hover .item-component{animation:pulse .6s ease-in-out}::-webkit-scrollbar{width:8px}::-webkit-scrollbar-track{background:#0f172a4d}::-webkit-scrollbar-thumb{background:linear-gradient(135deg,#6363e6,#0606d4);border-radius:4px}::-webkit-scrollbar-thumb:hover{background:linear-gradient(135deg,#7c7cf0,#1a1ae8)}.loading{display:inline-block;width:20px;height:20px;border:3px solid rgba(99,99,230,.3);border-radius:50%;border-top-color:#6363e6;animation:spin 1s ease-in-out infinite}@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+    <!-- 加载界面 -->
+    <div class="app-loading" id="app-loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">正在加载背包系统...</div>
+        <div class="loading-subtext">初始化物品数据 • 配置界面 • 准备就绪</div>
+    </div>
+    
+    <!-- 主要内容区域 -->
+    <div id="app"></div>
+    
+    <!-- 错误提示 -->
+    <div id="error-container" style="display: none; position: fixed; top: 20px; right: 20px; background: #ef4444; color: white; padding: 1rem; border-radius: 8px; z-index: 10000;"></div>
+    
+    <!-- 主脚本 -->
+    
+    <!-- 初始化脚本 -->
+    <script>
+        // 全局错误处理
+        window.addEventListener('error', (e) => {
+            console.error('全局错误:', e.error);
+            showError('系统错误: ' + e.message);
+        });
+        
+        window.addEventListener('unhandledrejection', (e) => {
+            console.error('未处理的Promise拒绝:', e.reason);
+            showError('系统错误: ' + e.reason);
+        });
+        
+        function showError(message) {
+            const errorContainer = document.getElementById('error-container');
+            errorContainer.textContent = message;
+            errorContainer.style.display = 'block';
+            
+            setTimeout(() => {
+                errorContainer.style.display = 'none';
+            }, 5000);
+        }
+        
+        // 等待系统初始化完成
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const loading = document.getElementById('app-loading');
+                loading.classList.add('hidden');
+                
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                }, 500);
+            }, 1500);
+        });
+        
+        // 控制台欢迎信息
+        console.log(`
+        🎒 冒险者背包系统 v1.0.0
+        
+        欢迎使用背包系统！
+        
+        📝 可用命令:
+        • window.BackpackSystem - 访问背包系统主实例
+        • addItem(itemId, quantity) - 添加物品
+        • clearBackpack() - 清空背包
+        • saveBackpack() - 保存数据
+        • loadBackpack() - 加载数据
+        • getBackpackStatus() - 获取系统状态
+        
+        🔧 开发者工具:
+        • 拖拽物品进行移动和堆叠
+        • 右键点击物品查看操作菜单
+        • 使用工具栏进行排序和扩展
+        • 快捷工具栏快速添加常用物品
+        
+        💡 提示:
+        • 同类物品会自动堆叠
+        • 拖拽物品可以交换位置
+        • 消耗品可以右键使用
+        • 数据会自动保存到本地存储
+        `);
+    </script>
+</body>
+</html>

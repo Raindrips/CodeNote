@@ -1,0 +1,189 @@
+version: '3.8'
+
+services:
+  # 游戏服务端
+  game-server:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: multiplayer-game-server
+    ports:
+      - "${SERVER_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=3000
+      - HOST=0.0.0.0
+      - MAX_USERS=${MAX_USERS:-100}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - START_SERVER=true
+      - START_CLIENT=false
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./config.json:/app/config.json:ro
+    restart: unless-stopped
+    networks:
+      - game-network
+    healthcheck:
+      test: ["CMD", "node", "/tmp/health_check.js"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # 游戏客户端
+  game-client:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: multiplayer-game-client
+    ports:
+      - "${CLIENT_PORT:-5173}:5173"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - CLIENT_PORT=5173
+      - HOST=0.0.0.0
+      - SERVER_PORT=3000
+      - SERVER_HOST=game-server
+      - START_SERVER=false
+      - START_CLIENT=true
+      - OPEN_BROWSER=false
+    volumes:
+      - ./logs:/app/logs
+      - ./config.json:/app/config.json:ro
+    restart: unless-stopped
+    depends_on:
+      - game-server
+    networks:
+      - game-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5173/health", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Nginx反向代理（可选）
+  nginx:
+    image: nginx:alpine
+    container_name: multiplayer-game-nginx
+    ports:
+      - "${NGINX_PORT:-80}:80"
+      - "${NGINX_SSL_PORT:-443}:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - game-server
+      - game-client
+    networks:
+      - game-network
+    restart: unless-stopped
+    profiles:
+      - with-nginx
+
+  # Redis缓存（可选）
+  redis:
+    image: redis:7-alpine
+    container_name: multiplayer-game-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - game-network
+    restart: unless-stopped
+    profiles:
+      - with-redis
+
+  # MongoDB数据库（可选）
+  mongodb:
+    image: mongo:6
+    container_name: multiplayer-game-mongodb
+    ports:
+      - "${MONGODB_PORT:-27017}:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD:-password}
+      - MONGO_INITDB_DATABASE=${MONGODB_DATABASE:-multiplayer_game}
+    volumes:
+      - mongodb-data:/data/db
+      - ./mongodb-init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - game-network
+    restart: unless-stopped
+    profiles:
+      - with-mongodb
+
+  # 监控（可选）
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: multiplayer-game-prometheus
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - game-network
+    restart: unless-stopped
+    profiles:
+      - with-monitoring
+
+  # Grafana监控面板（可选）
+  grafana:
+    image: grafana/grafana:latest
+    container_name: multiplayer-game-grafana
+    ports:
+      - "${GRAFANA_PORT:-3001}:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+    networks:
+      - game-network
+    restart: unless-stopped
+    profiles:
+      - with-monitoring
+
+networks:
+  game-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  redis-data:
+    driver: local
+  mongodb-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local

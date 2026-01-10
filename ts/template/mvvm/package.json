@@ -1,0 +1,12 @@
+{
+  "name": "mvvm",
+  "version": "1.0.0",
+  "description": "-   添加标签\r -   删除标签\r -   获取标签",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

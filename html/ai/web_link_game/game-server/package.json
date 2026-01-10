@@ -1,0 +1,24 @@
+{
+  "name": "simple-multiplayer-game-server",
+  "version": "1.0.0",
+  "description": "简易联机游戏服务端",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "websocket",
+    "game",
+    "multiplayer",
+    "nodejs"
+  ],
+  "author": "尹云剑",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.14.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

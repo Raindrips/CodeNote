@@ -1,4 +1,5 @@
-// 简易版 Observable 实现
+// 简易版 Observable 实现 
+// 功能,值被修改后就会通知对象
 type Listener<T> = (newValue: T) => void;
 
 class Observable<T> {

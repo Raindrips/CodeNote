@@ -1,4 +1,4 @@
-class CircularQueue<T> {
+export class CircularQueue<T> {
     private buffer: Array<T | undefined>;
     private head = 0; // index of next element to remove
     private tail = 0; // index of next insertion
