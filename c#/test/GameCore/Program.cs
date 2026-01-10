@@ -6,10 +6,24 @@ void TestConfig()
     config.Set("key", "value");
     config.Set("a", 1000);
 
-    var a=config.Get("a", 10);
-    var b=config.Get<string>("key");
+    var a = config.Get("a", 10);
+    var b = config.Get<string>("key");
 
-    Console.WriteLine(a+" "+b);
+    Console.WriteLine(a + " " + b);
 }
 
-TestConfig();
+void TestEnhancedDynamicStore()
+{
+    var enhancedDynamicStore = new EnhancedDynamicStore();
+    enhancedDynamicStore.Set("key", "value");
+    enhancedDynamicStore.Set("a", 1000);
+    enhancedDynamicStore.Set("b", Tuple.Create(1, 1.2));
+
+    foreach(var data in enhancedDynamicStore.Entries)
+    {
+        Console.WriteLine(data.Key + " " + data.Value);
+    }
+}
+
+//TestConfig();
+TestEnhancedDynamicStore();
