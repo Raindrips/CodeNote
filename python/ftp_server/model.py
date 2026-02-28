@@ -75,14 +75,16 @@ class FtpServerModel:
         self,
         root_path: str,
         username: Optional[str],
-        allow_upload: bool,
-        allow_modify_delete: bool,
+        password: str = "",
+        allow_upload: bool = False,
+        allow_modify_delete: bool = False,
         on_error: Optional[Callable[[str], None]] = None,
     ) -> None:
         """
         在独立守护线程中启动 FTP 服务。
         :param root_path: 根目录路径
         :param username: 用户名，为空则仅匿名访问
+        :param password: 用户密码（仅当 username 非空时生效）
         :param allow_upload: 是否允许上传
         :param allow_modify_delete: 是否允许修改/删除
         :param on_error: 出错时的回调，传入错误信息字符串
@@ -103,10 +105,16 @@ class FtpServerModel:
         authorizer = DummyAuthorizer()
 
         if username and username.strip():
-            # 指定用户名：添加具名用户（密码为空，仅用于区分匿名）
-            authorizer.add_user(username.strip(), "", root_path, perm=perm)
-        # 无论是否具名用户，都添加匿名访问（权限与当前设置一致）
-        authorizer.add_anonymous(root_path, perm=perm)
+            # 指定用户名：添加具名用户；此时不再添加匿名用户
+            authorizer.add_user(
+                username.strip(),
+                password if password is not None else "",
+                root_path,
+                perm=perm,
+            )
+        else:
+            # 仅当用户名为空时允许匿名访问
+            authorizer.add_anonymous(root_path, perm=perm)
 
         handler = GBKFTPHandler
         handler.authorizer = authorizer

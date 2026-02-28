@@ -25,6 +25,8 @@ class FtpManagerView:
         # 回调：由 Controller 注册
         self._on_browse: Optional[Callable[[], None]] = None
         self._on_toggle_server: Optional[Callable[[], None]] = None
+        self._on_path_changed: Optional[Callable[[], None]] = None
+        self._on_perm_changed: Optional[Callable[[], None]] = None
 
         self._build_ui()
 
@@ -45,13 +47,18 @@ class FtpManagerView:
         ttk.Label(main, text="用户名 (留空为匿名):").grid(row=2, column=0, sticky=tk.W, pady=(4, 4))
         self._username_var = tk.StringVar(value="")
         ttk.Entry(main, textvariable=self._username_var, width=30).grid(
-            row=3, column=0, columnspan=2, sticky=tk.EW, pady=(0, 8)
+            row=3, column=0, columnspan=2, sticky=tk.EW, pady=(0, 4)
+        )
+        ttk.Label(main, text="密码 (明文):").grid(row=4, column=0, sticky=tk.W, pady=(4, 4))
+        self._password_var = tk.StringVar(value="")
+        ttk.Entry(main, textvariable=self._password_var, width=30, show="").grid(
+            row=5, column=0, columnspan=2, sticky=tk.EW, pady=(0, 8)
         )
 
         # ---------- 权限控制 ----------
-        ttk.Label(main, text="权限:").grid(row=4, column=0, sticky=tk.W, pady=(4, 4))
+        ttk.Label(main, text="权限:").grid(row=6, column=0, sticky=tk.W, pady=(4, 4))
         perm_frame = ttk.Frame(main)
-        perm_frame.grid(row=5, column=0, columnspan=2, sticky=tk.W, pady=(0, 8))
+        perm_frame.grid(row=7, column=0, columnspan=2, sticky=tk.W, pady=(0, 8))
         # 下载：默认选中且强制开启，禁用
         self._perm_download_var = tk.BooleanVar(value=True)
         cb_download = ttk.Checkbutton(
@@ -62,25 +69,35 @@ class FtpManagerView:
         )
         cb_download.pack(side=tk.LEFT, padx=(0, 16))
         self._perm_upload_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(perm_frame, text="上传 (mw)", variable=self._perm_upload_var).pack(
-            side=tk.LEFT, padx=(0, 16)
+        cb_upload = ttk.Checkbutton(
+            perm_frame,
+            text="上传 (mw)",
+            variable=self._perm_upload_var,
+            command=self._do_perm_changed,
         )
+        cb_upload.pack(side=tk.LEFT, padx=(0, 16))
         self._perm_modify_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(perm_frame, text="修改/删除 (adMT)", variable=self._perm_modify_var).pack(
-            side=tk.LEFT
-        )
+        ttk.Checkbutton(
+            perm_frame,
+            text="修改/删除 (adMT)",
+            variable=self._perm_modify_var,
+            command=self._do_perm_changed,
+        ).pack(side=tk.LEFT)
 
         # ---------- 本机 IP ----------
         ip_frame = ttk.Frame(main)
-        ip_frame.grid(row=6, column=0, columnspan=2, sticky=tk.W, pady=(4, 4))
+        ip_frame.grid(row=8, column=0, columnspan=2, sticky=tk.W, pady=(4, 4))
         ttk.Label(ip_frame, text="本机局域网 IP:").pack(side=tk.LEFT)
+        self._ip_value = ""
         self._ip_label = ttk.Label(ip_frame, text="--", font=("Consolas", 10))
         self._ip_label.pack(side=tk.LEFT, padx=(8, 0))
+        self._ip_copy_btn = ttk.Button(ip_frame, text="复制", command=self._do_copy_ip)
+        self._ip_copy_btn.pack(side=tk.LEFT, padx=(8, 0))
 
         # ---------- 状态信息 ----------
         self._status_var = tk.StringVar(value="")
         status_label = ttk.Label(main, textvariable=self._status_var, foreground="gray")
-        status_label.grid(row=7, column=0, columnspan=2, sticky=tk.W, pady=(8, 4))
+        status_label.grid(row=9, column=0, columnspan=2, sticky=tk.W, pady=(8, 4))
 
         # ---------- 运行控制按钮 ----------
         self._toggle_btn = tk.Button(
@@ -97,7 +114,10 @@ class FtpManagerView:
             cursor="hand2",
             command=self._do_toggle,
         )
-        self._toggle_btn.grid(row=8, column=0, columnspan=2, pady=(12, 0))
+        self._toggle_btn.grid(row=10, column=0, columnspan=2, pady=(12, 0))
+
+        # 路径输入框失去焦点时通知 Controller（用于运行中更新根目录）
+        path_entry.bind("<FocusOut>", lambda e: self._on_path_changed and self._on_path_changed())
 
     def _do_browse(self) -> None:
         """用户点击「浏览」时触发，由 Controller 处理目录选择与回填。"""
@@ -109,11 +129,30 @@ class FtpManagerView:
         if self._on_toggle_server:
             self._on_toggle_server()
 
+    def _do_perm_changed(self) -> None:
+        """权限勾选变更时触发，供 Controller 刷新服务器。"""
+        if self._on_perm_changed:
+            self._on_perm_changed()
+
+    def _do_copy_ip(self) -> None:
+        """将本机 IP 复制到剪贴板。"""
+        if self._ip_value:
+            self._root.clipboard_clear()
+            self._root.clipboard_append(self._ip_value)
+            self._root.update()
+            self._status_var.set("已复制到剪贴板")
+
     def register_on_browse(self, callback: Callable[[], None]) -> None:
         self._on_browse = callback
 
     def register_on_toggle_server(self, callback: Callable[[], None]) -> None:
         self._on_toggle_server = callback
+
+    def register_on_path_changed(self, callback: Callable[[], None]) -> None:
+        self._on_path_changed = callback
+
+    def register_on_perm_changed(self, callback: Callable[[], None]) -> None:
+        self._on_perm_changed = callback
 
     def show_browse_dialog(self, initial_dir: Optional[str] = None) -> Optional[str]:
         """
@@ -135,6 +174,9 @@ class FtpManagerView:
     def get_username(self) -> str:
         return (self._username_var.get() or "").strip()
 
+    def get_password(self) -> str:
+        return (self._password_var.get() or "").strip()
+
     def get_allow_upload(self) -> bool:
         return self._perm_upload_var.get()
 
@@ -142,7 +184,11 @@ class FtpManagerView:
         return self._perm_modify_var.get()
 
     def set_ip(self, ip: str) -> None:
+        self._ip_value = ip
         self._ip_label.config(text=ip)
+
+    def get_ip(self) -> str:
+        return self._ip_value
 
     def set_status(self, text: str) -> None:
         self._status_var.set(text)

@@ -5,7 +5,7 @@ WinFTP-Manager - Controller 层
 确保 View 与 Model 解耦，业务逻辑不写入 View。
 """
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from view import FtpManagerView
@@ -23,6 +23,9 @@ class FtpManagerController:
     def __init__(self, model: "FtpServerModel", view: "FtpManagerView"):
         self._model = model
         self._view = view
+        self._last_applied_path: Optional[str] = None
+        self._last_allow_upload: Optional[bool] = None
+        self._last_allow_modify_delete: Optional[bool] = None
         self._bind_events()
         self._refresh_ip()
 
@@ -33,6 +36,8 @@ class FtpManagerController:
         """
         self._view.register_on_browse(self._on_browse)
         self._view.register_on_toggle_server(self._on_toggle_server)
+        self._view.register_on_path_changed(self._on_path_changed)
+        self._view.register_on_perm_changed(self._on_perm_changed)
 
     def _refresh_ip(self) -> None:
         """从 Model 获取本机 IP 并更新到 View。"""
@@ -57,6 +62,9 @@ class FtpManagerController:
         """
         if self._model.is_running():
             self._model.stop_server()
+            self._last_applied_path = None
+            self._last_allow_upload = None
+            self._last_allow_modify_delete = None
             self._view.set_running_ui(False)
             self._view.set_status("服务已关闭")
             return
@@ -74,16 +82,74 @@ class FtpManagerController:
         self._model.start_server(
             root_path=root_path,
             username=self._view.get_username() or None,
+            password=self._view.get_password(),
             allow_upload=self._view.get_allow_upload(),
             allow_modify_delete=self._view.get_allow_modify_delete(),
             on_error=on_error,
         )
 
         if self._model.is_running():
+            self._last_applied_path = root_path
+            self._last_allow_upload = self._view.get_allow_upload()
+            self._last_allow_modify_delete = self._view.get_allow_modify_delete()
             self._view.set_running_ui(True)
             self._view.set_status(
                 f"服务已开启 — ftp://{self._model.get_local_ip()}:{self._model.port}"
             )
+
+    def _restart_server_with_current_config(self) -> None:
+        """
+        若服务正在运行，则用当前 UI 配置（路径、用户名、密码、权限）重启服务。
+        用于路径或权限在 UI 中修改后同步到服务器。
+        """
+        if not self._model.is_running():
+            return
+        root_path = self._view.get_path()
+        if not root_path:
+            self._view.show_error("根目录为空，无法更新服务")
+            return
+
+        def on_error(msg: str) -> None:
+            self._view.show_error(msg)
+            self._view.set_running_ui(False)
+            self._view.set_status("")
+
+        self._model.stop_server()
+        self._view.set_running_ui(False)
+        self._view.set_status("正在应用新配置…")
+
+        self._model.start_server(
+            root_path=root_path,
+            username=self._view.get_username() or None,
+            password=self._view.get_password(),
+            allow_upload=self._view.get_allow_upload(),
+            allow_modify_delete=self._view.get_allow_modify_delete(),
+            on_error=on_error,
+        )
+        if self._model.is_running():
+            self._last_applied_path = root_path
+            self._last_allow_upload = self._view.get_allow_upload()
+            self._last_allow_modify_delete = self._view.get_allow_modify_delete()
+            self._view.set_running_ui(True)
+            self._view.set_status(
+                f"服务已开启 — ftp://{self._model.get_local_ip()}:{self._model.port}"
+            )
+
+    def _on_path_changed(self) -> None:
+        """路径输入框失去焦点时：若服务在运行且路径已变更，则用新路径重启。"""
+        if not self._model.is_running():
+            return
+        new_path = (self._view.get_path() or "").strip()
+        if new_path and new_path != self._last_applied_path:
+            self._restart_server_with_current_config()
+
+    def _on_perm_changed(self) -> None:
+        """权限勾选变更时：若服务在运行且权限已变更，则用新权限重启。"""
+        if not self._model.is_running():
+            return
+        u, m = self._view.get_allow_upload(), self._view.get_allow_modify_delete()
+        if (u != self._last_allow_upload) or (m != self._last_allow_modify_delete):
+            self._restart_server_with_current_config()
 
 
 def create_app(port: int = 2121) -> None:
