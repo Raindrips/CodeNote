@@ -5,8 +5,8 @@ from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
 
 
-def start_ftp_server():
-    path="E:/"
+def start_ftp_server(path:str):
+   
     # 创建一个用户认证系统
     authorizer = DummyAuthorizer()
 
@@ -24,4 +24,4 @@ def start_ftp_server():
     server.serve_forever()
 
 if __name__ == "__main__":
-    start_ftp_server()
+    start_ftp_server("E:/")

@@ -62,11 +62,11 @@ class FtpManagerView:
         )
         cb_download.pack(side=tk.LEFT, padx=(0, 16))
         self._perm_upload_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(perm_frame, text="上传 (mwd)", variable=self._perm_upload_var).pack(
+        ttk.Checkbutton(perm_frame, text="上传 (mw)", variable=self._perm_upload_var).pack(
             side=tk.LEFT, padx=(0, 16)
         )
         self._perm_modify_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(perm_frame, text="修改/删除 (M)", variable=self._perm_modify_var).pack(
+        ttk.Checkbutton(perm_frame, text="修改/删除 (adMT)", variable=self._perm_modify_var).pack(
             side=tk.LEFT
         )
 

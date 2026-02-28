@@ -60,14 +60,15 @@ class FtpServerModel:
         """
         根据业务权限勾选构建 pyftpdlib 权限字符串。
         - 下载：固定为 elr（列表、进入目录、下载）
-        - 上传：勾选时追加 mwd（建目录、上传、删除）
-        - 修改/删除：勾选时追加 M（SITE CHMOD）
+        - 上传：勾选时追加 mw（建目录、上传）
+        - 修改/删除：勾选时追加 M（修改、删除）
+        - 完全控制：perm="elradfmwMT"
         """
         perm = "elr"
         if allow_upload:
-            perm += "mwd"
+            perm += "mw"
         if allow_modify_delete:
-            perm += "M"
+            perm += "adMT"
         return perm
 
     def start_server(
@@ -82,8 +83,8 @@ class FtpServerModel:
         在独立守护线程中启动 FTP 服务。
         :param root_path: 根目录路径
         :param username: 用户名，为空则仅匿名访问
-        :param allow_upload: 是否允许上传（mwd）
-        :param allow_modify_delete: 是否允许修改/删除（M）
+        :param allow_upload: 是否允许上传
+        :param allow_modify_delete: 是否允许修改/删除
         :param on_error: 出错时的回调，传入错误信息字符串
         """
         with self._lock:
