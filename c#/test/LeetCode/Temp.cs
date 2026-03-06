@@ -9,7 +9,7 @@ namespace _
 {
     public class Solution
     {
-        public int Fnxxxx()
+        public int xxxx()
         {
             return 0;
         }
@@ -19,7 +19,7 @@ namespace _
         private static void T()
         {
             var solution = new Solution();
-            Printer.Print(solution.Fnxxxx());
+            Printer.Print(solution.xxxx());
         }
 
         public static void Run()
