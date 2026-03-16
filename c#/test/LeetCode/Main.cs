@@ -22,7 +22,8 @@ using System.Threading.Tasks;
 //using _2110;
 //using DailyTemperatures;
 //using LargestRectangleArea;
-using _1582;
-
+//using _1582;
+//using LeetCode;
+using LFUCache;
 
 Test.Run();

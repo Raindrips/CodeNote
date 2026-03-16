@@ -42,7 +42,7 @@ namespace _1582
             return l;
         }
     }
-    class Test
+    public class Test
     {
         private static void T(int[][] mat)
         {
