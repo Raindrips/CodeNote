@@ -1,5 +1,4 @@
 import time
-import keyboard
 import threading
 from pynput import keyboard as pynput_keyboard
 
