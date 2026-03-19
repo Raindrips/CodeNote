@@ -1,106 +1,106 @@
 /**
- * @version 1.5
+ * @version 1.6
  */
 export interface MessageData {
     name: string;
     data: any;
 }
+
+/**
+ * 基础通信类：负责底层的监听与发送
+ */
 export class MessagePipe {
     private listeners: { [name: string]: ((data: any) => void)[] } = {};
 
     constructor() {
-        const targetWindow = globalThis;
-        if (targetWindow) {
-            targetWindow.addEventListener('message', (event) =>
-                this.receiveMessage(event),
-            );
-        } else {
-            console.warn(new Error('targetWindow is null'));
+        if (typeof globalThis !== 'undefined') {
+            globalThis.addEventListener('message', (event) => this.receiveMessage(event));
         }
     }
 
-    /**
-     * 发送消息到目标窗口
-     * @param targetWindow - 目标窗口对象 (例如: window.opener 或其他已知窗口)
-     * @param name - 消息名称
-     * @param data - 发送的数据
-     */
-    public sendMessage(
-        targetWindow: Window | WindowProxy,
-        name: string,
-        data: any,
-    ) {
-        // 非App环境
+    public sendMessage(targetWindow: Window | WindowProxy | null, name: string, data: any) {
+        if (!targetWindow) return;
         try {
-            const appWindow: any = window;
-            if (appWindow['ReactNativeWebView']) {
-                //APP环境
-                appWindow.ReactNativeWebView.postMessage(name);
-            } else {
-                let target = window.top ? window.top : targetWindow;
-                if (target) {
-                    // '*' 表示允许所有域接收
-                    const message: MessageData = { name, data };
-                    target.postMessage(message, '*');
-                }
-            }
+            // 排除 ReactNative 环境
+            if ((window as any)['ReactNativeWebView']) return;
+            
+            const message: MessageData = { name, data };
+            targetWindow.postMessage(message, '*');
         } catch (e) {
-            console.error(e);
+            console.error('MessagePipe Send Error:', e);
         }
     }
 
-    /**
-     * 注册消息接收的处理函数
-     * @param name - 消息名称
-     * @param callback - 消息处理函数
-     */
     public onMessage(name: string, callback: (data: any) => void) {
-        if (!this.listeners[name]) {
-            this.listeners[name] = [];
-        }
+        if (!this.listeners[name]) this.listeners[name] = [];
         this.listeners[name].push(callback);
     }
 
-    /**
-     * 接收消息并调用已注册的处理函数
-     * @param event - 传递的事件对象
-     */
     private receiveMessage(event: MessageEvent) {
         const message: MessageData = event.data;
-        console.log(this.listeners);
-        if (this.listeners[message.name]) {
-            this.listeners[message.name].forEach((callback) =>
-                callback(message.data),
-            );
-        }
-    }
-
-    getParent(): WindowProxy {
-        try {
-            return window.parent || window.opener;
-        } finally {
-            return null!;
+        if (message && this.listeners[message.name]) {
+            this.listeners[message.name].forEach((cb) => cb(message.data));
         }
     }
 }
 
-//使用示例
-function test() {
-    const pipe = new MessagePipe();
+/**
+ * 增强组合类：负责异步握手和状态同步
+ */
+export class AsyncMessagePipe {
+    private pipe: MessagePipe;
+    private isReady: boolean = false;
+    private readonly PING_EVENT = '__ready_ping__';
+    private readonly PONG_EVENT = '__ready_pong__';
 
-    pipe.onMessage('message1', (data) => {
-        console.log('收到消息 message1:', data);
-    });
+    constructor() {
+        this.pipe = new MessagePipe();
+        // 自动响应握手信号
+        this.pipe.onMessage(this.PING_EVENT, () => {
+            // 收到 ping，回传 pong
+            this.pipe.sendMessage(window.opener || window.parent, this.PONG_EVENT, true);
+        });
+    }
 
-    // 获取父窗口代理对象
-    const parent = window.parent;
+    /**
+     * 等待目标窗口就绪
+     * @param target 目标窗口
+     * @param timeout 超时时间
+     */
+    public async waitForReady(target: Window | WindowProxy, timeout = 5000): Promise<void> {
+        return new Promise((resolve, reject) => {
+            const timer = setInterval(() => {
+                this.pipe.sendMessage(target, this.PING_EVENT, {});
+            }, 200); // 每200ms嗅探一次
 
-    // 发送消息
-    pipe.sendMessage(parent, 'message1', {
-        someData: '发送消息 message1',
-    });
+            const onPong = () => {
+                this.isReady = true;
+                clearInterval(timer);
+                clearTimeout(failSafe);
+                resolve();
+            };
 
-    // 获取子窗口代理对象
-    const iframe = document.getElementById('myIframe') as any;
-    const iframeWindow = iframe.contentWindow;
+            this.pipe.onMessage(this.PONG_EVENT, onPong);
+
+            const failSafe = setTimeout(() => {
+                clearInterval(timer);
+                reject(new Error('Wait for target window timeout'));
+            }, timeout);
+        });
+    }
+
+    /**
+     * 安全发送：等待就绪后再发送数据
+     */
+    public async sendAsync(target: Window | WindowProxy, name: string, data: any) {
+        if (!this.isReady) {
+            await this.waitForReady(target);
+        }
+        this.pipe.sendMessage(target, name, data);
+    }
+
+    // 暴露原始监听方法
+    public on(name: string, callback: (data: any) => void) {
+        this.pipe.onMessage(name, callback);
+    }
 }
