@@ -1,5 +1,10 @@
 import { FntData } from './FntData';
 
+/**
+ * 将bm font数据转换为字符串
+ * @param fntData
+ * @returns
+ */
 export function generateFntContent(fntData: FntData): string {
     const info = fntData.info;
     const common = fntData.common;

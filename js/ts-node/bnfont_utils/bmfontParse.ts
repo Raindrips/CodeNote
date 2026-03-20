@@ -1,6 +1,10 @@
-
 import { FontInfo, CommonInfo, FntData } from './FntData';
 
+/**
+ * 格式化bm font数据
+ * @param data
+ * @returns
+ */
 export function parseFntData(data: string): FntData {
     const fntData: FntData = {
         info: {} as FontInfo,
@@ -17,11 +21,14 @@ export function parseFntData(data: string): FntData {
         const params = rest
             .join(' ')
             .split(/\s+(?=[a-z]+=)/)
-            .reduce((acc, param) => {
-                const [key, value] = param.split('=');
-                acc[key] = value.replace(/(^")|("$)/g, '');
-                return acc;
-            }, {} as { [key: string]: string });
+            .reduce(
+                (acc, param) => {
+                    const [key, value] = param.split('=');
+                    acc[key] = value.replace(/(^")|("$)/g, '');
+                    return acc;
+                },
+                {} as { [key: string]: string },
+            );
 
         switch (type) {
             case 'info':
@@ -82,4 +89,3 @@ function toInt(s: string | number | undefined) {
     if (s === '') return 0;
     return parseInt(s) || 0;
 }
-

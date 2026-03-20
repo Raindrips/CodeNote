@@ -2,6 +2,7 @@ import { createCanvas, Image, loadImage } from 'canvas';
 import { drawImage, getImageInfo, getImageMaxWidth } from './func';
 
 import fs from 'fs';
+
 const imageUrl: string = 'd:/countdown/';
 
 
