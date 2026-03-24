@@ -1,0 +1,7 @@
+{
+  "api_key": "sk-NzAxLTIxMTEzMTY2MzU3LTE3NzMyNDA0ODczOTg=",
+  "model": "Qwen3-30B-A3B",
+  "base_url": "https://api.scnet.cn/api/llm/v1",
+  "system": "",
+  "user": ""
+}
