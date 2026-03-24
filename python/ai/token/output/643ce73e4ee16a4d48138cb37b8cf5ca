@@ -1,0 +1,571 @@
+# Godot Roguelike核心循环开发指南（完整框架+性能优化）
+
+## 一、项目架构设计
+```
+RoguelikeGame/
+├── Scenes/
+│   ├── Main.tscn (主场景)
+│   ├── Player.tscn (玩家节点)
+│   ├── Enemy.tscn (敌人节点)
+│   └── MapGenerator.tscn (地图生成器)
+├── Scripts/
+│   ├── MapGenerator.gd (地图生成核心)
+│   ├── Pathfinding.gd (A*寻路)
+│   ├── CombatManager.gd (战斗系统)
+│   ├── GameManager.gd (游戏管理)
+│   └── Room.gd (房间生成)
+├── Assets/
+│   ├── Tiles/
+│   └── Sprites/
+```
+
+## 二、核心模块实现
+
+### 1. 随机地图生成（程序化生成算法）
+```gd
+# Room.gd
+extends Node2D
+
+export var width: int = 10
+export var height: int = 10
+export var min_size: int = 6
+export var max_size: int = 12
+export var room_count: int = 10
+
+var rooms = []
+var corridors = []
+
+func _ready():
+    generate_rooms()
+    connect_corridors()
+    build_map()
+
+func generate_rooms():
+    for i in range(room_count):
+        var size = randi_range(min_size, max_size)
+        var pos = Vector2(randi_range(0, 100), randi_range(0, 100))
+        var new_room = Room.new()
+        new_room.init(pos, size)
+        rooms.append(new_room)
+        # 检查房间碰撞
+        for r in rooms:
+            if new_room.intersects(r):
+                rooms.remove(i)
+                i -= 1
+                break
+
+func connect_corridors():
+    for i in range(rooms.size() - 1):
+        var a = rooms[i]
+        var b = rooms[i+1]
+        var corridor = Corridor.new()
+        corridor.connect(a.center, b.center)
+        corridors.append(corridor)
+
+func build_map():
+    var tile_map = get_node("/root/Main/TileMap")
+    for room in rooms:
+        for x in range(room.size.x):
+            for y in range(room.size.y):
+                tile_map.set_cell(0, room.position + Vector2(x, y), 1)
+    
+    for corridor in corridors:
+        for pos in corridor.path:
+            tile_map.set_cell(0, pos, 1)
+```
+
+**性能优化技巧：**
+- 使用`tile_map.set_cell()`批量设置时，建议使用`tile_map.set_cells()`方法
+- 通过`tile_map.set_size()`预分配空间减少重绘
+- 使用`tile_map.set_cell_flags()`设置碰撞属性
+
+**常见问题：**
+- 房间重叠：添加碰撞检测逻辑（`intersects()`方法）
+- 地图过大：限制房间数量和尺寸范围
+- 碰撞检测失效：确保TileMap使用正确的碰撞层设置
+
+---
+
+### 2. A*寻路系统
+```gd
+# Pathfinding.gd
+extends Node2D
+
+var grid = []
+var tile_map = null
+var pathfinding = null
+
+func _ready():
+    tile_map = get_node("/root/Main/TileMap")
+    pathfinding = tile_map.get_pathfinding()
+    # 初始化网格
+    for y in range(tile_map.get_size().y):
+        grid.append([])
+        for x in range(tile_map.get_size().x):
+            grid[y].append(0 if tile_map.get_cell(0, Vector2(x, y)) == -1 else 1)
+
+func find_path(start_pos: Vector2, end_pos: Vector2) -> Array:
+    var open_list = PriorityQueue.new()
+    var closed_list = Dictionary()
+    
+    # 初始化起点
+    var start_node = Node2D.new()
+    start_node.position = start_pos
+    start_node.g = 0
+    start_node.h = get_heuristic(start_pos, end_pos)
+    start_node.f = start_node.g + start_node.h
+    
+    open_list.push(start_node, start_node.f)
+    
+    while open_list.size() > 0:
+        var current = open_list.pop()
+        if current.position == end_pos:
+            return reconstruct_path(current)
+            
+        closed_list[current.position] = true
+        
+        for direction in [Vector2.RIGHT, Vector2.LEFT, Vector2.UP, Vector2.DOWN]:
+            var neighbor = current.position + direction
+            if is_valid(neighbor) and not closed_list.has(neighbor):
+                var new_g = current.g + 1
+                var new_h = get_heuristic(neighbor, end_pos)
+                var new_node = Node2D.new()
+                new_node.position = neighbor
+                new_node.g = new_g
+                new_node.h = new_h
+                new_node.f = new_g + new_h
+                new_node.parent = current
+                
+                if not open_list.has(new_node):
+                    open_list.push(new_node, new_node.f)
+    
+    return []
+
+func get_heuristic(a: Vector2, b: Vector2) -> int:
+    return abs(a.x - b.x) + abs(a.y - b.y)
+
+func is_valid(pos: Vector2) -> bool:
+    return pos.x >= 0 and pos.y >= 0 and pos.x < tile_map.get_size().x and pos.y < tile_map.get_size().y and grid[pos.y][pos.x] == 0
+
+func reconstruct_path(node: Node2D) -> Array:
+    var path = []
+    while node:
+        path.append(node.position)
+        node = node.parent
+    return path.reversed()
+```
+
+**性能优化：**
+- 使用双向A*算法优化长距离寻路
+- 对网格进行空间分区处理
+- 使用缓存机制存储已计算路径
+
+**进阶技巧：**
+- 实现动态障碍物处理
+- 添加斜角移动支持
+- 使用二叉堆优化优先队列
+
+---
+
+### 3. 回合制战斗系统
+```gd
+# CombatManager.gd
+extends Node
+
+var players = []
+var enemies = []
+var turn_order = []
+
+func _ready():
+    players = get_tree().get_nodes_in_group("Player")
+    enemies = get_tree().get_nodes_in_group("Enemy")
+    setup_turn_order()
+
+func setup_turn_order():
+    turn_order = []
+    for player in players:
+        turn_order.append(player)
+    for enemy in enemies:
+        turn_order.append(enemy)
+    # 按速度排序
+    turn_order.sort_custom(self, "compare_speed")
+
+func compare_speed(a, b):
+    return b.speed > a.speed
+
+func next_turn():
+    for actor in turn_order:
+        if actor.is_alive:
+            actor.take_turn()
+            if actor.is_player:
+                yield(get_tree().create_timer(1), "timeout")
+```
+
+**战斗系统核心逻辑：**
+```gd
+# Player.gd
+extends CharacterBody2D
+
+var health = 100
+var speed = 5
+
+func take_turn():
+    if Input.is_action_just_pressed("ui_right"):
+        move_right()
+    elif Input.is_action_just_pressed("ui_left"):
+        move_left()
+    # 战斗逻辑...
+
+func move_right():
+    var target = position + Vector2.RIGHT
+    if is_valid_position(target):
+        position = target
+```
+
+**性能优化：**
+- 使用状态机管理战斗状态
+- 避免频繁的信号连接
+- 对战斗事件进行队列处理
+
+---
+
+### 4. 永久死亡机制
+```gd
+# GameManager.gd
+extends Node
+
+var game_data = {}
+
+func _ready():
+    load_game()
+
+func load_game():
+    if File.exists("user://save_game.dat"):
+        var file = File.new()
+        file.open("user://save_game.dat", File.READ)
+        game_data = file.get_var()
+        file.close()
+        restore_game_state()
+
+func save_game():
+    var file = File.new()
+    file.open("user://save_game.dat", File.WRITE)
+    file.set_var(game_data)
+    file.close()
+
+func restore_game_state():
+    # 恢复玩家位置、装备等数据
+    pass
+
+func on_player_death():
+    save_game()
+    get_tree().change_scene("res://Scenes/Main.tscn")
+```
+
+**关键实现：**
+- 使用`File`类进行本地存储
+- 通过`get_tree().change_scene()`实现重置
+- 在`_exit_tree()`中触发保存逻辑
+
+**常见问题：**
+- 保存路径错误：使用`user://`前缀
+- 数据丢失：添加文件存在性检查
+- 多场景数据同步：使用`GlobalVariables`或`SceneTree`
+
+---
+
+## 三、完整项目整合
+
+### 1. 地图生成器场景
+```gd
+# MapGenerator.tscn
+- Node2D (MapGenerator)
+  - TileMap (map)
+  - Area2D (player_spawn)
+  - Area2D (enemy_spawn)
+```
+
+### 2. 战斗管理器节点
+```gd
+# CombatManager.tscn
+- Node2D (CombatManager)
+  - Timer (turn_timer)
+  - Label (status_label)
+```
+
+### 3. 玩家控制脚本
+```gd
+# PlayerControl.gd
+extends CharacterBody2D
+
+func _process(delta):
+    if Input.is_action_just_pressed("ui_right"):
+        move_right()
+    elif Input.is_action_just_pressed("ui_left"):
+        move_left()
+    # 其他输入处理...
+```
+
+---
+
+## 四、性能优化方案
+
+### 1. TileMap优化
+```gd
+# 优化TileMap渲染
+func optimize_tilemap():
+    var tile_map = get_node("TileMap")
+    tile_map.set_cell_flags(0, TileMap.CELL_FLAG_COLLISION_DISABLED)
+    tile_map.set_cell_flags(0, TileMap.CELL_FLAG_DRAW_DISABLED)
+    tile_map.set_cell_flags(0, TileMap.CELL_FLAG_OCCLUSION_DISABLED)
+    
+    # 使用实例化TileMap
+    tile_map.set_as_typed(0, TileMap.TYPE_INSTANCED)
+```
+
+### 2. A*算法优化
+```gd
+# 优化A*算法
+func optimized_find_path(start_pos, end_pos):
+    # 使用双向A*
+    var start_node = Node2D.new()
+    var end_node = Node2D.new()
+    
+    # 启发式函数优化
+    func get_heuristic(a, b):
+        return sqrt((a.x - b.x)^2 + (a.y - b.y)^2)
+    
+    # 使用双向队列
+    var open_list = PriorityQueue.new()
+    var closed_list = Dictionary()
+```
+
+### 3. 战斗系统优化
+```gd
+# 战斗系统优化
+func optimized_next_turn():
+    # 使用对象池管理战斗动作
+    var action_pool = PackedScene.new("res://Scenes/Action.tscn")
+    for actor in turn_order:
+        if actor.is_alive:
+            var action = action_pool.instance()
+            action.set_actor(actor)
+            action.connect("completed", self, "_on_action_completed")
+            add_child(action)
+```
+
+---
+
+## 五、常见Bug排查
+
+### 1. 地图生成异常
+- **症状**：地图出现穿模或无法通行
+- **解决方案**：
+  ```gd
+  # 检查房间生成逻辑
+  func check_room_collision(room):
+      for other in rooms:
+          if room.intersects(other):
+              return true
+      return false
+  ```
+
+### 2. A*寻路失效
+- **症状**：路径找不到或卡死
+- **解决方案**：
+  ```gd
+  # 添加最大搜索步数限制
+  func find_path(...):
+      var max_steps = 1000
+      var steps = 0
+      while open_list.size() > 0 and steps < max_steps:
+          steps += 1
+          # ...
+  ```
+
+### 3. 永久死亡问题
+- **症状**：死亡后数据未正确保存
+- **解决方案**：
+  ```gd
+  # 添加保存确认逻辑
+  func save_game():
+      if File.exists("user://save_game.dat"):
+          File.remove("user://save_game.dat")
+      # ...
+  ```
+
+---
+
+## 六、实战案例：完整项目结构
+
+### 1. 地图生成器主逻辑
+```gd
+# MapGenerator.tscn脚本
+func _on_generate_map():
+    var generator = preload("res://Scripts/MapGenerator.gd").new()
+    generator.generate()
+    var tile_map = get_node("TileMap")
+    tile_map.clear()
+    generator.build_map(tile_map)
+```
+
+### 2. 战斗系统整合
+```gd
+# CombatManager.tscn脚本
+func _on_action_completed(actor):
+    if actor.is_player:
+        # 处理玩家回合结束
+        next_turn()
+    else:
+        # 处理敌人行动
+        pass
+```
+
+### 3. 永久死亡处理
+```gd
+# Player.gd
+func _on_body_entered(body):
+    if body.is_in_group("Enemy"):
+        on_player_death()
+        queue_free()
+
+func on_player_death():
+    var manager = get_node("/root/CombatManager")
+    manager.save_game()
+    get_tree().change_scene("res://Scenes/Main.tscn")
+```
+
+---
+
+## 七、进阶扩展建议
+
+### 1. 程序化生成增强
+- 实现Dungeon Crawler算法
+- 添加随机生成器种子系统
+- 使用噪声函数生成自然地形
+
+### 2. 战斗系统扩展
+- 实现状态效果系统（中毒/眩晕）
+- 添加技能树和装备系统
+- 开发战斗动画状态机
+
+### 3. A*算法优化
+- 实现动态权重调整
+- 添加路径缓存机制
+- 支持多层地图寻路
+
+### 4. 永久死亡机制扩展
+- 实现成就系统
+- 添加死亡动画和音效
+- 开发死亡后重玩机制
+
+---
+
+## 八、完整代码示例（核心循环）
+
+```gd
+# Main.tscn脚本
+extends Node2D
+
+func _ready():
+    var map_generator = preload("res://Scripts/MapGenerator.gd").new()
+    map_generator.generate()
+    var tile_map = get_node("TileMap")
+    tile_map.clear()
+    map_generator.build_map(tile_map)
+    
+    var combat_manager = preload("res://Scripts/CombatManager.gd").new()
+    combat_manager.setup_turn_order()
+    combat_manager.connect("turn_complete", self, "_on_turn_complete")
+
+func _on_turn_complete():
+    # 处理回合结束逻辑
+    pass
+```
+
+```gd
+# CombatManager.gd
+extends Node
+
+var turn_order = []
+
+func setup_turn_order():
+    turn_order = []
+    for player in get_tree().get_nodes_in_group("Player"):
+        turn_order.append(player)
+    for enemy in get_tree().get_nodes_in_group("Enemy"):
+        turn_order.append(enemy)
+    turn_order.sort_custom(self, "compare_speed")
+
+func compare_speed(a, b):
+    return b.speed > a.speed
+```
+
+---
+
+## 九、性能测试建议
+
+1. **地图生成测试**：
+   - 使用`Profiler`分析生成时间
+   - 测试最大房间数量限制
+   - 验证内存占用情况
+
+2. **寻路系统测试**：
+   - 测试不同地图规模下的性能
+   - 验证动态障碍物处理
+   - 测试多敌人同时寻路
+
+3. **战斗系统测试**：
+   - 模拟大量敌人同时战斗
+   - 测试帧率稳定性
+   - 验证状态同步机制
+
+---
+
+## 十、扩展开发建议
+
+1. **多层地图系统**：
+   ```gd
+   # 添加楼层管理
+   var current_floor = 1
+   func generate_next_floor():
+       # 生成新楼层地图
+       current_floor += 1
+       save_game()
+   ```
+
+2. **物品系统**：
+   ```gd
+   # 物品生成逻辑
+   func generate_items():
+       for i in range(5):
+           var item = preload("res://Scenes/Item.tscn").instance()
+           item.position = get_random_floor_position()
+           add_child(item)
+   ```
+
+3. **存档系统**：
+   ```gd
+   # 增强存档系统
+   func save_game():
+       var file = File.new()
+       file.open("user://save_game.dat", File.WRITE)
+       file.set_var({
+           "floor": current_floor,
+           "player_pos": player.position,
+           "enemies": enemies
+       })
+       file.close()
+   ```
+
+这个框架已经包含完整的Roguelike核心循环，通过以下方式可以快速扩展：
+1. 使用`tile_map.get_cell()`获取地图数据
+2. 通过`get_tree().get_nodes_in_group()`管理游戏对象
+3. 使用`PriorityQueue`实现高效寻路
+4. 通过`File`类实现持久化存储
+
+建议在实际开发中：
+- 使用`@export`装饰器管理参数
+- 添加`@onready`节点引用
+- 实现`@tool`模式调试
+- 使用`@export`配置生成参数
