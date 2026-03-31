@@ -1,8 +1,7 @@
-# main.py
 import os
 import re
 import sys
-from image_blur import ImageBlur
+from image_base import ImageBlur
 
 """_summary_
 Args:
