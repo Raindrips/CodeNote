@@ -7,7 +7,7 @@
 typedef void (*InitFunc)();
 
 
-
+// 加载DLL文件
 void load_dll() {
 	// 加载DLL文件
 	HMODULE module_1 = LoadLibrary(__TEXT("Dll_1.dll"));

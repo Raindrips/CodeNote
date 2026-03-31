@@ -5,7 +5,7 @@
 
 void DLL_log(const char* msg)
 {
-	std::cout << msg << std::endl;
+	std::printf(msg);
 }
 
 const char* GetName()
