@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "declaration": true, // 生成 .d.ts 文件
+    "sourceMap": true,
+    "composite": true, // 必须开启，用于 项目引用
+    "rootDir": ".", // 关键：逻辑根目录
+    "outDir": "./dist", // 关键：统一输出到根目录下的 dist
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "strict": true
+  }
+}
