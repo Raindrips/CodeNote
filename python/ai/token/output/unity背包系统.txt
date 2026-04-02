@@ -1,0 +1,239 @@
+以下是基于MVP设计模式的背包系统设计方案和代码实现，其中View部分由人类开发人员自行实现，我将提供Model和Presenter的完整代码结构：
+
+```csharp
+// Model层（数据模型）
+public class Item
+{
+    public int ItemId { get; set; }
+    public string Name { get; set; }
+    public int Quantity { get; set; }
+    public Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
+}
+
+public class BagModel
+{
+    public Dictionary<int, Item> Items { get; private set; } = new Dictionary<int, Item>();
+    public int Capacity { get; set; } = 30;
+    public int CurrentWeight => Items.Sum(item => (int)item.Value.Attributes["Weight"] * item.Value.Quantity);
+
+    public bool AddItem(Item item)
+    {
+        if (Items.ContainsKey(item.ItemId))
+        {
+            Items[item.ItemId].Quantity += item.Quantity;
+            return true;
+        }
+
+        if (CurrentWeight + (int)item.Attributes["Weight"] * item.Quantity > Capacity)
+        {
+            return false; // 背包已满
+        }
+
+        Items[item.ItemId] = item;
+        return true;
+    }
+
+    public bool RemoveItem(int itemId, int quantity)
+    {
+        if (!Items.ContainsKey(itemId))
+            return false;
+
+        if (Items[itemId].Quantity < quantity)
+            return false;
+
+        Items[itemId].Quantity -= quantity;
+        if (Items[itemId].Quantity == 0)
+            Items.Remove(itemId);
+
+        return true;
+    }
+
+    public bool UseItem(int itemId, int quantity)
+    {
+        if (!Items.ContainsKey(itemId) || Items[itemId].Quantity < quantity)
+            return false;
+
+        // 模拟使用效果
+        var item = Items[itemId];
+        var useResult = $"使用了 {quantity} 个 {item.Name}";
+
+        // 执行使用逻辑（具体实现由业务需求决定）
+        // 这里可以添加具体效果处理逻辑
+
+        return true;
+    }
+}
+
+// Presenter层（业务逻辑）
+public class BagPresenter
+{
+    private BagModel _bagModel;
+    private IBagView _view;
+
+    public BagPresenter(BagModel model, IBagView view)
+    {
+        _bagModel = model;
+        _view = view;
+    }
+
+    // 处理物品添加操作
+    public void OnAddItem(Item item)
+    {
+        if (_bagModel.AddItem(item))
+        {
+            _view.ShowMessage($"成功添加 {item.Quantity} 个 {item.Name}");
+            UpdateBagUI();
+        }
+        else
+        {
+            _view.ShowMessage($"背包已满，无法添加 {item.Name}");
+        }
+    }
+
+    // 处理物品使用操作
+    public void OnUseItem(int itemId, int quantity)
+    {
+        if (_bagModel.UseItem(itemId, quantity))
+        {
+            _view.ShowMessage($"成功使用 {quantity} 个物品");
+            UpdateBagUI();
+        }
+        else
+        {
+            _view.ShowMessage("无法使用该物品");
+        }
+    }
+
+    // 处理物品移除操作
+    public void OnRemoveItem(int itemId, int quantity)
+    {
+        if (_bagModel.RemoveItem(itemId, quantity))
+        {
+            _view.ShowMessage($"成功移除 {quantity} 个物品");
+            UpdateBagUI();
+        }
+        else
+        {
+            _view.ShowMessage("无法移除指定数量的物品");
+        }
+    }
+
+    // 更新UI显示
+    private void UpdateBagUI()
+    {
+        _view.UpdateItemListView(_bagModel.Items.Values);
+        _view.UpdateWeightDisplay(_bagModel.CurrentWeight, _bagModel.Capacity);
+    }
+
+    // 获取物品信息
+    public Item GetItemInfo(int itemId)
+    {
+        return _bagModel.Items.ContainsKey(itemId) ? _bagModel.Items[itemId] : null;
+    }
+
+    // 检查物品是否存在
+    public bool HasItem(int itemId)
+    {
+        return _bagModel.Items.ContainsKey(itemId);
+    }
+}
+
+// View接口（由人类开发人员实现）
+public interface IBagView
+{
+    void ShowMessage(string message);
+    void UpdateItemListView(IEnumerable<Item> items);
+    void UpdateWeightDisplay(int currentWeight, int capacity);
+}
+```
+
+使用示例：
+
+```csharp
+// 创建模型
+var bagModel = new BagModel();
+bagModel.Capacity = 50;
+
+// 创建Presenter（需要传入实际的View实现）
+var bagPresenter = new BagPresenter(bagModel, new MyBagView());
+
+// 添加物品示例
+var sword = new Item
+{
+    ItemId = 1,
+    Name = "魔法剑",
+    Quantity = 2,
+    Attributes = new Dictionary<string, object>
+    {
+        {"Weight", 5},
+        {"Attack", 100}
+    }
+};
+
+bagPresenter.OnAddItem(sword);
+
+// 使用物品示例
+bagPresenter.OnUseItem(1, 1);
+
+// 移除物品示例
+bagPresenter.OnRemoveItem(1, 1);
+```
+
+设计说明：
+
+1. Model层包含：
+- Item类：表示单个物品，包含ID、名称、数量和属性
+- BagModel类：管理物品集合，包含容量限制、重量计算等核心逻辑
+
+2. Presenter层负责：
+- 业务逻辑处理（添加/使用/移除物品）
+- 与View的交互（通过接口调用）
+- 数据转换和状态同步
+- 错误处理和验证
+
+3. View接口定义：
+- 显示消息的接口
+- 更新物品列表的接口
+- 更新重量显示的接口
+
+4. 系统特点：
+- 支持物品堆叠（相同ID的物品合并数量）
+- 有容量限制和重量计算
+- 通过接口实现View解耦
+- 保持业务逻辑与UI分离
+
+人类开发人员需要实现的View部分示例（C#伪代码）：
+
+```csharp
+public class MyBagView : IBagView
+{
+    public void ShowMessage(string message)
+    {
+        // 实现消息显示逻辑
+    }
+
+    public void UpdateItemListView(IEnumerable<Item> items)
+    {
+        // 实现物品列表UI更新
+    }
+
+    public void UpdateWeightDisplay(int currentWeight, int capacity)
+    {
+        // 实现重量显示UI更新
+    }
+}
+```
+
+这个设计满足MVP模式的核心原则：
+- Model处理数据和业务规则
+- Presenter处理用户交互和业务逻辑
+- View仅负责UI展示和用户输入收集
+- Presenter与View通过接口通信
+- 数据流清晰分离（用户输入→Presenter→Model→Presenter→View）
+
+可以根据具体需求扩展：
+1. 添加物品类型分类
+2. 实现物品使用效果系统
+3. 增加物品交易功能
+4. 添加持久化存储
+5. 实现物品排序/筛选功能
