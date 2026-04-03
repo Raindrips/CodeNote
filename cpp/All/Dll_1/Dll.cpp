@@ -13,7 +13,7 @@ const char* GetName()
 	return "hello DLL";
 }
 
-void init()
+void init(int id, const char* msg)
 {
-	std::cout << "DLL_1 init" << std::endl;
+	std::cout << "DLL_1 init:" << id << " " << msg << std::endl;
 }
