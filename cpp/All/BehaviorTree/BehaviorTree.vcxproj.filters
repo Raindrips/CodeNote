@@ -60,6 +60,15 @@
     <ClInclude Include="RepeatNode.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Repeat.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Delay.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="LambdaCondition.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BehaviorTree.cpp">
@@ -99,6 +108,15 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="RepeatNode.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Repeat.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Delay.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="LambdaCondition.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
