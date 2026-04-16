@@ -1,6 +1,5 @@
 
 -- coroutine.create     创建协程
-
 -- coroutine.yield      协程挂起
 -- coroutine.resume     恢复挂起
 -- coroutine.status     获取状态
