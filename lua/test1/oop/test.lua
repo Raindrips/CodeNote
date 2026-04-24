@@ -13,3 +13,6 @@ local mc3=mc+mc2
 mc3:print()
 mc.id=11
 print(mc3==mc)
+
+val=mc3()
+print(val[1],val[2])

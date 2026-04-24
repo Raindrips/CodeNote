@@ -82,4 +82,4 @@ if "y" in waitKey:
         for dir in needCmdDir:
             print(dir)
 
-input("\n\n【任意键退出\n")
+input("\n【任意键退出\n")

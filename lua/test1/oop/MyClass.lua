@@ -1,4 +1,4 @@
-MyClass = {}
+local MyClass = {}
 
 -- 创建构造函数
 function MyClass:new(id, key)
@@ -14,7 +14,7 @@ function MyClass:print()
   -- for key, value in pairs(self) do
   --   print(key,value)
   -- end
-  print('id=' .. self.id .. ' key=' .. self.key)
+  print(self)
 end
 
 -- 运算符重载
@@ -24,6 +24,16 @@ end
 
 function MyClass:__eq(other)
   return self.id == other.id
+end
+
+-- 可以直接转字符串
+function MyClass:__tostring()
+  return "Class [" .. self.id .. ',' .. self.key .. ']'
+end
+
+-- 变成函数  mc()
+function MyClass:__call()
+  return { self.id, self.key }
 end
 
 return MyClass
