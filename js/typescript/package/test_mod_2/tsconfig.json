@@ -3,10 +3,12 @@
   "compilerOptions": {
     "outDir": "../../dist/test_mod_2/bin", // 输出到 dist 下的特定子目录
     "rootDir": "./src", // 该模块的源码位置
-    "paths": {}
+    "paths": {},
+    "resolveJsonModule": true,
+    "esModuleInterop": true
   },
   "include": [
-    "src/**/*"
+    "src/**/*","src/*.json"
   ],
   "references": [
     {
