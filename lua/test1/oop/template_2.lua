@@ -62,5 +62,3 @@ local function Class(base)
 end
 
 return Class
-
-

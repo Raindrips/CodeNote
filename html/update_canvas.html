@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas 动效网页</title>
+    <style>
+        /* 重置默认边距，让画布充满整个屏幕 */
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            /* 隐藏滚动条 */
+            background-color: #111;
+            /* 深色背景让颜色更鲜艳 */
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="myCanvas"></canvas>
+
+    <script>
+        // 获取画布和绘图上下文
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // 设置画布尺寸为窗口尺寸
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // 定义小球类
+        class Ball {
+            constructor(x, y, dx, dy, radius, color) {
+                this.x = x;
+                this.y = y;
+                this.dx = dx; // X轴速度
+                this.dy = dy; // Y轴速度
+                this.radius = radius;
+                this.color = color;
+            }
+
+            // 绘制小球
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.closePath();
+            }
+
+            // 更新小球位置
+            update() {
+                // 碰到左右边缘反弹
+                if (this.x + this.radius > canvas.width || this.x - this.radius < 0)
+                {
+                    this.dx = -this.dx;
+                }
+                // 碰到上下边缘反弹
+                if (this.y + this.radius > canvas.height || this.y - this.radius < 0)
+                {
+                    this.dy = -this.dy;
+                }
+
+                // 移动位置
+                this.x += this.dx;
+                this.y += this.dy;
+
+                this.draw();
+            }
+        }
+
+        // 随机生成颜色
+        function getRandomColor() {
+            const colors = ['#FF5733', '#33FF57', '#3357FF', '#F333FF', '#33FFF3', '#FFD133'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        // 初始化小球数组
+        let ballArray = [];
+        function init() {
+            ballArray = [];
+            const numberOfBalls = 100; // 小球数量
+            for (let i = 0; i < numberOfBalls; i++)
+            {
+                let radius = Math.random() * 15 + 5; // 半径 5 到 20
+                let x = Math.random() * (canvas.width - radius * 2) + radius;
+                let y = Math.random() * (canvas.height - radius * 2) + radius;
+                let dx = (Math.random() - 0.5) * 8; // 速度 -4 到 4
+                let dy = (Math.random() - 0.5) * 8;
+                let color = getRandomColor();
+
+                ballArray.push(new Ball(x, y, dx, dy, radius, color));
+            }
+        }
+
+        // 动画循环函数
+        function animate() {
+            // 告诉浏览器你希望执行动画，并请求浏览器在下一次重绘之前调用指定的函数来更新动画
+            requestAnimationFrame(animate);
+
+            // 每次绘制前清空画布
+            // 如果想保留拖尾效果，可以将 clearRect 替换为带透明度的 fillRect
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 更新并绘制所有小球
+            for (let i = 0; i < ballArray.length; i++)
+            {
+                ballArray[i].update();
+            }
+        }
+
+        // 启动
+        init();
+        animate();
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>静态 Canvas 网页示例</title>
+    <style>
+        /* 重置默认边距并设置背景色 */
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #2c3e50; /* 深蓝色背景，突出画布 */
+            font-family: sans-serif;
+        }
+
+        /* 给 Canvas 添加样式：白色背景、圆角和阴影 */
+        canvas {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 定义 Canvas 元素，设置宽度和高度 -->
+    <canvas id="myCanvas" width="800" height="600">
+        您的浏览器不支持 HTML5 Canvas 标签。
+    </canvas>
+
+    <script>
+        // 1. 获取 Canvas 元素和绘图上下文
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // 2. 绘制天空背景 (线性渐变)
+        const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        skyGradient.addColorStop(0, "#87CEEB"); // 顶部天蓝色
+        skyGradient.addColorStop(1, "#E0F6FF"); // 底部浅蓝色
+        ctx.fillStyle = skyGradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 3. 绘制太阳
+        ctx.beginPath();
+        ctx.arc(150, 150, 60, 0, Math.PI * 2); // 圆心(150,150)，半径60
+        ctx.fillStyle = "#FFD700"; // 金色
+        ctx.fill();
+        ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 20; // 添加发光效果
+        ctx.closePath();
+
+        // 清除阴影效果，以免影响后续绘制
+        ctx.shadowBlur = 0;
+
+        // 4. 绘制草地
+        ctx.fillStyle = "#32CD32"; // 鲜绿色
+        ctx.fillRect(0, canvas.height - 150, canvas.width, 150);
+
+        // 5. 绘制房子主体
+        ctx.fillStyle = "#F5DEB3"; // 小麦色
+        ctx.fillRect(450, canvas.height - 250, 160, 100);
+
+        // 6. 绘制房子屋顶 (三角形)
+        ctx.beginPath();
+        ctx.moveTo(430, canvas.height - 250); // 左下角
+        ctx.lineTo(530, canvas.height - 340); // 顶点
+        ctx.lineTo(630, canvas.height - 250); // 右下角
+        ctx.fillStyle = "#A52A2A"; // 棕色
+        ctx.fill();
+        ctx.closePath();
+
+        // 7. 绘制房子的门
+        ctx.fillStyle = "#8B4513"; // 马鞍棕色
+        ctx.fillRect(505, canvas.height - 200, 40, 50);
+
+        // 8. 添加文字标题
+        ctx.font = "bold 36px 'Microsoft YaHei', sans-serif";
+        ctx.fillStyle = "#333333";
+        ctx.textAlign = "center";
+        ctx.fillText("我的第一个 Canvas 画布", canvas.width / 2, 80);
+    </script>
+
+</body>
+</html>
