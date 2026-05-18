@@ -16,6 +16,12 @@ python convert.py img.webp jpg ./output/
 python main_press.py <source_dir> <output_dir> <quality=90>
 ```
 
+### 缩放命令
+
+```
+python main_scale.py <source_dir> <output_dir> <scale_factor>
+```
+
 
 
 ## app 打包

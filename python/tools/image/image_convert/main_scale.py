@@ -53,7 +53,7 @@ def start_processing(source_dir, output_dir, scale):
 def main():
     # 验证命令行参数
     if len(sys.argv) != 4:
-        print("Usage: python main.py <source_dir> <output_dir> <scale_factor>")
+        print("Usage: python main_scale.py <source_dir> <output_dir> <scale_factor>")
         sys.exit(1)
 
     # 解析命令行参数

@@ -1,10 +1,10 @@
 local EventManager = {}
 EventManager.__index = EventManager
-
+local WeakTable={ __mode = "k" }
 function EventManager.new()
     local self = setmetatable({}, EventManager)
     -- 使用弱表，防止对象被事件系统引用导致无法GC
-    self.listeners = setmetatable({}, { __mode = "k" })
+    self.listeners = setmetatable({}, WeakTable)
     return self
 end
 
