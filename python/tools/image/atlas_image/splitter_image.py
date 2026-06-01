@@ -59,7 +59,7 @@ def split_image(input_path, output_dir):
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print("Usage: python splitter.py <input_image> <output_dir>")
+        print("Usage: python splitter_image.py <input_image> <output_dir>")
         sys.exit(1)
 
     input_path = sys.argv[1]

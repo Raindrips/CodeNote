@@ -88,3 +88,4 @@ debug/
 
 # python
 **/__pycache__/
+**/*.api_key
