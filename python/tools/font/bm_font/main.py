@@ -29,9 +29,9 @@ def arg_main():
         default=32,
         help="font size (meta, not影响图像大小)",
     )
-    # p.add_argument(
-    #     "--line-height", "-l", type=int, default=36, help="lineHeight 写入 .fnt"
-    # )
+    p.add_argument(
+        "--line-height", "-l", type=int, default=36, help="lineHeight 写入 .fnt"
+    )
     p.add_argument(
         "--max-width", "-w", type=int, default=0, help="atlas 最大宽度，0 表示自动"
     )

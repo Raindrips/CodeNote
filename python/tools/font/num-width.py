@@ -73,12 +73,13 @@ def add_corner_pixels(img: Image.Image) -> Image.Image:
     return img
 
 
-def backup_and_save(original_path: Path, new_image: Image.Image) -> None:
+def backup(original_path: Path ) -> None:
     """备份原文件为 -bak，然后保存新图片。"""
     backup_path = original_path.with_name(original_path.stem + "-bak" + original_path.suffix)
     shutil.copy2(original_path, backup_path)
     print(f"[备份] {original_path.name} -> {backup_path.name}")
 
+def save(original_path: Path,new_image: Image.Image):
     new_image.save(original_path)
     print(f"[保存] 已覆盖写入 {original_path.name}")
 
@@ -95,7 +96,8 @@ def main(folder: str = "."):
         expanded = expand_image_centered(rgba_img, max_width)
         marked = add_corner_pixels(expanded)
 
-    backup_and_save(target_file, marked)
+    # backup(target_file)
+    save(target_file, marked)
     print("[完成]")
 
 
