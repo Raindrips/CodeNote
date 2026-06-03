@@ -73,7 +73,8 @@ def parse_mapping_file(mapping_path):
 
 # ---- main function ----
 def make_bitmap_font(
-    input_dir, out_name, font_size, line_height, max_width, padding, mapping_path
+    input_dir, out_name, font_size, line_height, max_width, padding, mapping_path,
+    output_dir=None,
 ):
     # collect image files
     files = [
@@ -138,17 +139,24 @@ def make_bitmap_font(
     atlas_w, atlas_h, placed = pack_shelf(glyphs, max_width, padding)
     atlas_h = next_pow2(atlas_h)  # round height up to pow2
 
+    # ---- output directory ----
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+        out_png = os.path.join(output_dir, f"{out_name}.png")
+        out_fnt = os.path.join(output_dir, f"{out_name}.fnt")
+    else:
+        out_png = f"{out_name}.png"
+        out_fnt = f"{out_name}.fnt"
+
     # create atlas image
     atlas = Image.new("RGBA", (atlas_w, atlas_h), (0, 0, 0, 0))
     for g in placed:
         atlas.paste(g["img"], (g["x"], g["y"]), g["img"])
 
-    out_png = f"{out_name}.png"
     atlas.save(out_png)
     print(f"输出 atlas: {out_png} ({atlas_w}x{atlas_h})")
 
     # create .fnt in text format (BMFont)
-    out_fnt = f"{out_name}.fnt"
     # head: info and common
     info_line = f'info face="{out_name}" size={font_size} bold=0 italic=0 charset="" unicode=1 stretchH=100 smooth=1 aa=1 padding=0,0,0,0 spacing=1,1'
     common_line = f"common lineHeight={line_height} base=26 scaleW={atlas_w} scaleH={atlas_h} pages=1 packed=0"
@@ -188,6 +196,7 @@ def make_bitmap_font_monospaced(
     padding,
     mapping_path,
     fixed_advance=None,
+    output_dir=None,
 ):
     """
     与 make_bitmap_font 相同，只是生成的 .fnt 文件中每个字符的 xadvance 都为固定宽度。
@@ -243,18 +252,24 @@ def make_bitmap_font_monospaced(
     atlas_w, atlas_h, placed = pack_shelf(glyphs, max_width, padding)
     atlas_h = next_pow2(atlas_h)
 
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+        out_png = os.path.join(output_dir, f"{out_name}.png")
+        out_fnt = os.path.join(output_dir, f"{out_name}.fnt")
+    else:
+        out_png = f"{out_name}.png"
+        out_fnt = f"{out_name}.fnt"
+
     atlas = Image.new("RGBA", (atlas_w, atlas_h), (0, 0, 0, 0))
     for g in placed:
         atlas.paste(g["img"], (g["x"], g["y"]), g["img"])
 
-    out_png = f"{out_name}.png"
     atlas.save(out_png)
 
     # ---- 固定宽度计算 ----
     if fixed_advance is None:
         fixed_advance = max(g["w"] for g in placed)
 
-    out_fnt = f"{out_name}.fnt"
     info_line = f'info face="{out_name}" size={font_size} bold=0 italic=0 charset="" unicode=1 stretchH=100 smooth=1 aa=1 padding=0,0,0,0 spacing=1,1'
     common_line = f"common lineHeight={line_height} base=26 scaleW={atlas_w} scaleH={atlas_h} pages=1 packed=0"
     page_line = f'page id=0 file="{os.path.basename(out_png)}"'

@@ -41,16 +41,20 @@ def arg_main():
     p.add_argument(
         "--mapping", "-m", type=str, default="", help="可选的映射文件路径 (mapping.txt)"
     )
+    p.add_argument(
+        "--output", "-o", type=str, default="", help="输出目录，默认为当前目录"
+    )
     args = p.parse_args()
 
     make_bitmap_font.make_bitmap_font(
         args.input,
         args.font_name,
         args.font_size,
-        args.font_size,   
+        args.font_size,
         args.max_width,
         args.padding,
         args.mapping if args.mapping else None,
+        args.output if args.output else None,
     )
 
     # 等宽版本

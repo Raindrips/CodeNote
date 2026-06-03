@@ -27,12 +27,14 @@ def _max_image_height(input_dir):
 
 def main():
     if len(sys.argv) < 2:
-        print("用法: python main2.py <dir> [font=name]")
+        print("用法: python main2.py <dir> [font=name] [output_dir]")
         print("示例: python main2.py ./chars MyFont")
+        print("示例: python main2.py ./chars MyFont ./output")
         sys.exit(1)
 
     input_dir = sys.argv[1]
     font_name = sys.argv[2] if len(sys.argv) > 2 else "BitmapFont"
+    output_dir = sys.argv[3] if len(sys.argv) > 3 else None
 
     size = _max_image_height(input_dir)
     print(f"自动检测 font-size/line-height = {size} (图片最大高度)")
@@ -45,6 +47,7 @@ def main():
         max_width=0,
         padding=2,
         mapping_path=None,
+        output_dir=output_dir,
     )
 
 
