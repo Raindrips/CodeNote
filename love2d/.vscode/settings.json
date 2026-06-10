@@ -1,0 +1,10 @@
+{
+  "Lua.runtime.version": "LuaJIT",
+  "Lua.workspace.library": [
+    "love-api"
+  ],
+  "Lua.diagnostics.globals": [
+    "love"
+  ],
+  "Lua.workspace.checkThirdParty": false
+}
