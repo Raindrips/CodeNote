@@ -20,7 +20,7 @@ export function parseFntData(data: string): FntData {
         const [type, ...rest] = line.split(' ');
         const params = rest
             .join(' ')
-            .split(/\s+(?=[a-z]+=)/)
+            .split(/\s+(?=[[a-zA-Z]]+=)/)
             .reduce(
                 (acc, param) => {
                     const [key, value] = param.split('=');

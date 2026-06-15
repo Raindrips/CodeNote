@@ -10,6 +10,7 @@ import shutil
 from pathlib import Path
 import sys
 from PIL import Image
+from numpy import average
 
 
 def scan_png_files(folder: str = ".") -> list[Path]:
@@ -21,15 +22,28 @@ def scan_png_files(folder: str = ".") -> list[Path]:
     print(f"[扫描] 找到 {len(files)} 个 PNG 文件")
     return files
 
+def get_average(files:list[Path])->int:
+    """获取所有 PNG 图片中的平均值。"""
+    sum_width = 0
+    for f in files:
+        with Image.open(f) as img:
+            w, _ = img.size
+            sum_width+=w
+            print(f"  {f.name}: {w}px")
+    average_width=int(sum_width/len(files))
+    print(f"平均宽度 = {average_width}px")
+    return average_width
 
 def get_max_width(files: list[Path]) -> int:
     """获取所有 PNG 图片中的最大宽度。"""
     max_width = 0
+    sum_width = 0
     for f in files:
         with Image.open(f) as img:
             w, _ = img.size
             if w > max_width:
                 max_width = w
+                sum_width+=w
             print(f"  {f.name}: {w}px")
     print(f"[分析] 最大宽度 = {max_width}px")
     return max_width
@@ -88,7 +102,7 @@ def main(folder: str = "."):
     """主流程入口。"""
    
     files = scan_png_files(folder)
-    max_width = get_max_width(files)
+    max_width = get_average(files)
     target_file = find_target_file(files)
 
     with Image.open(target_file) as img:
@@ -96,7 +110,7 @@ def main(folder: str = "."):
         expanded = expand_image_centered(rgba_img, max_width)
         marked = add_corner_pixels(expanded)
 
-    # backup(target_file)
+    backup(target_file)
     save(target_file, marked)
     print("[完成]")
 
