@@ -1,10 +1,19 @@
 local SetOfGroups = require('SetOfGroup')
-local Grid = {
-}
+
+---@class Grid 网格查询类
+---@field gridSize number 网格整体大小
+---@field cellSize number 网格单元大小
+---@field cells table 网格查询
+---@field keys table  对象表
+---@field objects table 对象数组
+local Grid = {}
 Grid.__index = Grid;
 
 local TIMES = 3
 
+---@param circle1 table
+---@param circle2 table
+---@return boolean
 local function distance(circle1, circle2)
     local dx = circle1.x - circle2.x
     local dy = circle1.y - circle2.y
@@ -13,12 +22,21 @@ local function distance(circle1, circle2)
     return distance < range
 end
 
+---@param self Grid
+---@param x number
+---@param y number
+---@return number, number
 local function getPos(self, x, y)
     local xx = math.floor(x / self.cellSize)
     local yy = math.floor(y / self.cellSize)
     return xx, yy
 end
 
+---@param self Grid
+---@param x number
+---@param y number
+---@param r number
+---@return table[]
 local function getCell(self, x, y, r)
     local left, right, up, down =
         x - r, x + r, y + r, y - r
@@ -38,6 +56,10 @@ local function getCell(self, x, y, r)
     return arr;
 end
 
+---@param self Grid
+---@param x number
+---@param y number
+---@param o table
 local function setIndex(self, x, y, o)
     if self.cells[y] == nil then
         self.cells[y] = {}
@@ -48,6 +70,10 @@ local function setIndex(self, x, y, o)
     table.insert(self.cells[y][x], o)
 end
 
+---@param self Grid
+---@param x number
+---@param y number
+---@return table|nil
 local function getIndex(self, x, y)
     if self.cells[y] == nil then
         return nil
@@ -57,23 +83,28 @@ end
 
 ---@param gridSize number
 ---@param cellSize number
----@return table
+---@return Grid
 function Grid.new(gridSize, cellSize)
     local o = { gridSize = gridSize, cellSize = cellSize, cells = {}, keys = {}, objects = {} }
     setmetatable(o, Grid)
     return o;
 end
 
+---@param self Grid
 function Grid.clear(self)
     self.cells = {}
     self.keys = {}
     self.objects = {}
 end
 
+---@param self Grid
+---@param o table
 function Grid.addObject(self, o)
     table.insert(self.objects, o)
 end
 
+---@param self Grid
+---@param o table
 function Grid.removeObject(self, o)
     for i = #self.objects, 1, -1 do
         if self.objects[i] == o then
@@ -83,6 +114,7 @@ function Grid.removeObject(self, o)
     end
 end
 
+---@param self Grid
 function Grid.rebuild(self)
     self.cells = {}
     self.keys = {}
@@ -91,6 +123,8 @@ function Grid.rebuild(self)
     end
 end
 
+---@param self Grid
+---@param o table
 function Grid.setKeys(self, o)
     local cellArr = getCell(self, o.x, o.y, o.r)
     self.keys[o] = cellArr;
@@ -101,6 +135,9 @@ function Grid.setKeys(self, o)
     end
 end
 
+---@param self Grid
+---@param o table
+---@return table[]|nil
 function Grid.getKeys(self, o)
     if o == nil then
         print('Grid.getKeys args is null')
@@ -108,6 +145,9 @@ function Grid.getKeys(self, o)
     return self.keys[o]
 end
 
+---@param self Grid
+---@param circle table
+---@return table<number, boolean>
 function Grid.getNeighbors(self, circle)
     local set = {}
     if circle == nil then
@@ -126,9 +166,47 @@ function Grid.getNeighbors(self, circle)
     return set
 end
 
+---@param self Grid
+---@return table[]
+---@param x number 世界坐标X
+---@param y number 世界坐标Y
+---@param r number|nil 搜索半径, nil 则只查当前格
+function Grid.getObjectsAt(self, x, y, r)
+    local arr = {}
+    local seen = {}
+    local idx = 1
+    if r then
+        local cells = getCell(self, x, y, r)
+        for i = 1, #cells do
+            local objs = getIndex(self, cells[i].x, cells[i].y)
+            if objs then
+                for j = 1, #objs do
+                    local o = objs[j]
+                    if not seen[o] then
+                        seen[o] = true
+                        arr[idx] = o
+                        idx = idx + 1
+                    end
+                end
+            end
+        end
+    else
+        local cx, cy = getPos(self, x, y)
+        local objs = getIndex(self, cx, cy)
+        if objs then
+            for j = 1, #objs do
+                arr[idx] = objs[j]
+                idx = idx + 1
+            end
+        end
+    end
+    return arr
+end
+
+--- 获取所有碰撞体
 function Grid.detectCollisions(self)
     local set_group = SetOfGroups.new()
-    -- 获取所有碰撞体
+    -- 获取所有物体的位置
     for circleA, posList in pairs(self.keys) do
         for i = 1, #posList, 1 do
             -- 通过网格粗筛
@@ -157,6 +235,7 @@ function Grid.detectCollisions(self)
 end
 
 --- 物体推挤, r半径可以作为质量参考
+---@param self Grid
 function Grid.resolveCollision(self)
     for _ = 1, TIMES do
         local collisions = self:detectCollisions()
@@ -187,6 +266,7 @@ end
 ---@param x number
 ---@param y number
 ---@param r number
+---@return table
 function Grid.newCircle(x, y, r)
     return { x, y, r }
 end

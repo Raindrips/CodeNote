@@ -1,12 +1,16 @@
 local Grid = require("Grid")
 local TableToJson = require('table-json')
+local Ball = require('Ball')
 -- 数据与配置
 local balls = {}                          -- 所有球体 { x, y, r, color }
 local cam = { x = 0, y = 0, speed = 400 } -- 摄像机（地图偏移）
 
-local WORLD_W = 1000                      -- 全局世界宽
-local WORLD_H = 1000                      -- 全局世界高
-local GRID_SIZE = 100                     -- 网格单元大小
+local WORLD_W = 6000                      -- 全局世界宽
+local WORLD_H = 6000                      -- 全局世界高
+local GRID_SIZE = 50                      -- 网格单元大小
+
+local BALL_COUNT = 1600
+local BALL_SIZE = 50
 
 local drag = {
 	active = false,
@@ -18,45 +22,64 @@ local drag = {
 local canvas
 local grid = Grid.new(WORLD_W, GRID_SIZE);
 
+local function updateVelocity(dt)
+	for i = 1, #balls do
+		local b = balls[i]
+		b.x = b.x + b.vx * dt;
+		b.y = b.y + b.vy * dt;
+		b.collision = false
+
+		if b.x > WORLD_W - b.r then
+			b.vx = -b.vx
+		end
+		if b.x < b.r then
+			b.vx = -b.vx
+		end
+
+		if b.y > WORLD_H - b.r then
+			b.vy = -b.vy
+		end
+		if b.y < b.r then
+			b.vy = -b.vy
+		end
+
+		-- 限制在世界边界内
+		b.x = math.max(b.r, math.min(b.x, WORLD_W - b.r))
+		b.y = math.max(b.r, math.min(b.y, WORLD_H - b.r))
+	end
+end
+
 local function updateCollisions()
 	local obj = grid:detectCollisions()
 	for i = 1, #obj do
-		local group = obj[i]
-		-- print('a: ' .. group[1].x .. ' ' .. group[1].y, 'b: ' .. group[1].x .. ' ' .. group[2].y)
-		group[1].color = { 1, 0, 0, 1 }
-		group[2].color = { 1, 0, 0, 1 }
+		local a = obj[i][1]
+		local b = obj[i][2]
+		Ball.collision(a, b)
 	end
 	grid:resolveCollision()
 	grid:rebuild()
 end
 
---  随机生成一个球
-local function randomBall(maxW, maxW_y, minR, maxR)
-	maxW = maxW or WORLD_W
-	maxW_y = maxW_y or WORLD_H
-	minR = minR or 8
-	maxR = maxR or 30
-	local r = love.math.random(minR, maxR)
-	return {
-		x = love.math.random(r, maxW - r),
-		y = love.math.random(r, maxW_y - r),
-		r = r,
-		color = {
-			love.math.random(60, 255) / 255,
-			love.math.random(60, 255) / 255,
-			love.math.random(60, 255) / 255,
-			1
-		}
-	}
-end
-
 -- 批量生成
 local function spawnBalls(count)
 	for i = 1, count do
-		local ball = randomBall()
+		local ball = Ball.random(WORLD_W, WORLD_H, 8, BALL_SIZE)
 		table.insert(balls, ball)
 		grid:addObject(ball)
 	end
+end
+
+local spawnUpdate = nil
+local function spawnCoroutine(count)
+	spawnUpdate = coroutine.wrap(function()
+		for i = 1, count do
+			local ball = Ball.random(WORLD_W, WORLD_H, 8, BALL_SIZE)
+			table.insert(balls, ball)
+			grid:addObject(ball)
+			coroutine.yield()
+		end
+		spawnUpdate = nil
+	end)
 end
 
 --  网格绘制
@@ -87,7 +110,11 @@ end
 -- 渲染所有球体
 local function drawBalls()
 	for _, b in ipairs(balls) do
-		love.graphics.setColor(b.color)
+		if b.collision then
+			love.graphics.setColor({ 1, 0.25, 0.25, 1 })
+		else
+			love.graphics.setColor(b.color)
+		end
 		love.graphics.circle("fill",
 			b.x - cam.x,
 			b.y - cam.y,
@@ -115,14 +142,34 @@ local function findBallAt(worldX, worldY)
 	return nil
 end
 
+local function findBallAtGrid(worldX, worldY)
+	local candidates = grid:getObjectsAt(worldX, worldY)
+	for i = #candidates, 1, -1 do
+		local b = candidates[i]
+		local dx = worldX - b.x
+		local dy = worldY - b.y
+		if dx * dx + dy * dy <= b.r * b.r then
+			for j = #balls, 1, -1 do
+				if balls[j] == b then return j end
+			end
+		end
+	end
+	return nil
+end
+
+
 
 --  按键移动地图
 function love.update(dt)
+	if spawnUpdate then
+		spawnUpdate()
+	end
 	if love.keyboard.isDown("left", "a") then cam.x = cam.x - cam.speed * dt end
 	if love.keyboard.isDown("right", "d") then cam.x = cam.x + cam.speed * dt end
 	if love.keyboard.isDown("up", "w") then cam.y = cam.y - cam.speed * dt end
 	if love.keyboard.isDown("down", "s") then cam.y = cam.y + cam.speed * dt end
 
+	updateVelocity(dt)
 	updateCollisions()
 
 	-- 限制摄像机范围（可选）
@@ -135,7 +182,7 @@ function love.mousepressed(mx, my, button)
 	local wy = my + cam.y
 	print('mouse', wx, wy)
 	if button == 1 then
-		local idx = findBallAt(wx, wy)
+		local idx = findBallAtGrid(wx, wy)
 		if idx then
 			-- 在球上：开始拖拽
 			drag.active = true
@@ -144,7 +191,7 @@ function love.mousepressed(mx, my, button)
 			drag.offY   = wy - balls[idx].y
 		else
 			-- 空地：生成新球
-			local b = randomBall()
+			local b = Ball.random(WORLD_W, WORLD_H, 8, 30)
 			b.x = wx
 			b.y = wy
 			table.insert(balls, b)
@@ -153,7 +200,7 @@ function love.mousepressed(mx, my, button)
 	elseif button == 2 then
 		-- 右键删除（拖拽中不允许删除，避免误操作）
 		if not drag.active then
-			local idx = findBallAt(wx, wy)
+			local idx = findBallAtGrid(wx, wy)
 			if idx then
 				table.remove(balls, idx)
 			end
@@ -206,11 +253,12 @@ function love.load()
 	love.math.setRandomSeed(os.time())
 
 	-- 预生成一些球
-	spawnBalls(100)
+	spawnBalls(BALL_COUNT)
+	-- spawnCoroutine(BALL_COUNT)
 end
 
 function love.draw()
-	-- love.graphics.push()
+	love.graphics.push()
 
 	drawGrid()
 	drawBalls()
@@ -220,6 +268,6 @@ function love.draw()
 		string.format("ball: #%-4d  camera: (%d, %d)  [key/WASD move map]",
 			#balls, cam.x, cam.y),
 		10, 10)
-
-	-- love.graphics.pop()
+	love.graphics.print("FPS: " .. love.timer.getFPS())
+	love.graphics.pop()
 end

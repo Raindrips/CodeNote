@@ -18,6 +18,7 @@ end
 local function ternary(cond, yes, no)
     if cond then return yes else return no end
 end
+
 local function Convert_str(arr)
     local str = "{"
     local n = #arr;
@@ -44,13 +45,13 @@ local TableToJson = function(tbl)
                 end
             else
                 for k, v in pairs(t) do
-                    if not first then table.insert(res, ",") end
+                    if not first then table.insert(res, ",\n") end
                     table.insert(res, string.format("\"%s\":", tostring(k)))
                     serialize(v, res)
                     first = false
                 end
             end
-            table.insert(res, is_array and "]" or "}")
+            table.insert(res, is_array and "]" or "\n}")
         elseif type(t) == "string" then
             table.insert(res, string.format("\"%s\"", t))
         elseif type(t) == "number" or type(t) == "boolean" then
@@ -86,7 +87,7 @@ local tbl = {
     }
 }
 
+print(TableToJson(tbl))
 return TableToJson
--- print(TableToJson(tbl))
 -- PrintTable(tbl)
 -- PrintTable(100)
