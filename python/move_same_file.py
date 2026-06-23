@@ -2,6 +2,12 @@ import os
 import sys
 import shutil
 
+'''
+python move_same_file <dir1>  <dir2> 
+功能,将目录中的文件,复制到另外一个有相同名称的目录下
+dir1是纯文件列表,不考虑递归,dir2会进行递归查找
+'''
+
 
 def main():
     if len(sys.argv) != 3:
