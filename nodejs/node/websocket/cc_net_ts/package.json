@@ -1,0 +1,18 @@
+{
+  "name": "cc_net_ts",
+  "version": "1.0.0",
+  "scripts": {
+    "server": "ts-node src/server.ts",
+    "client": "ts-node src/test_client.ts",
+    "client100": "ts-node src/test_client_100.ts"
+  },
+  "dependencies": {
+    "ws": "^8.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "@types/ws": "^8.5.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.4.0"
+  }
+}
