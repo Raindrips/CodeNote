@@ -3,7 +3,7 @@ import { WebSocket } from 'ws';
 
 for (let i = 0; i < 100; i++) {
     const ws = new WebSocket('ws://localhost:8080');
-    const mockPlayer = { id: i, name: 'Gordon_' + i };
+    const mockPlayer = { id: i, name: 'CPU_' + i };
 
     ws.on('open', () => {
         console.log('已连接服务器，正在登录...' + i);

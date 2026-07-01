@@ -1,6 +1,6 @@
 /// <reference path="./types/cc_net.d.ts" />
-// const { WebSocketServer, WebSocket } = require('ws');
 import { WebSocketServer, WebSocket } from 'ws';
+import { ClientEvent, ServerEvent } from './event_data';
 
 // ws://localhost:8080
 const PORT = 8080;
@@ -28,12 +28,12 @@ wss.on('connection', (ws) => {
             const packet = JSON.parse(message);
 
             switch (packet.type) {
-                case 'LOGIN':
+                case ClientEvent.LOGIN:
                     handleLogin(ws, packet.data);
                     currentPlayerId = packet.data.id;
                     break;
 
-                case 'UPDATE_POS':
+                case ClientEvent.UPDATE_POS:
                     if (currentPlayerId !== null) {
                         handleUpdatePosition(currentPlayerId, packet.data);
                     }
@@ -54,7 +54,7 @@ wss.on('connection', (ws) => {
 
             // 广播通知其他玩家该玩家下线
             broadcast({
-                type: 'PLAYER_LEAVE',
+                type: ServerEvent.PLAYER_LEAVE,
                 data: { id: currentPlayerId },
             });
         }
@@ -104,7 +104,7 @@ function handleLogin(ws: WebSocket, data: LoginData) {
     // 1. 回应当前玩家：登录成功，返回其最终坐标
     ws.send(
         JSON.stringify({
-            type: 'LOGIN_SUCCESS',
+            type: ServerEvent.LOGIN_SUCCESS,
             data: { x: player.x, y: player.y },
         }),
     );
@@ -125,13 +125,13 @@ function handleLogin(ws: WebSocket, data: LoginData) {
     }
     if (currentList.length > 0) {
         ws.send(
-            JSON.stringify({ type: 'PLAYER_LIST', data: currentList }),
+            JSON.stringify({ type: ServerEvent.PLAYER_LIST, data: currentList }),
         );
     }
 
     // 3. 广播给其他玩家：有人进来了
     broadcastToOthers(id, {
-        type: 'PLAYER_ENTER',
+        type: ServerEvent.PLAYER_ENTER,
         data: {
             id: player.id,
             name: player.name,
@@ -192,7 +192,7 @@ setInterval(() => {
     // 如果有数据更新，打包一次性广播
     if (packData.length > 0) {
         const syncPacket = JSON.stringify({
-            type: 'SYNC_POS',
+            type: ServerEvent.SYNC_POS,
             data: packData,
         });
 
