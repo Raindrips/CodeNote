@@ -14,7 +14,7 @@ export interface StateMachineHooks<STATE extends StateKey, EVENT extends EventKe
     /** 进入某个状态时触发 */
     onEnter?: (state: STATE, from: STATE | null, event: EVENT | null) => void;
     /** 离开某个状态时触发 */
-    onExit?: (state: STATE, to: STATE, event: EVENT) => void;
+    onExit?: (state: STATE, to: STATE, event: EVENT | null) => void;
     /** 收到事件时触发(无论是否发生迁移) */
     onEvent?: (event: EVENT, current: STATE, next: STATE | null) => void;
 }
@@ -111,10 +111,23 @@ export class StateMachine<STATE extends StateKey, EVENT extends EventKey> {
             const prev = this.state;
             // //reset 是一次“虚拟”迁移,没有事件,这里用 null 表达
             // this.hooks.onEvent?.(null as unknown as EVENT, prev, this.initial)
-            this.hooks.onExit?.(prev, this.initial, null as unknown as EVENT);
+            this.hooks.onExit?.(prev, this.initial, null!);
             this.state = this.initial;
             this.hooks.onEnter?.(this.initial, prev, null);
         }
+    }
+
+    /**
+     * 强制改变状态
+     */
+    public forceChange(state: STATE) {
+        if (state === this.state) {
+            return;
+        }
+        const prev = this.state;
+        this.state = state;
+        this.hooks.onExit?.(prev, state, null);
+        this.hooks.onEnter?.(state, prev, null);
     }
 
     /** 判断在当前状态下事件是否可被处理 */
