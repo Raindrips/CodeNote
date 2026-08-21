@@ -1,0 +1,12 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+      "outDir": "../../dist/test_mod/bin", // 输出到 dist 下的特定子目录
+      "rootDir": "./src"           // 该模块的源码位置
+    },
+    "include": ["src/**/*"],
+    "references": [
+      // 如果依赖了其他模块（如 utils），在此添加
+      // { "path": "../utils" }
+    ]
+  }
